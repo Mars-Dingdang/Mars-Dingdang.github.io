@@ -31,187 +31,139 @@
   
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
 
+  
+    <script>
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/ams']
+        },
+        tex: {
+          packages: {'[+]': ['ams']},
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
 <meta name="generator" content="Hexo 8.1.2"></head>
 
-<body>
+<body class="is-home">
   <div id="container">
     <div id="wrap">
-      <header id="header">
-  <div id="banner"></div>
-  <div id="header-outer" class="outer">
-    <div id="header-title" class="inner">
-      <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
-      </h1>
-      
-    </div>
-    <div id="header-inner" class="inner">
-      <nav id="main-nav">
-        <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
+      <div class="site-shell">
+        <aside class="site-rail">
+          <a class="rail-avatar" href="/" aria-label="Hexo">
+            <span>J</span>
+          </a>
+          <div class="rail-stats">
+            <a href="/">
+              <strong>2</strong>
+              <span>Posts</span>
+            </a>
+            <a href="/tags">
+              <strong>3</strong>
+              <span>Tags</span>
+            </a>
+            <a href="/categories">
+              <strong>2</strong>
+              <span>Categories</span>
+            </a>
+          </div>
+          <nav class="rail-nav" aria-label="Primary">
+            
+            
+              <a class="rail-nav-link" href="/">
+                <span class="fa fa-home"></span>
+                <span>Front Page</span>
+              </a>
+            
+              <a class="rail-nav-link" href="/archives">
+                <span class="fa fa-archive"></span>
+                <span>Archives</span>
+              </a>
+            
+              <a class="rail-nav-link" href="/friends">
+                <span class="fa fa-users"></span>
+                <span>Friends</span>
+              </a>
+            
+              <a class="rail-nav-link" href="/about">
+                <span class="fa fa-user"></span>
+                <span>About</span>
+              </a>
+            
+          </nav>
+          <div class="rail-search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+          </div>
+        </aside>
+        <main class="site-main">
+          
+          <div class="outer">
+            <section id="main"><section class="home-board">
+  <header class="home-hero">
+    <p class="home-kicker">Front Page</p>
+    <h1>Hexo</h1>
+    
+      <p>Research notes, experiments, and fragments worth keeping.</p>
+    
+  </header>
+
+  <section class="topic-grid" aria-label="Article categories">
+    
+    
+      <a class="topic-card topic-card-rl topic-card-ML" href="/categories/ML/">
+        <span class="topic-card-image"></span>
+        <span class="topic-card-label">ML</span>
+        <span class="topic-card-count">1 posts</span>
+      </a>
+    
+      <a class="topic-card topic-card-ml topic-card-RL" href="/categories/RL/">
+        <span class="topic-card-image"></span>
+        <span class="topic-card-label">RL</span>
+        <span class="topic-card-count">1 posts</span>
+      </a>
+    
+  </section>
+
+  <section class="recent-panel">
+    <details>
+      <summary>
+        <span>Recent Posts</span>
+        <small>2 posts</small>
+      </summary>
+      <div class="recent-list">
         
-          <a class="main-nav-link" href="/">Home</a>
+          <article class="recent-item">
+            <a class="recent-title" href="/2026/06/30/my-first-blog/">my-first-blog</a>
+            <time datetime="2026-06-30">2026-06-30</time>
+            
+              <div class="recent-excerpt">Hello World!</div>
+            
+          </article>
         
-          <a class="main-nav-link" href="/archives">Archives</a>
+          <article class="recent-item">
+            <a class="recent-title" href="/2026/06/30/hello-world/">Hello World</a>
+            <time datetime="2026-06-30">2026-06-30</time>
+            
+          </article>
         
-      </nav>
-      <nav id="sub-nav">
-        
-        
-          <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
-        
-        <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
-      </nav>
-      <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
       </div>
-    </div>
-  </div>
-</header>
-
-      <div class="outer">
-        <section id="main">
-  
-    <article id="post-my-first-blog" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/06/30/my-first-blog/" class="article-date">
-  <time class="dt-published" datetime="2026-06-30T13:55:37.000Z" itemprop="datePublished">2026-06-30</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/06/30/my-first-blog/">my-first-blog</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>Hello World!</p>
-        
-          <p class="article-more-link">
-            <a href="/2026/06/30/my-first-blog/#more">Read More</a>
-          </p>
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/06/30/my-first-blog/" data-id="cuidQENwtQbm8JzXr0fhbb5kZ" data-title="my-first-blog" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-    <article id="post-hello-world" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
-  <div class="article-meta">
-    <a href="/2026/06/30/hello-world/" class="article-date">
-  <time class="dt-published" datetime="2026-06-30T13:32:18.172Z" itemprop="datePublished">2026-06-30</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="p-name article-title" href="/2026/06/30/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="e-content article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a target="_blank" rel="noopener" href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a target="_blank" rel="noopener" href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a target="_blank" rel="noopener" href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a target="_blank" rel="noopener" href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a target="_blank" rel="noopener" href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://example.com/2026/06/30/hello-world/" data-id="cuidz46yDsE5WaqwadUWXZSoV" data-title="Hello World" class="article-share-link"><span class="fa fa-share">Share</span></a>
-      
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-
-  
-
-
+    </details>
+  </section>
 </section>
-        
-          <aside id="sidebar">
-  
-    
-
-  
-    
-
-  
-    
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">June 2026</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2026/06/30/my-first-blog/">my-first-blog</a>
-          </li>
-        
-          <li>
-            <a href="/2026/06/30/hello-world/">Hello World</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
+</section>
+          </div>
+          <footer id="footer">
   
   <div class="outer">
     <div id="footer-info" class="inner">
@@ -222,12 +174,18 @@
   </div>
 </footer>
 
+        </main>
+      </div>
     </div>
     <nav id="mobile-nav">
   
-    <a href="/" class="mobile-nav-link">Home</a>
+    <a href="/" class="mobile-nav-link">Front Page</a>
   
     <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/friends" class="mobile-nav-link">Friends</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
   
 </nav>
     

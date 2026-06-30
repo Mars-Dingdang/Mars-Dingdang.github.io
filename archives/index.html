@@ -31,12 +31,84 @@
   
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
 
+  
+    <script>
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/ams']
+        },
+        tex: {
+          packages: {'[+]': ['ams']},
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
 <meta name="generator" content="Hexo 8.1.2"></head>
 
-<body>
+<body class="is-inner">
   <div id="container">
     <div id="wrap">
-      <header id="header">
+      <div class="site-shell">
+        <aside class="site-rail">
+          <a class="rail-avatar" href="/" aria-label="Hexo">
+            <span>J</span>
+          </a>
+          <div class="rail-stats">
+            <a href="/">
+              <strong>2</strong>
+              <span>Posts</span>
+            </a>
+            <a href="/tags">
+              <strong>3</strong>
+              <span>Tags</span>
+            </a>
+            <a href="/categories">
+              <strong>2</strong>
+              <span>Categories</span>
+            </a>
+          </div>
+          <nav class="rail-nav" aria-label="Primary">
+            
+            
+              <a class="rail-nav-link" href="/">
+                <span class="fa fa-home"></span>
+                <span>Front Page</span>
+              </a>
+            
+              <a class="rail-nav-link" href="/archives">
+                <span class="fa fa-archive"></span>
+                <span>Archives</span>
+              </a>
+            
+              <a class="rail-nav-link" href="/friends">
+                <span class="fa fa-users"></span>
+                <span>Friends</span>
+              </a>
+            
+              <a class="rail-nav-link" href="/about">
+                <span class="fa fa-user"></span>
+                <span>About</span>
+              </a>
+            
+          </nav>
+          <div class="rail-search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+          </div>
+        </aside>
+        <main class="site-main">
+          
+            <header id="header">
   <div id="banner"></div>
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
@@ -49,9 +121,13 @@
       <nav id="main-nav">
         <a id="main-nav-toggle" class="nav-icon"><span class="fa fa-bars"></span></a>
         
-          <a class="main-nav-link" href="/">Home</a>
+          <a class="main-nav-link" href="/">Front Page</a>
         
           <a class="main-nav-link" href="/archives">Archives</a>
+        
+          <a class="main-nav-link" href="/friends">Friends</a>
+        
+          <a class="main-nav-link" href="/about">About</a>
         
       </nav>
       <nav id="sub-nav">
@@ -68,8 +144,9 @@
   </div>
 </header>
 
-      <div class="outer">
-        <section id="main">
+          
+          <div class="outer">
+            <section id="main">
   
   
     
@@ -105,7 +182,7 @@
   <div class="archive-article-inner">
     <header class="archive-article-header">
       <a href="/2026/06/30/hello-world/" class="archive-article-date">
-  <time class="dt-published" datetime="2026-06-30T13:32:18.172Z" itemprop="datePublished">Jun 30</time>
+  <time class="dt-published" datetime="2026-06-30T13:32:00.000Z" itemprop="datePublished">Jun 30</time>
 </a>
       
   
@@ -124,50 +201,8 @@
 
 
 </section>
-        
-          <aside id="sidebar">
-  
-    
-
-  
-    
-
-  
-    
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Archives</h3>
-    <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2026/06/">June 2026</a></li></ul>
-    </div>
-  </div>
-
-
-  
-    
-  <div class="widget-wrap">
-    <h3 class="widget-title">Recent Posts</h3>
-    <div class="widget">
-      <ul>
-        
-          <li>
-            <a href="/2026/06/30/my-first-blog/">my-first-blog</a>
-          </li>
-        
-          <li>
-            <a href="/2026/06/30/hello-world/">Hello World</a>
-          </li>
-        
-      </ul>
-    </div>
-  </div>
-
-  
-</aside>
-        
-      </div>
-      <footer id="footer">
+          </div>
+          <footer id="footer">
   
   <div class="outer">
     <div id="footer-info" class="inner">
@@ -178,12 +213,18 @@
   </div>
 </footer>
 
+        </main>
+      </div>
     </div>
     <nav id="mobile-nav">
   
-    <a href="/" class="mobile-nav-link">Home</a>
+    <a href="/" class="mobile-nav-link">Front Page</a>
   
     <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/friends" class="mobile-nav-link">Friends</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
   
 </nav>
     
