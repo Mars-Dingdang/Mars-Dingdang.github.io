@@ -21,6 +21,17 @@
   
     <link rel="icon" href="data:,">
   
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   
   
 <link rel="stylesheet" href="/css/style.css">
@@ -62,6 +73,7 @@
         <aside class="site-rail">
           <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
           </a>
+          <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-stats">
             <a href="/">
               <strong>3</strong>
@@ -75,6 +87,13 @@
               <strong>3</strong>
               <span>Categories</span>
             </a>
+          </div>
+          
+          <div class="rail-profile" aria-label="Profile details">
+            <div><span class="fa fa-university"></span><span>Tsinghua University</span></div>
+            <div><span class="fa fa-building"></span><span>Institute for Interdisciplinary Information Sciences (Yao class)</span></div>
+            <div><span class="fa fa-clock"></span><span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><span class="fa fa-envelope"></span><span>dst25@mails.tsinghua.edu.cn</span></a>
           </div>
           <nav class="rail-nav" aria-label="Primary">
             
@@ -122,6 +141,10 @@
               </a>
             
           </nav>
+          <button class="theme-toggle" type="button" aria-label="Toggle light and dark mode" aria-pressed="false">
+            <span class="fa fa-sun"></span>
+            <span class="theme-toggle-text">Light Mode</span>
+          </button>
           <div class="rail-social">
             <a class="rail-github" href="https://github.com/Mars-Dingdang" target="_blank" rel="noopener">
               <span class="fa fa-github"></span>
@@ -144,34 +167,60 @@
     
   </header>
 
-  <section class="profile-strip" aria-label="Profile">
-    <div>
-      <h2>Hi, I am Sitian Ding.</h2>
-      <p>A freshman undergraduate at IIIS, Tsinghua University, interested in reinforcement learning, multi-agent systems, LLM post-training, AI agents, and high-performance algorithms.</p>
+  <section class="profile-readme-card" aria-label="GitHub profile README">
+    <div class="readme-titlebar">
+      <span>Mars-Dingdang / README.md</span>
+      <a class="profile-link" href="https://github.com/Mars-Dingdang/Mars-Dingdang" target="_blank" rel="noopener">
+        <span class="fa fa-github"></span>
+        Profile README
+      </a>
     </div>
-    <a class="profile-link" href="https://github.com/Mars-Dingdang/Mars-Dingdang" target="_blank" rel="noopener">
-      <span class="fa fa-github"></span>
-      Profile README
-    </a>
+    <div class="readme-content">
+      <h2>Hi there</h2>
+<p>I'm <strong>Sitian Ding</strong>, a freshman undergraduate at <strong>IIIS, Tsinghua University</strong>.</p>
+<p>I’m interested in <strong>reinforcement learning</strong>, <strong>multi-agent systems</strong>, <strong>LLM post-training</strong>, <strong>AI agents</strong>, and <strong>high-performance algorithms / systems</strong>. I enjoy building things that connect algorithms, learning systems, and real-world engineering.</p>
+<h3>About Me</h3>
+<ul>
+  <li>Undergraduate student at <strong>Institute for Interdisciplinary Information Sciences (IIIS), Tsinghua University</strong></li>
+  <li>Interested in <strong>RL</strong>, <strong>LLM training systems</strong>, <strong>multi-agent learning</strong>, <strong>AI agents</strong>, and <strong>parallel / high-performance computing</strong></li>
+  <li>Experienced with <strong>Python</strong>, <strong>C++</strong>, <strong>PyTorch</strong>, basic <strong>CUDA programming</strong>, neural network training, LLM post-training, RL self-play, and parallel algorithms</li>
+  <li>Former chemistry olympiad contestant, <strong>National Gold Medalist</strong></li>
+  <li>Former informatics olympiad contestant, <strong>NOI / Winter Camp Bronze Medalist</strong></li>
+</ul>
+<h3>Current Interests</h3>
+<ul>
+  <li>Reinforcement learning for language models and agents</li>
+  <li>Multi-agent learning and self-play</li>
+  <li>LLM post-training systems</li>
+  <li>AI agents for games and reasoning tasks</li>
+  <li>High-performance algorithms and parallel computing</li>
+</ul>
+    </div>
   </section>
 
   <section class="topic-grid" aria-label="Article categories">
     
     
+      
+      
       <a class="topic-card topic-card-rl topic-card-Large-Language-Models" href="/categories/Large-Language-Models/">
-        <span class="topic-card-image"></span>
+        <span class="topic-card-image" style="background-image:url('/css/images/banner.jpg')"></span>
         <span class="topic-card-label">Large Language Models</span>
         <span class="topic-card-count">1 posts</span>
       </a>
     
+      
+      
       <a class="topic-card topic-card-ml topic-card-ML" href="/categories/ML/">
-        <span class="topic-card-image"></span>
+        <span class="topic-card-image" style="background-image:url('/css/images/banner.jpg')"></span>
         <span class="topic-card-label">ML</span>
         <span class="topic-card-count">1 posts</span>
       </a>
     
+      
+      
       <a class="topic-card topic-card-systems topic-card-RL" href="/categories/RL/">
-        <span class="topic-card-image"></span>
+        <span class="topic-card-image" style="background-image:url('/css/images/banner.jpg')"></span>
         <span class="topic-card-label">RL</span>
         <span class="topic-card-count">1 posts</span>
       </a>
@@ -221,7 +270,7 @@
               <div class="recent-meta">
                 <time datetime="2026-06-30">2026-06-30</time>
                 <span>RL</span>
-                <span>Notes / Research</span>
+                <span>Research / Notes</span>
               </div>
               <a class="recent-title" href="/2026/06/30/my-first-blog/">my-first-blog</a>
               
@@ -241,7 +290,7 @@
               <div class="recent-meta">
                 <time datetime="2026-06-30">2026-06-30</time>
                 <span>ML</span>
-                <span>Hexo / Notes</span>
+                <span>Notes / Hexo</span>
               </div>
               <a class="recent-title" href="/2026/06/30/hello-world/">Hello World</a>
               

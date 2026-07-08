@@ -23,6 +23,17 @@
   
     <link rel="icon" href="data:,">
   
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   
   
 <link rel="stylesheet" href="/css/style.css">
@@ -64,6 +75,7 @@
         <aside class="site-rail">
           <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
           </a>
+          <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-stats">
             <a href="/">
               <strong>3</strong>
@@ -77,6 +89,13 @@
               <strong>3</strong>
               <span>Categories</span>
             </a>
+          </div>
+          
+          <div class="rail-profile" aria-label="Profile details">
+            <div><span class="fa fa-university"></span><span>Tsinghua University</span></div>
+            <div><span class="fa fa-building"></span><span>Institute for Interdisciplinary Information Sciences (Yao class)</span></div>
+            <div><span class="fa fa-clock"></span><span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><span class="fa fa-envelope"></span><span>dst25@mails.tsinghua.edu.cn</span></a>
           </div>
           <nav class="rail-nav" aria-label="Primary">
             
@@ -124,6 +143,10 @@
               </a>
             
           </nav>
+          <button class="theme-toggle" type="button" aria-label="Toggle light and dark mode" aria-pressed="false">
+            <span class="fa fa-sun"></span>
+            <span class="theme-toggle-text">Light Mode</span>
+          </button>
           <div class="rail-social">
             <a class="rail-github" href="https://github.com/Mars-Dingdang" target="_blank" rel="noopener">
               <span class="fa fa-github"></span>
@@ -137,7 +160,8 @@
         <main class="site-main">
           
             <header id="header">
-  <div id="banner"></div>
+  
+  <div id="banner" style="background-image:url('/images/banner.jpg')"></div>
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
@@ -192,53 +216,91 @@
   <header class="page-hero compact">
     <p class="home-kicker">Categories</p>
     <h1>Browse Categories</h1>
-    <p>Each category gathers posts into a clean, scannable collection.</p>
+    <p>Search categories and preview recent posts in each collection.</p>
   </header>
 
-  <div class="category-grid">
+  <div class="taxonomy-search">
+    <span class="fa fa-search"></span>
+    <input id="taxonomy-filter" type="search" placeholder="Search categories..." autocomplete="off">
+  </div>
+
+  <div class="taxonomy-list category-taxonomy-list" id="taxonomy-list">
     
     
       
-      <a class="category-card category-card-0" href="/categories/Large-Language-Models/">
-        <span class="category-card-top">
-          <strong>Large Language Models</strong>
-          <small>1 posts</small>
-        </span>
-        <span class="category-card-preview">
+      
+      
+      <article class="taxonomy-row category-taxonomy-row" data-taxonomy-name="large language models">
+        <a class="taxonomy-main category-taxonomy-main" href="/categories/Large-Language-Models/" style="background-image:url('/css/images/banner.jpg')">
+          <span class="taxonomy-index">01</span>
+          <span class="taxonomy-name">Large Language Models</span>
+          <span class="taxonomy-count">1 posts</span>
+          <span class="taxonomy-arrow fa fa-arrow-right"></span>
+        </a>
+        <div class="taxonomy-preview">
           
-            <em>Transformer-from-scratch</em>
+            
+            <a class="taxonomy-post-card" href="/2026/07/02/Transformer-from-scratch/">
+              <span class="taxonomy-post-cover" style="background-image:url('/images/posts/Transformer-from-scratch/image3.png')"></span>
+              <span class="taxonomy-post-copy">
+                <strong>Transformer-from-scratch</strong>
+                <small>2026-07-02</small>
+                <em>This is adapted from harvard AnnotatedTransformer, which gives an annotated implementation of the Transformer </em>
+              </span>
+            </a>
           
-        </span>
-        <span class="category-card-action">Open <i class="fa fa-arrow-right"></i></span>
-      </a>
+        </div>
+      </article>
     
       
-      <a class="category-card category-card-1" href="/categories/ML/">
-        <span class="category-card-top">
-          <strong>ML</strong>
-          <small>1 posts</small>
-        </span>
-        <span class="category-card-preview">
+      
+      
+      <article class="taxonomy-row category-taxonomy-row" data-taxonomy-name="ml">
+        <a class="taxonomy-main category-taxonomy-main" href="/categories/ML/" style="background-image:url('/css/images/banner.jpg')">
+          <span class="taxonomy-index">02</span>
+          <span class="taxonomy-name">ML</span>
+          <span class="taxonomy-count">1 posts</span>
+          <span class="taxonomy-arrow fa fa-arrow-right"></span>
+        </a>
+        <div class="taxonomy-preview">
           
-            <em>Hello World</em>
+            
+            <a class="taxonomy-post-card" href="/2026/06/30/hello-world/">
+              <span class="taxonomy-post-cover" style="background-image:url('/css/images/banner.jpg')"></span>
+              <span class="taxonomy-post-copy">
+                <strong>Hello World</strong>
+                <small>2026-06-30</small>
+                <em>Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when</em>
+              </span>
+            </a>
           
-        </span>
-        <span class="category-card-action">Open <i class="fa fa-arrow-right"></i></span>
-      </a>
+        </div>
+      </article>
     
       
-      <a class="category-card category-card-2" href="/categories/RL/">
-        <span class="category-card-top">
-          <strong>RL</strong>
-          <small>1 posts</small>
-        </span>
-        <span class="category-card-preview">
+      
+      
+      <article class="taxonomy-row category-taxonomy-row" data-taxonomy-name="rl">
+        <a class="taxonomy-main category-taxonomy-main" href="/categories/RL/" style="background-image:url('/css/images/banner.jpg')">
+          <span class="taxonomy-index">03</span>
+          <span class="taxonomy-name">RL</span>
+          <span class="taxonomy-count">1 posts</span>
+          <span class="taxonomy-arrow fa fa-arrow-right"></span>
+        </a>
+        <div class="taxonomy-preview">
           
-            <em>my-first-blog</em>
+            
+            <a class="taxonomy-post-card" href="/2026/06/30/my-first-blog/">
+              <span class="taxonomy-post-cover" style="background-image:url('/css/images/banner.jpg')"></span>
+              <span class="taxonomy-post-copy">
+                <strong>my-first-blog</strong>
+                <small>2026-06-30</small>
+                <em>Hello World!</em>
+              </span>
+            </a>
           
-        </span>
-        <span class="category-card-action">Open <i class="fa fa-arrow-right"></i></span>
-      </a>
+        </div>
+      </article>
     
   </div>
 </section>

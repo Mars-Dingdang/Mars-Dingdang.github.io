@@ -23,6 +23,17 @@
   
     <link rel="icon" href="data:,">
   
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   
   
 <link rel="stylesheet" href="/css/style.css">
@@ -64,6 +75,7 @@
         <aside class="site-rail">
           <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
           </a>
+          <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-stats">
             <a href="/">
               <strong>3</strong>
@@ -77,6 +89,13 @@
               <strong>3</strong>
               <span>Categories</span>
             </a>
+          </div>
+          
+          <div class="rail-profile" aria-label="Profile details">
+            <div><span class="fa fa-university"></span><span>Tsinghua University</span></div>
+            <div><span class="fa fa-building"></span><span>Institute for Interdisciplinary Information Sciences (Yao class)</span></div>
+            <div><span class="fa fa-clock"></span><span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><span class="fa fa-envelope"></span><span>dst25@mails.tsinghua.edu.cn</span></a>
           </div>
           <nav class="rail-nav" aria-label="Primary">
             
@@ -124,6 +143,10 @@
               </a>
             
           </nav>
+          <button class="theme-toggle" type="button" aria-label="Toggle light and dark mode" aria-pressed="false">
+            <span class="fa fa-sun"></span>
+            <span class="theme-toggle-text">Light Mode</span>
+          </button>
           <div class="rail-social">
             <a class="rail-github" href="https://github.com/Mars-Dingdang" target="_blank" rel="noopener">
               <span class="fa fa-github"></span>
@@ -137,7 +160,8 @@
         <main class="site-main">
           
             <header id="header">
-  <div id="banner"></div>
+  
+  <div id="banner" style="background-image:url('/images/banner.jpg')"></div>
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
@@ -249,7 +273,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="https://mars-dingdang.github.io/about/index.html" data-id="cuidQ9ocL6U9spr8FrtXdCFFP" data-title="About" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://mars-dingdang.github.io/about/index.html" data-id="cuiddih5AKFAMs39RrnUHjNVU" data-title="About" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
@@ -259,6 +283,8 @@
     
   
 </article>
+
+
 
 
 </section>

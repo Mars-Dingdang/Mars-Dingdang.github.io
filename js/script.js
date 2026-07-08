@@ -107,6 +107,68 @@
     $('.fancybox').fancybox();
   }
 
+  // Theme mode and sidebar clock
+  var setGiscusTheme = function(mode){
+    var iframe = document.querySelector('iframe.giscus-frame');
+    if (!iframe) return;
+
+    iframe.contentWindow.postMessage({
+      giscus: {
+        setConfig: {
+          theme: mode === 'light' ? 'light' : 'dark'
+        }
+      }
+    }, 'https://giscus.app');
+  };
+
+  var applyThemeMode = function(mode){
+    var nextMode = mode === 'light' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nextMode);
+    $('.theme-toggle')
+      .attr('aria-pressed', nextMode === 'light')
+      .find('.theme-toggle-text')
+      .text(nextMode === 'light' ? 'Dark Mode' : 'Light Mode');
+    $('.theme-toggle .fa')
+      .removeClass('fa-sun fa-moon')
+      .addClass(nextMode === 'light' ? 'fa-moon' : 'fa-sun');
+    setGiscusTheme(nextMode);
+  };
+
+  try {
+    applyThemeMode(localStorage.getItem('theme-mode') || document.documentElement.getAttribute('data-theme') || 'dark');
+  } catch (e) {
+    applyThemeMode('dark');
+  }
+
+  $('.theme-toggle').on('click', function(){
+    var current = document.documentElement.getAttribute('data-theme') || 'dark';
+    var next = current === 'light' ? 'dark' : 'light';
+
+    try {
+      localStorage.setItem('theme-mode', next);
+    } catch (e) {}
+
+    applyThemeMode(next);
+  });
+
+  var updateRailTime = function(){
+    var timeEl = document.getElementById('rail-time');
+    if (!timeEl) return;
+
+    var label = timeEl.getAttribute('data-timezone-label') || 'UTC +8';
+    var formatted = new Intl.DateTimeFormat('en-GB', {
+      timeZone: 'Asia/Shanghai',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    }).format(new Date());
+
+    timeEl.textContent = formatted + ' (' + label + ')';
+  };
+
+  updateRailTime();
+  setInterval(updateRailTime, 30000);
+
   // Taxonomy search
   $('#taxonomy-filter').on('input', function(){
     var keyword = $(this).val().trim().toLowerCase();

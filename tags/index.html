@@ -23,6 +23,17 @@
   
     <link rel="icon" href="data:,">
   
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
   
   
 <link rel="stylesheet" href="/css/style.css">
@@ -64,6 +75,7 @@
         <aside class="site-rail">
           <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
           </a>
+          <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-stats">
             <a href="/">
               <strong>3</strong>
@@ -77,6 +89,13 @@
               <strong>3</strong>
               <span>Categories</span>
             </a>
+          </div>
+          
+          <div class="rail-profile" aria-label="Profile details">
+            <div><span class="fa fa-university"></span><span>Tsinghua University</span></div>
+            <div><span class="fa fa-building"></span><span>Institute for Interdisciplinary Information Sciences (Yao class)</span></div>
+            <div><span class="fa fa-clock"></span><span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><span class="fa fa-envelope"></span><span>dst25@mails.tsinghua.edu.cn</span></a>
           </div>
           <nav class="rail-nav" aria-label="Primary">
             
@@ -124,6 +143,10 @@
               </a>
             
           </nav>
+          <button class="theme-toggle" type="button" aria-label="Toggle light and dark mode" aria-pressed="false">
+            <span class="fa fa-sun"></span>
+            <span class="theme-toggle-text">Light Mode</span>
+          </button>
           <div class="rail-social">
             <a class="rail-github" href="https://github.com/Mars-Dingdang" target="_blank" rel="noopener">
               <span class="fa fa-github"></span>
@@ -137,7 +160,8 @@
         <main class="site-main">
           
             <header id="header">
-  <div id="banner"></div>
+  
+  <div id="banner" style="background-image:url('/images/banner.jpg')"></div>
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
@@ -213,9 +237,14 @@
         </a>
         <div class="taxonomy-preview">
           
-            <a href="/2026/07/02/Transformer-from-scratch/">
-              <strong>Transformer-from-scratch</strong>
-              <small>2026-07-02</small>
+            
+            <a class="taxonomy-post-card" href="/2026/07/02/Transformer-from-scratch/">
+              <span class="taxonomy-post-cover" style="background-image:url('/images/posts/Transformer-from-scratch/image3.png')"></span>
+              <span class="taxonomy-post-copy">
+                <strong>Transformer-from-scratch</strong>
+                <small>2026-07-02</small>
+                <em>This is adapted from harvard AnnotatedTransformer, which gives an annotated implementation of the Transformer </em>
+              </span>
             </a>
           
         </div>
@@ -231,9 +260,14 @@
         </a>
         <div class="taxonomy-preview">
           
-            <a href="/2026/06/30/hello-world/">
-              <strong>Hello World</strong>
-              <small>2026-06-30</small>
+            
+            <a class="taxonomy-post-card" href="/2026/06/30/hello-world/">
+              <span class="taxonomy-post-cover" style="background-image:url('/images/banner.jpg')"></span>
+              <span class="taxonomy-post-copy">
+                <strong>Hello World</strong>
+                <small>2026-06-30</small>
+                <em>Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when</em>
+              </span>
             </a>
           
         </div>
@@ -249,19 +283,34 @@
         </a>
         <div class="taxonomy-preview">
           
-            <a href="/2026/07/02/Transformer-from-scratch/">
-              <strong>Transformer-from-scratch</strong>
-              <small>2026-07-02</small>
+            
+            <a class="taxonomy-post-card" href="/2026/07/02/Transformer-from-scratch/">
+              <span class="taxonomy-post-cover" style="background-image:url('/images/posts/Transformer-from-scratch/image3.png')"></span>
+              <span class="taxonomy-post-copy">
+                <strong>Transformer-from-scratch</strong>
+                <small>2026-07-02</small>
+                <em>This is adapted from harvard AnnotatedTransformer, which gives an annotated implementation of the Transformer </em>
+              </span>
             </a>
           
-            <a href="/2026/06/30/my-first-blog/">
-              <strong>my-first-blog</strong>
-              <small>2026-06-30</small>
+            
+            <a class="taxonomy-post-card" href="/2026/06/30/my-first-blog/">
+              <span class="taxonomy-post-cover" style="background-image:url('/images/banner.jpg')"></span>
+              <span class="taxonomy-post-copy">
+                <strong>my-first-blog</strong>
+                <small>2026-06-30</small>
+                <em>Hello World!</em>
+              </span>
             </a>
           
-            <a href="/2026/06/30/hello-world/">
-              <strong>Hello World</strong>
-              <small>2026-06-30</small>
+            
+            <a class="taxonomy-post-card" href="/2026/06/30/hello-world/">
+              <span class="taxonomy-post-cover" style="background-image:url('/images/banner.jpg')"></span>
+              <span class="taxonomy-post-copy">
+                <strong>Hello World</strong>
+                <small>2026-06-30</small>
+                <em>Welcome to Hexo! This is your very first post. Check documentation for more info. If you get any problems when</em>
+              </span>
             </a>
           
         </div>
@@ -277,9 +326,14 @@
         </a>
         <div class="taxonomy-preview">
           
-            <a href="/2026/06/30/my-first-blog/">
-              <strong>my-first-blog</strong>
-              <small>2026-06-30</small>
+            
+            <a class="taxonomy-post-card" href="/2026/06/30/my-first-blog/">
+              <span class="taxonomy-post-cover" style="background-image:url('/images/banner.jpg')"></span>
+              <span class="taxonomy-post-copy">
+                <strong>my-first-blog</strong>
+                <small>2026-06-30</small>
+                <em>Hello World!</em>
+              </span>
             </a>
           
         </div>
@@ -295,9 +349,14 @@
         </a>
         <div class="taxonomy-preview">
           
-            <a href="/2026/07/02/Transformer-from-scratch/">
-              <strong>Transformer-from-scratch</strong>
-              <small>2026-07-02</small>
+            
+            <a class="taxonomy-post-card" href="/2026/07/02/Transformer-from-scratch/">
+              <span class="taxonomy-post-cover" style="background-image:url('/images/posts/Transformer-from-scratch/image3.png')"></span>
+              <span class="taxonomy-post-copy">
+                <strong>Transformer-from-scratch</strong>
+                <small>2026-07-02</small>
+                <em>This is adapted from harvard AnnotatedTransformer, which gives an annotated implementation of the Transformer </em>
+              </span>
             </a>
           
         </div>
