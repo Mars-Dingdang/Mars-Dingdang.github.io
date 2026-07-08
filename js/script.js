@@ -107,6 +107,16 @@
     $('.fancybox').fancybox();
   }
 
+  // Taxonomy search
+  $('#taxonomy-filter').on('input', function(){
+    var keyword = $(this).val().trim().toLowerCase();
+
+    $('.taxonomy-row').each(function(){
+      var name = $(this).attr('data-taxonomy-name') || '';
+      $(this).toggleClass('is-hidden', keyword && name.indexOf(keyword) === -1);
+    });
+  });
+
   // Mobile nav
   var $container = $('#container'),
     isMobileNavAnim = false,

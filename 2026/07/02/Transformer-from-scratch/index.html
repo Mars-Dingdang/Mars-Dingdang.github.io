@@ -4,30 +4,33 @@
   <meta charset="utf-8">
   
   
-  <title>Transformer-from-scratch | Hexo</title>
+  <title>Transformer-from-scratch | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta name="description" content="This is adapted from harvard AnnotatedTransformer, which gives an annotated implementation of the Transformer model from the paper “Attention is All You Need” (Vaswani et al., 2017). The original code">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Transformer-from-scratch">
-<meta property="og:url" content="http://example.com/2026/07/02/Transformer-from-scratch/index.html">
-<meta property="og:site_name" content="Hexo">
+<meta property="og:url" content="https://mars-dingdang.github.io/2026/07/02/Transformer-from-scratch/index.html">
+<meta property="og:site_name" content="Mars Dingdang">
 <meta property="og:description" content="This is adapted from harvard AnnotatedTransformer, which gives an annotated implementation of the Transformer model from the paper “Attention is All You Need” (Vaswani et al., 2017). The original code">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="http://example.com/2026/07/02/images/posts/Transformer-from-scratch/image1.png">
-<meta property="og:image" content="http://example.com/2026/07/02/images/posts/Transformer-from-scratch/image2.png">
-<meta property="og:image" content="http://example.com/2026/07/02/images/posts/Transformer-from-scratch/image3.png">
-<meta property="og:image" content="http://example.com/2026/07/02/images/posts/Transformer-from-scratch/image4.png">
-<meta property="og:image" content="http://example.com/2026/07/02/images/posts/Transformer-from-scratch/image5.png">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/Transformer-from-scratch/image1.png">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/Transformer-from-scratch/image2.png">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/Transformer-from-scratch/image3.png">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/Transformer-from-scratch/image4.png">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/Transformer-from-scratch/image5.png">
 <meta property="article:published_time" content="2026-07-02T13:14:23.000Z">
-<meta property="article:modified_time" content="2026-07-02T13:20:33.832Z">
-<meta property="article:author" content="John Doe">
+<meta property="article:modified_time" content="2026-07-08T10:32:56.960Z">
+<meta property="article:author" content="Mars Dingdang">
+<meta property="article:tag" content="Deep Learning">
+<meta property="article:tag" content="Notes">
+<meta property="article:tag" content="Transformer">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="http://example.com/2026/07/02/images/posts/Transformer-from-scratch/image1.png">
+<meta name="twitter:image" content="https://mars-dingdang.github.io/images/posts/Transformer-from-scratch/image1.png">
   
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+    <link rel="alternate" href="/atom.xml" title="Mars Dingdang" type="application/atom+xml">
   
   
-    <link rel="shortcut icon" href="/favicon.png">
+    <link rel="icon" href="data:,">
   
   
   
@@ -38,9 +41,6 @@
 <link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
 
   
-  
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fork-awesome@1.2.0/css/fork-awesome.min.css">
-
   
     <script>
       window.MathJax = {
@@ -71,8 +71,7 @@
     <div id="wrap">
       <div class="site-shell">
         <aside class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Hexo">
-            <span>J</span>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
           </a>
           <div class="rail-stats">
             <a href="/">
@@ -80,40 +79,68 @@
               <span>Posts</span>
             </a>
             <a href="/tags">
-              <strong>3</strong>
+              <strong>5</strong>
               <span>Tags</span>
             </a>
             <a href="/categories">
-              <strong>2</strong>
+              <strong>3</strong>
               <span>Categories</span>
             </a>
           </div>
           <nav class="rail-nav" aria-label="Primary">
             
             
+              
               <a class="rail-nav-link" href="/">
                 <span class="fa fa-home"></span>
                 <span>Front Page</span>
               </a>
             
+              
               <a class="rail-nav-link" href="/archives">
                 <span class="fa fa-archive"></span>
                 <span>Archives</span>
               </a>
             
+              
+              <a class="rail-nav-link" href="/tags">
+                <span class="fa fa-tags"></span>
+                <span>Tags</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/categories">
+                <span class="fa fa-folder-open"></span>
+                <span>Categories</span>
+              </a>
+            
+              
               <a class="rail-nav-link" href="/friends">
                 <span class="fa fa-users"></span>
                 <span>Friends</span>
               </a>
             
+              
+              <a class="rail-nav-link" href="/projects">
+                <span class="fa fa-code-fork"></span>
+                <span>Projects</span>
+              </a>
+            
+              
               <a class="rail-nav-link" href="/about">
                 <span class="fa fa-user"></span>
                 <span>About</span>
               </a>
             
           </nav>
+          <div class="rail-social">
+            <a class="rail-github" href="https://github.com/Mars-Dingdang" target="_blank" rel="noopener">
+              <span class="fa fa-github"></span>
+              <span>GitHub</span>
+            </a>
+          </div>
           <div class="rail-search">
-            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://mars-dingdang.github.io"></form>
           </div>
         </aside>
         <main class="site-main">
@@ -123,8 +150,12 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
+        <a href="/" id="logo">Mars Dingdang</a>
       </h1>
+      
+        <h2 id="subtitle-wrap">
+          <a href="/" id="subtitle">Learning in public. Notes on code, systems, and building.</a>
+        </h2>
       
     </div>
     <div id="header-inner" class="inner">
@@ -135,12 +166,22 @@
         
           <a class="main-nav-link" href="/archives">Archives</a>
         
+          <a class="main-nav-link" href="/tags">Tags</a>
+        
+          <a class="main-nav-link" href="/categories">Categories</a>
+        
           <a class="main-nav-link" href="/friends">Friends</a>
+        
+          <a class="main-nav-link" href="/projects">Projects</a>
         
           <a class="main-nav-link" href="/about">About</a>
         
       </nav>
       <nav id="sub-nav">
+        
+          
+            <a class="nav-icon" target="_blank" rel="noopener" href="https://github.com/Mars-Dingdang"><span class="fa fa-github"></span></a>
+          
         
         
           <a class="nav-icon" href="/atom.xml" title="RSS Feed"><span class="fa fa-rss"></span></a>
@@ -148,7 +189,7 @@
         <a class="nav-icon nav-search-btn" title="Search"><span class="fa fa-search"></span></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://example.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://mars-dingdang.github.io"></form>
       </div>
     </div>
   </div>
@@ -162,6 +203,10 @@
   <time class="dt-published" datetime="2026-07-02T13:14:23.000Z" itemprop="datePublished">2026-07-02</time>
 </a>
     
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Others/">Others</a>
+  </div>
+
   </div>
   <div class="article-inner">
     
@@ -189,14 +234,14 @@
 
 <h2 id="Model-Architecture"><a href="#Model-Architecture" class="headerlink" title="Model Architecture"></a>Model Architecture</h2><p>Most competitive neural sequence transduction models have an encoder-decoder structure.</p>
 <p>Here, the encoder maps an input sequence of symbol representations <span class="math-inline">\((x_1, ..., x_n)\)</span> to a sequence of continuous representations <span class="math-inline">\(z = (z_1, ..., z_n)\)</span>. Given <span class="math-inline">\(z\)</span>, the decoder then generates an output sequence <span class="math-inline">\((y_1, ..., y_m)\)</span> of symbols one element at a time. At each step the model is auto-regressive, consuming the previously generated symbols as additional input when generating the next. </p>
-<img src="../images/posts/Transformer-from-scratch/image1.png" width="300">
+<img src="/images/posts/Transformer-from-scratch/image1.png" width="300">
 
 
 
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Most competitive neural sequence transduction models have an encoder-decoder structure [5, 2, 35].</span></span><br><span class="line"><span class="comment"># Here, the encoder maps an input sequence of symbol representations (x1, ..., xn) to a sequence</span></span><br><span class="line"><span class="comment"># of continuous representations z = (z1, ..., zn). Given z, the decoder then generates an output</span></span><br><span class="line"><span class="comment"># sequence (y1, ..., ym) of symbols one element at a time. At each step the model is auto-regressive</span></span><br><span class="line"><span class="comment"># [10], consuming the previously generated symbols as additional input when generating the next. </span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">EncoderDecoder</span>(nn.Module): </span><br><span class="line">    <span class="comment"># Corresponds to the Encoder-Decoder architecture in the figure above.</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    A standard Encoder-Decoder architecture. Base for this and many other models.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, encoder, decoder, source_embed, target_embed, generator</span>):</span><br><span class="line">        <span class="built_in">super</span>(EncoderDecoder, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.encoder = encoder</span><br><span class="line">        <span class="variable language_">self</span>.decoder = decoder</span><br><span class="line">        <span class="variable language_">self</span>.source_embed = source_embed <span class="comment"># See Embedding and Softmax Part</span></span><br><span class="line">        <span class="variable language_">self</span>.target_embed = target_embed</span><br><span class="line">        <span class="variable language_">self</span>.generator = generator</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, source, target, source_mask, target_mask</span>):</span><br><span class="line">        <span class="string">&quot;Take in and process masked source and target sequences&quot;</span></span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.decode(<span class="variable language_">self</span>.encode(source, source_mask), source_mask, target, target_mask)</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">encode</span>(<span class="params">self, source, source_mask</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.encoder(<span class="variable language_">self</span>.source_embed(source), source_mask)</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">decode</span>(<span class="params">self, memory, source_mask, target, target_mask</span>):</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.decoder(<span class="variable language_">self</span>.target_embed(target), memory, source_mask, target_mask)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># data type: </span></span><br><span class="line">    <span class="comment"># source, source_mask: (batch_size, source_seq_len)</span></span><br><span class="line">    <span class="comment"># target, target_mask: (batch_size, target_seq_len)</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># source_embed: (batch_size, source_seq_len, d_model), embedding of source sequence</span></span><br><span class="line">    <span class="comment"># target_embed: (batch_size, target_seq_len, d_model), embedding of target sequence</span></span><br><span class="line">    <span class="comment"># generator: (batch_size, target_seq_len, vocab_size), output of the model</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Generator</span>(nn.Module): <span class="comment"># Corresponds to the top two layers in the figure above.</span></span><br><span class="line">    <span class="string">&quot;Standard Linear + Softmax generation step, output probabilities&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, d_model, vocab_size</span>):</span><br><span class="line">        <span class="built_in">super</span>(Generator, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="variable language_">self</span>.proj = nn.Linear(d_model, vocab_size)</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        <span class="keyword">return</span> log_softmax(<span class="variable language_">self</span>.proj(x), dim=-<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
 
 <h3 id="Encoder-and-Decoder-Stacks"><a href="#Encoder-and-Decoder-Stacks" class="headerlink" title="Encoder and Decoder Stacks"></a>Encoder and Decoder Stacks</h3><p><strong>Encoder</strong>: The encoder is composed of a stack of <span class="math-inline">\(N=6\)</span> identical layers. Each layer has two sub-layers. The first is a multi-head self-attention mechanism, and the second is a simple, position-wise fully connected feed-forward network. </p>
-<img src="../images/posts/Transformer-from-scratch/image2.png" width="300">
+<img src="/images/posts/Transformer-from-scratch/image2.png" width="300">
 
 <p>We employ a residual connection around each of the two sub-layers, followed by layer normalization [1]. That is, the output of each sub-layer is <span class="math-inline">\(\text{LayerNorm}(x + \text{Sublayer}(x))\)</span>, where <span class="math-inline">\(\text{Sublayer}(x)\)</span> is the function implemented by the sub-layer itself. </p>
 <p>To facilitate these residual connections, all sub-layers in the model produce outputs of dimension <span class="math-inline">\(d_{model} = 512\)</span>.</p>
@@ -304,7 +349,7 @@ if(typeof define === &quot;function&quot; &amp;&amp; define.amd) {
 <div class="math-display">\[\text{MultiHead}(Q,K,V)=\text{Concat}(\text{head}_1, ..., \text{head}_h)W^O\]</div>
 <p>where <span class="math-inline">\(\text{head}_i = \text{Attention}(QW_i^Q, KW_i^K, VW_i^V)\)</span>.</p>
 <p>In this work we employ <span class="math-inline">\(h=8\)</span> parallel attention layers, or heads. For each of these we use <span class="math-inline">\(d_k = d_v = d_{model}/h = 64\)</span>. Due to the reduced dimension of each head, the total computational cost is similar to that of single-head attention with full dimensionality.</p>
-<img src="../images/posts/Transformer-from-scratch/image3.png" width="300">
+<img src="/images/posts/Transformer-from-scratch/image3.png" width="300">
 
 
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MultiHeadedAttention</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, h, d_model, dropout=<span class="number">0.1</span></span>):</span><br><span class="line">        <span class="built_in">super</span>(MultiHeadedAttention, <span class="variable language_">self</span>).__init__()</span><br><span class="line">        <span class="keyword">assert</span> d_model % h == <span class="number">0</span></span><br><span class="line">        <span class="variable language_">self</span>.d_k = d_model // h</span><br><span class="line">        <span class="variable language_">self</span>.h = h</span><br><span class="line">        <span class="variable language_">self</span>.linears = clones(nn.Linear(d_model, d_model), <span class="number">4</span>)</span><br><span class="line">        <span class="variable language_">self</span>.attn = <span class="literal">None</span></span><br><span class="line">        <span class="variable language_">self</span>.dropout = nn.Dropout(p=dropout)</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, query, key, value, mask=<span class="literal">None</span></span>):</span><br><span class="line">        <span class="keyword">if</span> mask <span class="keyword">is</span> <span class="keyword">not</span> <span class="literal">None</span>:</span><br><span class="line">            <span class="comment"># Same mask applied to all h heads.</span></span><br><span class="line">            mask = mask.unsqueeze(<span class="number">1</span>) <span class="comment"># shape from (batch_size, seq_len) to (batch_size, 1, seq_len)</span></span><br><span class="line">        nbatches = query.size(<span class="number">0</span>)</span><br><span class="line">        <span class="comment"># 1) Do all the linear projections in batch from d_model =&gt; h x d_k </span></span><br><span class="line">        query, key, value = [l(x).view(nbatches, -<span class="number">1</span>, <span class="variable language_">self</span>.h, <span class="variable language_">self</span>.d_k).transpose(<span class="number">1</span>, <span class="number">2</span>)</span><br><span class="line">                            <span class="keyword">for</span> l, x <span class="keyword">in</span> <span class="built_in">zip</span>(<span class="variable language_">self</span>.linears, (query, key, value))]</span><br><span class="line">        <span class="comment"># shape from (batch_size, seq_len, d_model) to (batch_size, h, seq_len, d_k)</span></span><br><span class="line">        <span class="comment"># 2) Apply attention on all the projected vectors in batch.</span></span><br><span class="line">        x, <span class="variable language_">self</span>.attn = attention(query, key, value, mask=mask, dropout=<span class="variable language_">self</span>.dropout)</span><br><span class="line">        <span class="comment"># 3) &quot;Concat&quot; using a view and apply a final linear.</span></span><br><span class="line">        x = x.transpose(<span class="number">1</span>, <span class="number">2</span>).contiguous().view(nbatches, -<span class="number">1</span>, <span class="variable language_">self</span>.h * <span class="variable language_">self</span>.d_k)</span><br><span class="line">        <span class="keyword">del</span> query, key, value</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.linears[-<span class="number">1</span>](x)</span><br></pre></td></tr></table></figure>
@@ -349,8 +394,8 @@ PE_{(pos,2i+1)} &amp;= \cos(pos/10000^{2i/d_{model}})
 <p>Then </p>
 <div class="math-display">\[q_m^Tk_n=(R_{\Theta, m}^d W_qx_m)^T(R_{\Theta, n}^d W_kx_n) = x_m^TW_q^TR_{\Theta, m}^{dT}R_{\Theta, n}^dW_kx_n=x_m^TW_q^TR_{\Theta, n-m}^dW_kx_n\]</div>
 <p><strong>Theoretical Derivation</strong>: </p>
-<img src="../images/posts/Transformer-from-scratch/image4.png" width="700">
-<img src="../images/posts/Transformer-from-scratch/image5.png" width="700">
+<img src="/images/posts/Transformer-from-scratch/image4.png" width="700">
+<img src="/images/posts/Transformer-from-scratch/image5.png" width="700">
 
 <p><strong>More Efficient Implementation</strong>: Since the rotation matrix is block diagonal and very sparse, we can implement it more efficiently than matrix multiplication: </p>
 <div class="math-display">\[R_{\Theta,m}^d x= 
@@ -399,10 +444,12 @@ x_{d-1}
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://example.com/2026/07/02/Transformer-from-scratch/" data-id="cuiddXu0yjl6bKKt3FKh_jnsP" data-title="Transformer-from-scratch" class="article-share-link"><span class="fa fa-share">Share</span></a>
+      <a data-url="https://mars-dingdang.github.io/2026/07/02/Transformer-from-scratch/" data-id="cuidnR5ghOHEO7K13tL5tH80H" data-title="Transformer-from-scratch" class="article-share-link"><span class="fa fa-share">Share</span></a>
       
       
       
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Deep-Learning/" rel="tag">Deep Learning</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Notes/" rel="tag">Notes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Transformer/" rel="tag">Transformer</a></li></ul>
+
     </footer>
   </div>
   
@@ -428,7 +475,7 @@ x_{d-1}
   <div class="outer">
     <div id="footer-info" class="inner">
       
-      &copy; 2026 John Doe<br>
+      &copy; 2026 Mars Dingdang<br>
       Powered by <a href="https://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
@@ -443,7 +490,13 @@ x_{d-1}
   
     <a href="/archives" class="mobile-nav-link">Archives</a>
   
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
     <a href="/friends" class="mobile-nav-link">Friends</a>
+  
+    <a href="/projects" class="mobile-nav-link">Projects</a>
   
     <a href="/about" class="mobile-nav-link">About</a>
   
