@@ -1262,63 +1262,91 @@ a {
   -ms-flex-pack: center;
   -webkit-justify-content: center;
   justify-content: center;
-  font-family: inherit;
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", Arial, sans-serif;
   font-style: normal;
   line-height: 1;
 }
+.fa:before {
+  display: inline-block;
+  line-height: 1;
+}
 .fa-home:before {
-  content: "H";
+  content: "🏠";
 }
 .fa-archive:before {
-  content: "A";
+  content: "🗄️";
 }
 .fa-tags:before {
-  content: "T";
+  content: "🏷️";
 }
 .fa-folder-open:before {
-  content: "C";
+  content: "🗂️";
 }
 .fa-users:before {
-  content: "F";
+  content: "🤝";
 }
 .fa-user:before {
-  content: "I";
+  content: "👤";
 }
 .fa-code-fork:before {
-  content: "P";
+  content: "🛠️";
 }
 .fa-github:before {
-  content: "G";
+  content: "💻";
 }
 .fa-search:before {
-  content: "S";
+  content: "🔎";
 }
 .fa-bars:before {
-  content: "M";
+  content: "☰";
 }
 .fa-angle-up:before {
-  content: "^";
+  content: "⌃";
 }
 .fa-arrow-right:before {
-  content: ">";
+  content: "➜";
 }
 .fa-university:before {
-  content: "U";
+  content: "🏫";
 }
 .fa-building:before {
-  content: "D";
+  content: "🏢";
 }
 .fa-clock:before {
-  content: "T";
+  content: "🕘";
 }
 .fa-envelope:before {
-  content: "@";
+  content: "✉️";
 }
 .fa-sun:before {
-  content: "L";
+  content: "☀️";
 }
 .fa-moon:before {
-  content: "D";
+  content: "🌙";
+}
+.fa-share:before {
+  content: "↗";
+}
+.fa-comment:before {
+  content: "💬";
+}
+.fa-twitter:before {
+  content: "✦";
+}
+.fa-facebook:before {
+  content: "◆";
+}
+.fa-pinterest:before {
+  content: "●";
+}
+.fa-linkedin:before {
+  content: "▣";
+}
+.fa-rss:before {
+  content: "📡";
+}
+.fa-circle-o:before {
+  content: "•";
 }
 html {
   scrollbar-color: rgba(142,169,210,0.58) rgba(13,20,31,0.58);
@@ -1375,7 +1403,7 @@ body:after {
   align-self: start;
   -ms-flex-item-align: start;
   height: 100vh;
-  padding: 20px 24px 16px;
+  padding: 16px 22px 14px;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -1399,11 +1427,11 @@ body:after {
   backdrop-filter: blur(22px);
 }
 .rail-avatar {
-  width: 88px;
-  height: 88px;
+  width: 78px;
+  height: 78px;
   border-radius: 50%;
   display: block;
-  margin: 0 auto 10px;
+  margin: 0 auto 8px;
   text-decoration: none;
   background: url("/images/avatar.jpg") center/cover, url("images/banner.jpg") center/cover;
   border: 1px solid rgba(255,255,255,0.18);
@@ -1424,22 +1452,30 @@ body:after {
   box-shadow: 0 22px 48px rgba(0,0,0,0.36), 0 0 0 5px rgba(108,157,255,0.12);
 }
 .rail-username {
-  margin: 0 auto 12px;
+  margin: 0 auto 6px;
   text-align: center;
   color: #f6f9ff;
-  font-size: 16px;
+  font-size: 15px;
   line-height: 1.2;
   font-weight: 800;
+}
+.rail-tagline {
+  max-width: 210px;
+  margin: 0 auto 10px;
+  color: #9cadc3;
+  font-size: 11.5px;
+  line-height: 1.45;
+  text-align: center;
 }
 .rail-stats {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-bottom: 12px;
+  gap: 6px;
+  margin-bottom: 10px;
   text-align: center;
 }
 .rail-stats a {
-  padding: 5px 4px;
+  padding: 4px 3px;
   border-radius: 8px;
   text-decoration: none;
   color: #94a3b8;
@@ -1454,19 +1490,19 @@ body:after {
 }
 .rail-stats strong {
   display: block;
-  font-size: 20px;
+  font-size: 18px;
   color: #f7fbff;
 }
 .rail-stats span {
   display: block;
-  margin-top: 4px;
-  font-size: 12px;
+  margin-top: 3px;
+  font-size: 11px;
 }
 .rail-profile {
   display: grid;
-  gap: 7px;
-  margin: 0 0 12px;
-  padding: 10px 0 12px;
+  gap: 6px;
+  margin: 0 0 10px;
+  padding: 9px 0 10px;
   border-top: 1px solid rgba(158,173,196,0.12);
   border-bottom: 1px solid rgba(158,173,196,0.12);
 }
@@ -1482,7 +1518,7 @@ body:after {
   gap: 10px;
   color: #b5c2d5;
   text-decoration: none;
-  font-size: 12px;
+  font-size: 11.5px;
   line-height: 1.45;
 }
 .rail-profile a:hover {
@@ -1496,8 +1532,8 @@ body:after {
 }
 .rail-nav {
   display: grid;
-  gap: 5px;
-  margin-bottom: 12px;
+  gap: 4px;
+  margin-bottom: 10px;
 }
 .rail-nav-link,
 .rail-github {
@@ -1513,12 +1549,13 @@ body:after {
   -webkit-align-items: center;
   align-items: center;
   gap: 12px;
-  min-height: 38px;
-  padding: 0 15px;
+  min-height: 34px;
+  padding: 0 13px;
   border-radius: 8px;
   color: #a7b3c5;
   text-decoration: none;
   font-weight: 740;
+  font-size: 13px;
   letter-spacing: 0;
   -webkit-transition: -webkit-transform 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
   -moz-transition: -moz-transform 0.18s ease, background 0.18s ease, color 0.18s ease, box-shadow 0.18s ease;
@@ -1552,14 +1589,14 @@ body:after {
   color: #fff;
 }
 .rail-social {
-  padding: 10px 0;
-  margin: 0 0 12px;
+  padding: 8px 0;
+  margin: 0 0 10px;
   border-top: 1px solid rgba(158,173,196,0.12);
   border-bottom: 1px solid rgba(158,173,196,0.12);
 }
 .theme-toggle {
   width: 100%;
-  min-height: 38px;
+  min-height: 36px;
   display: -webkit-box;
   display: -moz-box;
   display: -webkit-flex;
@@ -1577,7 +1614,7 @@ body:after {
   -webkit-justify-content: center;
   justify-content: center;
   gap: 10px;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   border: 1px solid rgba(255,255,255,0.09);
   border-radius: 8px;
   background: rgba(255,255,255,0.07);
@@ -1626,9 +1663,9 @@ body:after {
   font-size: 0;
 }
 .rail-search .search-form-submit:before {
-  content: "S";
-  font-size: 12px;
-  font-weight: 800;
+  content: "🔎";
+  font-size: 14px;
+  font-weight: 400;
 }
 .site-main {
   min-width: 0;
@@ -2347,7 +2384,7 @@ body.is-home #footer {
 .project-page,
 .friends-page,
 .about-page {
-  padding-bottom: 72px;
+  padding-bottom: 36px;
 }
 .taxonomy-search {
   display: -webkit-box;
@@ -2363,7 +2400,7 @@ body.is-home #footer {
   align-items: center;
   gap: 12px;
   height: 52px;
-  margin: 22px 0 18px;
+  margin: 0 0 18px;
   padding: 0 18px;
   border-radius: 8px;
   background: rgba(255,255,255,0.08);
@@ -2389,7 +2426,7 @@ body.is-home #footer {
 .taxonomy-list {
   display: grid;
   gap: 12px;
-  max-height: calc(100vh - 265px);
+  max-height: calc(100vh - 118px);
   overflow-y: auto;
   padding-right: 6px;
 }
@@ -2925,6 +2962,7 @@ body.is-home #footer {
   -ms-flex-align: center;
   -webkit-align-items: center;
   align-items: center;
+  gap: 6px;
   padding: 0 11px;
   border-radius: 999px;
   background: rgba(255,255,255,0.06);
@@ -3037,6 +3075,7 @@ html[data-theme="light"] .about-grid section h2 {
   color: #111827;
 }
 html[data-theme="light"] .rail-stats a,
+html[data-theme="light"] .rail-tagline,
 html[data-theme="light"] .rail-profile div,
 html[data-theme="light"] .rail-profile a,
 html[data-theme="light"] .rail-nav-link,
@@ -3517,7 +3556,7 @@ html[data-theme="light"] .footer-nav a:hover {
     color: #fff;
   }
   #container.is-rail-open .mobile-rail-toggle .fa-bars:before {
-    content: "X";
+    content: "✕";
   }
   .site-rail {
     position: fixed;
@@ -3560,6 +3599,9 @@ html[data-theme="light"] .footer-nav a:hover {
   }
   .site-main {
     padding-top: 0;
+  }
+  body.is-inner .site-main {
+    padding-top: 72px;
   }
   .outer {
     max-width: none;
