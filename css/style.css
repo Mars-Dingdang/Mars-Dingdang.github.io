@@ -1697,6 +1697,9 @@ body:after {
   -ms-flex: 1 0 auto;
   flex: 1 0 auto;
 }
+body.is-inner .outer {
+  padding-top: 34px;
+}
 body.is-home .outer {
   max-width: 1180px;
   -webkit-box-flex: 1;
@@ -2400,7 +2403,7 @@ body.is-home #footer {
   align-items: center;
   gap: 12px;
   height: 52px;
-  margin: 0 0 18px;
+  margin: 22px 0 18px;
   padding: 0 18px;
   border-radius: 8px;
   background: rgba(255,255,255,0.08);
@@ -2426,7 +2429,7 @@ body.is-home #footer {
 .taxonomy-list {
   display: grid;
   gap: 12px;
-  max-height: calc(100vh - 118px);
+  max-height: calc(100vh - 265px);
   overflow-y: auto;
   padding-right: 6px;
 }
