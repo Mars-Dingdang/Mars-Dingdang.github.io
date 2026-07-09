@@ -169,6 +169,54 @@
   updateRailTime();
   setInterval(updateRailTime, 30000);
 
+  // Responsive sidebar drawer
+  var $mobileRailToggle = $('.mobile-rail-toggle');
+  var $mobileRailBackdrop = $('.mobile-rail-backdrop');
+
+  var setMobileRail = function(open){
+    var isOpen = !!open;
+
+    $container.toggleClass('is-rail-open', isOpen);
+    $('body').toggleClass('mobile-rail-locked', isOpen);
+    $mobileRailToggle
+      .attr('aria-expanded', isOpen ? 'true' : 'false')
+      .attr('aria-label', isOpen ? 'Close sidebar menu' : 'Open sidebar menu');
+
+    if (isOpen) {
+      $mobileRailBackdrop.removeAttr('hidden');
+    } else {
+      $mobileRailBackdrop.attr('hidden', 'hidden');
+    }
+  };
+
+  $mobileRailToggle.on('click', function(e){
+    e.preventDefault();
+    e.stopPropagation();
+    setMobileRail(!$container.hasClass('is-rail-open'));
+  });
+
+  $mobileRailBackdrop.on('click', function(){
+    setMobileRail(false);
+  });
+
+  $('.site-rail').on('click', 'a', function(){
+    if (window.matchMedia('(max-width: 980px)').matches) {
+      setMobileRail(false);
+    }
+  });
+
+  $(document).on('keyup', function(e){
+    if (e.key === 'Escape' && $container.hasClass('is-rail-open')) {
+      setMobileRail(false);
+    }
+  });
+
+  $(window).on('resize', function(){
+    if (!window.matchMedia('(max-width: 980px)').matches) {
+      setMobileRail(false);
+    }
+  });
+
   // Taxonomy search
   $('#taxonomy-filter').on('input', function(){
     var keyword = $(this).val().trim().toLowerCase();

@@ -1293,6 +1293,9 @@ a {
 .fa-search:before {
   content: "S";
 }
+.fa-bars:before {
+  content: "M";
+}
 .fa-angle-up:before {
   content: "^";
 }
@@ -1358,6 +1361,12 @@ body:after {
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
   min-height: 100vh;
+}
+.mobile-rail-toggle {
+  display: none;
+}
+.mobile-rail-backdrop {
+  display: none;
 }
 .site-rail {
   position: sticky;
@@ -1586,6 +1595,16 @@ body:after {
   -ms-transform: translateY(-1px);
   transform: translateY(-1px);
   background: rgba(100,154,255,0.18);
+}
+.mobile-rail-toggle:focus-visible,
+.theme-toggle:focus-visible,
+.rail-nav-link:focus-visible,
+.rail-github:focus-visible,
+.profile-link:focus-visible,
+.recent-jump:focus-visible,
+.soft-button:focus-visible {
+  outline: 2px solid rgba(124,172,255,0.58);
+  outline-offset: 2px;
 }
 .rail-search .search-form {
   position: relative;
@@ -3020,6 +3039,8 @@ html[data-theme="light"] .about-grid section h2 {
 html[data-theme="light"] .rail-stats a,
 html[data-theme="light"] .rail-profile div,
 html[data-theme="light"] .rail-profile a,
+html[data-theme="light"] .rail-nav-link,
+html[data-theme="light"] .rail-github,
 html[data-theme="light"] .home-hero p,
 html[data-theme="light"] .page-hero p,
 html[data-theme="light"] .readme-content p,
@@ -3034,6 +3055,20 @@ html[data-theme="light"] .about-card li,
 html[data-theme="light"] .about-grid section p,
 html[data-theme="light"] .about-grid section li {
   color: #516176;
+}
+html[data-theme="light"] .rail-nav-link .fa,
+html[data-theme="light"] .rail-github .fa {
+  color: #6c7f99;
+}
+html[data-theme="light"] .rail-nav-link.is-active,
+html[data-theme="light"] .rail-nav-link:hover,
+html[data-theme="light"] .rail-github:hover {
+  color: #fff;
+}
+html[data-theme="light"] .rail-nav-link.is-active .fa,
+html[data-theme="light"] .rail-nav-link:hover .fa,
+html[data-theme="light"] .rail-github:hover .fa {
+  color: #fff;
 }
 html[data-theme="light"] .readme-content strong,
 html[data-theme="light"] .article-entry strong,
@@ -3425,31 +3460,122 @@ html[data-theme="light"] .footer-nav a:hover {
   background: rgba(78,139,255,0.12);
 }
 @media screen and (max-width: 980px) {
+  body.mobile-rail-locked {
+    overflow: hidden;
+  }
   .site-shell {
     grid-template-columns: 1fr;
   }
+  .mobile-rail-toggle {
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 60;
+    display: -webkit-inline-box;
+    display: -moz-inline-box;
+    display: -webkit-inline-flex;
+    display: -ms-inline-flexbox;
+    display: inline-box;
+    display: inline-flex;
+    -webkit-box-align: center;
+    -moz-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -moz-box-pack: center;
+    -ms-flex-pack: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 46px;
+    height: 46px;
+    padding: 0 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    background: rgba(10,16,25,0.84);
+    color: #f5f9ff;
+    font: 800 13px Arial, sans-serif;
+    -webkit-box-shadow: 0 14px 34px rgba(0,0,0,0.32);
+    box-shadow: 0 14px 34px rgba(0,0,0,0.32);
+    backdrop-filter: blur(18px);
+    cursor: pointer;
+  }
+  .mobile-rail-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 35;
+    background: rgba(4,9,16,0.58);
+    backdrop-filter: blur(3px);
+  }
+  #container.is-rail-open .mobile-rail-backdrop {
+    display: block;
+  }
+  #container.is-rail-open .mobile-rail-toggle {
+    background: rgba(78,139,255,0.94);
+    border-color: rgba(255,255,255,0.18);
+    color: #fff;
+  }
+  #container.is-rail-open .mobile-rail-toggle .fa-bars:before {
+    content: "X";
+  }
   .site-rail {
-    position: relative;
-    height: auto;
-    min-height: 0;
-    overflow: visible;
-    padding: 22px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 50;
+    width: min(320px, calc(100vw - 42px));
+    max-width: calc(100vw - 42px);
+    height: 100dvh;
+    min-height: 100vh;
+    overflow-y: auto;
+    padding: 72px 18px 18px;
+    -webkit-transform: translateX(-104%);
+    -moz-transform: translateX(-104%);
+    -ms-transform: translateX(-104%);
+    transform: translateX(-104%);
+    -webkit-transition: -webkit-transform 0.22s ease, box-shadow 0.22s ease;
+    -moz-transition: -moz-transform 0.22s ease, box-shadow 0.22s ease;
+    -ms-transition: -ms-transform 0.22s ease, box-shadow 0.22s ease;
+    transition: transform 0.22s ease, box-shadow 0.22s ease;
+  }
+  #container.is-rail-open .site-rail {
+    -webkit-transform: translateX(0);
+    -moz-transform: translateX(0);
+    -ms-transform: translateX(0);
+    transform: translateX(0);
+    -webkit-box-shadow: 20px 0 56px rgba(0,0,0,0.34);
+    box-shadow: 20px 0 56px rgba(0,0,0,0.34);
   }
   .rail-avatar {
-    width: 84px;
-    height: 84px;
-    margin-bottom: 18px;
+    width: 76px;
+    height: 76px;
+    margin-bottom: 12px;
   }
   .rail-profile {
-    max-width: 520px;
-    margin-left: auto;
-    margin-right: auto;
+    max-width: none;
   }
   .rail-nav {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
   .site-main {
-    padding-top: 12px;
+    padding-top: 0;
+  }
+  .outer {
+    max-width: none;
+    padding: 0 clamp(18px, 4vw, 30px);
+  }
+  body.is-home .home-hero {
+    padding-top: 76px;
+  }
+  #header-title {
+    left: 76px;
+    right: 24px;
+  }
+  .taxonomy-list {
+    max-height: none;
+    overflow: visible;
+    padding-right: 0;
   }
   .topic-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3468,10 +3594,24 @@ html[data-theme="light"] .footer-nav a:hover {
   .archive-post-list {
     grid-template-columns: 1fr;
   }
+  html[data-theme="light"] .mobile-rail-toggle {
+    background: rgba(255,255,255,0.82);
+    border-color: rgba(82,104,138,0.18);
+    color: #172033;
+    -webkit-box-shadow: 0 14px 34px rgba(53,72,96,0.16);
+    box-shadow: 0 14px 34px rgba(53,72,96,0.16);
+  }
+  html[data-theme="light"] .mobile-rail-backdrop {
+    background: rgba(226,235,246,0.58);
+  }
+  html[data-theme="light"] #container.is-rail-open .mobile-rail-toggle {
+    background: rgba(78,139,255,0.92);
+    color: #fff;
+  }
 }
 @media screen and (max-width: 640px) {
   .outer {
-    padding: 0 18px;
+    padding: 0 14px;
   }
   .home-hero,
   .page-hero {
@@ -3479,10 +3619,28 @@ html[data-theme="light"] .footer-nav a:hover {
   }
   .home-hero h1,
   .page-hero h1 {
-    font-size: 34px;
+    font-size: 32px;
+    line-height: 1.16;
+  }
+  .home-hero p,
+  .page-hero p {
+    font-size: 15px;
+  }
+  body.is-home .home-hero {
+    padding-top: 74px;
+  }
+  .mobile-rail-toggle-text {
+    display: none;
   }
   .readme-titlebar {
     display: grid;
+    gap: 12px;
+  }
+  .profile-link {
+    width: 100%;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
   }
   .readme-content {
     max-height: 460px;
@@ -3500,10 +3658,24 @@ html[data-theme="light"] .footer-nav a:hover {
     -ms-flex-align: start;
     -webkit-align-items: flex-start;
     align-items: flex-start;
+    padding: 18px;
+  }
+  .recent-panel summary b {
+    -webkit-box-flex: 1;
+    -moz-box-flex: 1;
+    box-flex: 1;
+    -webkit-flex: 0 0 auto;
+    -ms-flex: 0 0 auto;
+    flex: 0 0 auto;
+  }
+  .recent-list {
+    max-height: none;
+    overflow: visible;
   }
   .recent-item {
     grid-template-columns: 1fr 40px;
     gap: 12px;
+    padding: 16px;
   }
   .recent-index {
     display: none;
@@ -3516,8 +3688,23 @@ html[data-theme="light"] .footer-nav a:hover {
   .recent-copy {
     min-width: 0;
   }
+  .recent-meta {
+    gap: 7px 10px;
+  }
+  .recent-meta span:before {
+    margin-right: 10px;
+  }
+  .recent-title {
+    font-size: 18px;
+    line-height: 1.35;
+  }
+  .recent-excerpt {
+    font-size: 13px;
+  }
   .taxonomy-main {
     grid-template-columns: 32px minmax(0, 1fr) 28px;
+    gap: 10px;
+    padding: 0 14px;
   }
   .taxonomy-count {
     grid-column: 2;
@@ -3531,7 +3718,8 @@ html[data-theme="light"] .footer-nav a:hover {
   }
   .taxonomy-preview {
     grid-template-columns: 1fr;
-    padding-left: 18px;
+    padding-left: 14px;
+    padding-right: 14px;
   }
   .taxonomy-preview .taxonomy-post-card {
     grid-template-columns: 76px minmax(0, 1fr);
@@ -3542,6 +3730,15 @@ html[data-theme="light"] .footer-nav a:hover {
   }
   #header {
     height: 170px;
+    border-radius: 0;
+    margin-bottom: 20px;
+  }
+  #header-title {
+    left: 64px;
+    right: 18px;
+  }
+  #logo {
+    font-size: 28px;
   }
   .archives {
     grid-template-columns: 1fr;
