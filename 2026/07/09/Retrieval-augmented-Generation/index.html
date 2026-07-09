@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Retrieval-augmented-Generation | Mars Dingdang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Pre-trained neural language models can learn a substantial amount of in-depth knowledge from data without any access to an external memory, as a parameterized implicit knowledge base.  However, the do">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Retrieval-augmented-Generation">
+<meta property="og:url" content="https://mars-dingdang.github.io/2026/07/09/Retrieval-augmented-Generation/index.html">
+<meta property="og:site_name" content="Mars Dingdang">
+<meta property="og:description" content="Pre-trained neural language models can learn a substantial amount of in-depth knowledge from data without any access to an external memory, as a parameterized implicit knowledge base.  However, the do">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/Retrieval-augmented-Generation/image1.png">
+<meta property="article:published_time" content="2026-07-09T15:15:28.000Z">
+<meta property="article:modified_time" content="2026-07-09T15:19:05.079Z">
+<meta property="article:author" content="Mars Dingdang">
+<meta property="article:tag" content="Deep Learning">
+<meta property="article:tag" content="Notes">
+<meta property="article:tag" content="RAG">
+<meta property="article:tag" content="Transformer">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mars-dingdang.github.io/images/posts/Retrieval-augmented-Generation/image1.png">
+  
+    <link rel="alternate" href="/atom.xml" title="Mars Dingdang" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="data:,">
+  
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    <script>
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/ams']
+        },
+        tex: {
+          packages: {'[+]': ['ams']},
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body class="is-inner">
+  <div id="container">
+    <div id="wrap">
+      <button class="mobile-rail-toggle" type="button" aria-label="Open sidebar menu" aria-controls="site-rail" aria-expanded="false">
+        <span class="fa fa-bars" aria-hidden="true"></span>
+        <span class="mobile-rail-toggle-text">Menu</span>
+      </button>
+      <div class="mobile-rail-backdrop" hidden></div>
+      <div class="site-shell">
+        <aside id="site-rail" class="site-rail">
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+          </a>
+          <div class="rail-username">Mars-Dingdang</div>
+          
+          
+            <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
+          
+          <div class="rail-stats">
+            <a href="/">
+              <strong>4</strong>
+              <span>Posts</span>
+            </a>
+            <a href="/tags">
+              <strong>6</strong>
+              <span>Tags</span>
+            </a>
+            <a href="/categories">
+              <strong>3</strong>
+              <span>Categories</span>
+            </a>
+          </div>
+          
+          <div class="rail-profile" aria-label="Profile details">
+            <div><span class="fa fa-university" aria-hidden="true"></span><span>Tsinghua University</span></div>
+            <div><span class="fa fa-building" aria-hidden="true"></span><span>Institute for Interdisciplinary Information Sciences (Yao class)</span></div>
+            <div><span class="fa fa-clock" aria-hidden="true"></span><span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><span class="fa fa-envelope" aria-hidden="true"></span><span>dst25@mails.tsinghua.edu.cn</span></a>
+          </div>
+          <nav class="rail-nav" aria-label="Primary">
+            
+            
+              
+              <a class="rail-nav-link" href="/">
+                <span class="fa fa-home" aria-hidden="true"></span>
+                <span>Front Page</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/archives">
+                <span class="fa fa-archive" aria-hidden="true"></span>
+                <span>Archives</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/tags">
+                <span class="fa fa-tags" aria-hidden="true"></span>
+                <span>Tags</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/categories">
+                <span class="fa fa-folder-open" aria-hidden="true"></span>
+                <span>Categories</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/friends">
+                <span class="fa fa-users" aria-hidden="true"></span>
+                <span>Friends</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/projects">
+                <span class="fa fa-code-fork" aria-hidden="true"></span>
+                <span>Projects</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/about">
+                <span class="fa fa-user" aria-hidden="true"></span>
+                <span>About</span>
+              </a>
+            
+          </nav>
+          <button class="theme-toggle" type="button" aria-label="Toggle light and dark mode" aria-pressed="false">
+            <span class="fa fa-sun" aria-hidden="true"></span>
+            <span class="theme-toggle-text">Light Mode</span>
+          </button>
+          <div class="rail-social">
+            <a class="rail-github" href="https://github.com/Mars-Dingdang" target="_blank" rel="noopener">
+              <span class="fa fa-github" aria-hidden="true"></span>
+              <span>GitHub</span>
+            </a>
+          </div>
+          <div class="rail-search">
+            <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="https://mars-dingdang.github.io"></form>
+          </div>
+        </aside>
+        <main class="site-main">
+          <div class="outer">
+            <section id="main"><article id="post-Retrieval-augmented-Generation" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="article-meta">
+    <a href="/2026/07/09/Retrieval-augmented-Generation/" class="article-date">
+  <time class="dt-published" datetime="2026-07-09T15:15:28.000Z" itemprop="datePublished">2026-07-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Large-Language-Models/">Large Language Models</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Retrieval-augmented-Generation
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody">
+      
+        <p>Pre-trained neural language models can learn a substantial amount of in-depth knowledge from data without any access to an external memory, as a parameterized implicit knowledge base. </p>
+<p>However, the downsides are that they cannot easily expand or revise their memory, cannot straightforwardly provide insight into their predictions and may produce hallucinations.</p>
+<h2 id="RAG-architecture"><a href="#RAG-architecture" class="headerlink" title="RAG architecture"></a>RAG architecture</h2><p><img src="/images/posts/Retrieval-augmented-Generation/image1.png" alt="RAG architecture"><br>Endow pretrained parametric-memory generation models with a non-parametric memory through a general-purpose fine-tuning approch: retrieval-augmented generation (RAG). </p>
+<p>The models leverage two components: </p>
+<ol>
+<li>a retriever <span class="math-inline">\(p_{\eta}(z|x)\)</span> with parameters <span class="math-inline">\(\eta\)</span> that returns (top-<span class="math-inline">\(K\)</span> truncated) distributions over text passages given a query <span class="math-inline">\(x\)</span>, </li>
+<li>a generator <span class="math-inline">\(p_{\theta}(y_i|x, z, y_{&lt;i})\)</span> parameterized by <span class="math-inline">\(\theta\)</span> that auto-regressively generates output token <span class="math-inline">\(y_i\)</span> given previous tokens, the query <span class="math-inline">\(x\)</span> and retrieved passages <span class="math-inline">\(z\)</span>.</li>
+</ol>
+<p><strong>RAG-Sequence Model</strong>: use the same retrieved document to generate the complete sequence.</p>
+<div class="math-display">\[p_{\text{RAG-Sequence}}(y|x)\approx \sum_{z\in \text{top-K}(p(\cdot|x))}p_\eta(z|x)p_\theta(y|x,z)=\sum_{z\in \text{top-K}(p(\cdot|x))}p_\eta(z|x)\prod_{i=1}^{|y|}p_\theta(y_i|x,z,y_{&lt;i}).\]</div>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">RAGSequence</span>(nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, retriever: DenseRetriever, generator: RAGGenerator, pad_id: <span class="built_in">int</span></span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        <span class="variable language_">self</span>.retriever = retriever</span><br><span class="line">        <span class="variable language_">self</span>.generator = generator</span><br><span class="line">        <span class="variable language_">self</span>.pad_id = pad_id</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params"></span></span><br><span class="line"><span class="params">        self,</span></span><br><span class="line"><span class="params">        query_ids: torch.Tensor,</span></span><br><span class="line"><span class="params">        query_mask: torch.Tensor,</span></span><br><span class="line"><span class="params">        answer_ids: torch.Tensor,</span></span><br><span class="line"><span class="params">        doc_ids: torch.Tensor,</span></span><br><span class="line"><span class="params">        doc_mask: torch.Tensor,</span></span><br><span class="line"><span class="params">        topk: <span class="built_in">int</span> = <span class="number">3</span>,</span></span><br><span class="line"><span class="params">    </span>) -&gt; <span class="type">Tuple</span>[torch.Tensor, <span class="type">Dict</span>[<span class="built_in">str</span>, torch.Tensor]]:</span><br><span class="line">        retrieval = <span class="variable language_">self</span>.retriever(query_ids, query_mask, doc_ids, doc_mask, topk=topk)</span><br><span class="line">        doc_log_probs = F.log_softmax(retrieval[<span class="string">&quot;top_scores&quot;</span>], dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        context_ids, context_mask = build_contexts(</span><br><span class="line">            query_ids.detach().cpu(),</span><br><span class="line">            query_mask.detach().cpu(),</span><br><span class="line">            doc_ids.detach().cpu(),</span><br><span class="line">            retrieval[<span class="string">&quot;top_indices&quot;</span>].detach().cpu(),</span><br><span class="line">            <span class="variable language_">self</span>.pad_id,</span><br><span class="line">        )</span><br><span class="line">        context_ids = context_ids.to(query_ids.device)</span><br><span class="line">        context_mask = context_mask.to(query_ids.device)</span><br><span class="line"></span><br><span class="line">        decoder_input_ids = answer_ids[:, :-<span class="number">1</span>]</span><br><span class="line">        labels = answer_ids[:, <span class="number">1</span>:]</span><br><span class="line">        batch_size = query_ids.shape[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">        repeated_decoder_input = decoder_input_ids.repeat_interleave(topk, dim=<span class="number">0</span>)</span><br><span class="line">        repeated_labels = labels.repeat_interleave(topk, dim=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">        logits = <span class="variable language_">self</span>.generator(context_ids, context_mask, repeated_decoder_input)</span><br><span class="line">        doc_sequence_log_probs = sequence_log_prob(logits, repeated_labels, <span class="variable language_">self</span>.pad_id)</span><br><span class="line">        doc_sequence_log_probs = doc_sequence_log_probs.view(batch_size, topk)</span><br><span class="line"></span><br><span class="line">        marginal_log_prob = torch.logsumexp(doc_log_probs + doc_sequence_log_probs, dim=-<span class="number">1</span>)</span><br><span class="line">        loss = -marginal_log_prob.mean()</span><br><span class="line">        info = &#123;</span><br><span class="line">            **retrieval,</span><br><span class="line">            <span class="string">&quot;doc_log_probs&quot;</span>: doc_log_probs,</span><br><span class="line">            <span class="string">&quot;doc_sequence_log_probs&quot;</span>: doc_sequence_log_probs,</span><br><span class="line">            <span class="string">&quot;marginal_log_prob&quot;</span>: marginal_log_prob,</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> loss, info</span><br></pre></td></tr></table></figure>
+
+
+<p><strong>RAG-Token Model</strong>: marginalize over the retrieved documents at each generation step.</p>
+<div class="math-display">\[p_{\text{RAG-Token}}(y|x)\approx \prod_{i=1}^{|y|}\sum_{z\in \text{top-K}(p(\cdot|x))}p_\eta(z|x)p_\theta(y_i|x,z,y_{&lt;i}).\]</div>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">rag_token_nll</span>(<span class="params"></span></span><br><span class="line"><span class="params">    doc_log_probs: torch.Tensor,</span></span><br><span class="line"><span class="params">    logits: torch.Tensor,</span></span><br><span class="line"><span class="params">    labels: torch.Tensor,</span></span><br><span class="line"><span class="params">    pad_id: <span class="built_in">int</span>,</span></span><br><span class="line"><span class="params">    batch_size: <span class="built_in">int</span>,</span></span><br><span class="line"><span class="params">    topk: <span class="built_in">int</span>,</span></span><br><span class="line"><span class="params"></span>) -&gt; torch.Tensor:</span><br><span class="line">    vocab_log_probs = F.log_softmax(logits, dim=-<span class="number">1</span>)</span><br><span class="line">    seq_len = labels.shape[<span class="number">1</span>]</span><br><span class="line">    vocab_log_probs = vocab_log_probs.view(batch_size, topk, seq_len, -<span class="number">1</span>)</span><br><span class="line">    labels = labels.view(batch_size, topk, seq_len)</span><br><span class="line">    token_log_probs = vocab_log_probs.gather(dim=-<span class="number">1</span>, index=labels.unsqueeze(-<span class="number">1</span>)).squeeze(-<span class="number">1</span>)</span><br><span class="line">    mixed_token_log_probs = torch.logsumexp(doc_log_probs[:, :, <span class="literal">None</span>] + token_log_probs, dim=<span class="number">1</span>)</span><br><span class="line">    mask = labels[:, <span class="number">0</span>, :].ne(pad_id)</span><br><span class="line">    example_log_probs = (mixed_token_log_probs * mask.<span class="built_in">float</span>()).<span class="built_in">sum</span>(dim=-<span class="number">1</span>)</span><br><span class="line">    <span class="keyword">return</span> -example_log_probs.mean()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RAGToken</span>(<span class="title class_ inherited__">RAGSequence</span>):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params"></span></span><br><span class="line"><span class="params">        self,</span></span><br><span class="line"><span class="params">        query_ids: torch.Tensor,</span></span><br><span class="line"><span class="params">        query_mask: torch.Tensor,</span></span><br><span class="line"><span class="params">        answer_ids: torch.Tensor,</span></span><br><span class="line"><span class="params">        doc_ids: torch.Tensor,</span></span><br><span class="line"><span class="params">        doc_mask: torch.Tensor,</span></span><br><span class="line"><span class="params">        topk: <span class="built_in">int</span> = <span class="number">3</span>,</span></span><br><span class="line"><span class="params">    </span>) -&gt; <span class="type">Tuple</span>[torch.Tensor, <span class="type">Dict</span>[<span class="built_in">str</span>, torch.Tensor]]:</span><br><span class="line">        retrieval = <span class="variable language_">self</span>.retriever(query_ids, query_mask, doc_ids, doc_mask, topk=topk)</span><br><span class="line">        doc_log_probs = F.log_softmax(retrieval[<span class="string">&quot;top_scores&quot;</span>], dim=-<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line">        context_ids, context_mask = build_contexts(</span><br><span class="line">            query_ids.detach().cpu(),</span><br><span class="line">            query_mask.detach().cpu(),</span><br><span class="line">            doc_ids.detach().cpu(),</span><br><span class="line">            retrieval[<span class="string">&quot;top_indices&quot;</span>].detach().cpu(),</span><br><span class="line">            <span class="variable language_">self</span>.pad_id,</span><br><span class="line">        )</span><br><span class="line">        context_ids = context_ids.to(query_ids.device)</span><br><span class="line">        context_mask = context_mask.to(query_ids.device)</span><br><span class="line"></span><br><span class="line">        topk = retrieval[<span class="string">&quot;top_indices&quot;</span>].shape[<span class="number">1</span>]</span><br><span class="line">        batch_size = query_ids.shape[<span class="number">0</span>]</span><br><span class="line">        decoder_input_ids = answer_ids[:, :-<span class="number">1</span>]</span><br><span class="line">        labels = answer_ids[:, <span class="number">1</span>:]</span><br><span class="line">        repeated_decoder_input = decoder_input_ids.repeat_interleave(topk, dim=<span class="number">0</span>)</span><br><span class="line">        repeated_labels = labels.repeat_interleave(topk, dim=<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">        logits = <span class="variable language_">self</span>.generator(context_ids, context_mask, repeated_decoder_input)</span><br><span class="line">        loss = rag_token_nll(doc_log_probs, logits, repeated_labels, <span class="variable language_">self</span>.pad_id, batch_size, topk)</span><br><span class="line">        <span class="keyword">return</span> loss, &#123;**retrieval, <span class="string">&quot;doc_log_probs&quot;</span>: doc_log_probs&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>Retriever: Dense Passage Retriever (DPR)</strong>.<br><span class="math-inline">\(p_\eta(z|x)\)</span> is based on DPR, following a bi-encoder architecture: </p>
+<div class="math-display">\[p_\eta(z|x)\propto \exp(d(z)^T q(x)),\]</div>
+<p>where <span class="math-inline">\(d(z)=\text{BERT}_d(z)\)</span> and <span class="math-inline">\(q(x)=\text{BERT}_q(x)\)</span> are the dense vector representations of the passage <span class="math-inline">\(z\)</span> and query <span class="math-inline">\(x\)</span>, respectively. Calculating top-k of <span class="math-inline">\(p_\eta(\cdot|x)\)</span> is the maximum inner product search (MIPS) problem, which can be solved in sub-linear time (using approximation algorithms like clustering, HNSW or hashing ). </p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MeanTextEncoder</span>(nn.Module):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Mean pooling text encoder. Used for displaying the DPR retriever. In practice, we can use any encoder architecture (e.g., BERT, RoBERTa, etc.) to encode the text.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, vocab_size, d_model, pad_id</span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        <span class="variable language_">self</span>.embedding = nn.Embedding(vocab_size, d_model, padding_idx=pad_id)</span><br><span class="line">        <span class="variable language_">self</span>.d_model = d_model</span><br><span class="line">        <span class="variable language_">self</span>.pad_id = pad_id</span><br><span class="line">        <span class="variable language_">self</span>.proj = nn.Linear(d_model, d_model)</span><br><span class="line">        <span class="variable language_">self</span>.norm = nn.LayerNorm(d_model)</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, token_ids, mask</span>):</span><br><span class="line">        <span class="keyword">if</span> mask <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">            mask = token_ids.ne(<span class="variable language_">self</span>.pad_id)</span><br><span class="line">        embedded = <span class="variable language_">self</span>.embedding(token_ids) <span class="comment"># embedded = [batch_size, seq_len, d_model]</span></span><br><span class="line">        mask = mask.unsqueeze(-<span class="number">1</span>).<span class="built_in">float</span>() <span class="comment"># mask = [batch_size, seq_len, 1]</span></span><br><span class="line">        summed = (embedded * mask).<span class="built_in">sum</span>(dim=<span class="number">1</span>) <span class="comment"># summed = [batch_size, d_model]</span></span><br><span class="line">        demon = mask.<span class="built_in">sum</span>(dim=<span class="number">1</span>).clamp_min(<span class="number">1.0</span>) <span class="comment"># demon = [batch_size, 1]</span></span><br><span class="line">        pooled = summed / demon <span class="comment"># pooled = [batch_size, d_model]</span></span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.norm(torch.tanh(<span class="variable language_">self</span>.proj(pooled)))</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DenseRetriever</span>(nn.Module):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Dense retriever based on DPR.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, vocab_size: <span class="built_in">int</span>, d_model: <span class="built_in">int</span>, pad_id: <span class="built_in">int</span>, freeze_doc_encoder: <span class="built_in">bool</span> = <span class="literal">True</span></span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        <span class="variable language_">self</span>.query_encoder = MeanTextEncoder(vocab_size, d_model, pad_id)</span><br><span class="line">        <span class="variable language_">self</span>.doc_encoder = MeanTextEncoder(vocab_size, d_model, pad_id)</span><br><span class="line">        <span class="keyword">if</span> freeze_doc_encoder:</span><br><span class="line">            <span class="keyword">for</span> param <span class="keyword">in</span> <span class="variable language_">self</span>.doc_encoder.parameters():</span><br><span class="line">                param.requires_grad = <span class="literal">False</span>  </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">encode_docs</span>(<span class="params">self, doc_ids: torch.Tensor, doc_mask: torch.Tensor</span>) -&gt; torch.Tensor:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.doc_encoder(doc_ids, doc_mask)  </span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params"></span></span><br><span class="line"><span class="params">        self,</span></span><br><span class="line"><span class="params">        query_ids: torch.Tensor,</span></span><br><span class="line"><span class="params">        query_mask: torch.Tensor,</span></span><br><span class="line"><span class="params">        doc_ids: torch.Tensor,</span></span><br><span class="line"><span class="params">        doc_mask: torch.Tensor,</span></span><br><span class="line"><span class="params">        topk: <span class="built_in">int</span>,</span></span><br><span class="line"><span class="params">    </span>) -&gt; <span class="type">Dict</span>[<span class="built_in">str</span>, torch.Tensor]:</span><br><span class="line">        query_vecs = <span class="variable language_">self</span>.query_encoder(query_ids, query_mask)</span><br><span class="line">        doc_vecs = <span class="variable language_">self</span>.encode_docs(doc_ids, doc_mask)</span><br><span class="line">        scores = query_vecs @ doc_vecs.T <span class="comment"># use FAISS for large-scale retrieval</span></span><br><span class="line">        top_scores, top_indices = scores.topk(k=topk, dim=-<span class="number">1</span>)</span><br><span class="line">        <span class="keyword">return</span> &#123;</span><br><span class="line">            <span class="string">&quot;query_vecs&quot;</span>: query_vecs,</span><br><span class="line">            <span class="string">&quot;doc_vecs&quot;</span>: doc_vecs,</span><br><span class="line">            <span class="string">&quot;scores&quot;</span>: scores,</span><br><span class="line">            <span class="string">&quot;top_scores&quot;</span>: top_scores,</span><br><span class="line">            <span class="string">&quot;top_indices&quot;</span>: top_indices,</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">retriever = DenseRetriever(vocab_size, d_model=<span class="number">64</span>, pad_id=tokenizer.pad_token_id).to(device)</span><br><span class="line"><span class="keyword">with</span> torch.no_grad(): </span><br><span class="line">    <span class="comment"># inference time: disable gradient calculation for retrieval</span></span><br><span class="line">    retrieval = retriever(</span><br><span class="line">        question_ids.to(device),</span><br><span class="line">        question_mask.to(device),</span><br><span class="line">        docs_ids.to(device),</span><br><span class="line">        docs_mask.to(device),</span><br><span class="line">        topk=<span class="number">5</span>,</span><br><span class="line">    )</span><br><span class="line"><span class="keyword">for</span> row, ex <span class="keyword">in</span> <span class="built_in">enumerate</span>(examples[:<span class="number">3</span>]):</span><br><span class="line">    hits = retrieval[<span class="string">&quot;top_indices&quot;</span>][row].cpu().tolist()</span><br><span class="line">    <span class="built_in">print</span>(ex[<span class="string">&quot;question&quot;</span>])</span><br><span class="line">    <span class="keyword">for</span> rank, doc_i <span class="keyword">in</span> <span class="built_in">enumerate</span>(hits, start=<span class="number">1</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;  <span class="subst">&#123;rank&#125;</span>. <span class="subst">&#123;documents[doc_i][<span class="string">&#x27;title&#x27;</span>]&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p><strong>Generator: BART</strong>. The generator <span class="math-inline">\(p_\theta(y_i|x, z, y_{&lt;i})\)</span> is based on BART, a denoising autoencoder for pretraining sequence-to-sequence models. It uses a standard Transformer-based encoder-decoder architecture with a bidirectional encoder and an autoregressive decoder.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Context = [question tokens] + [document tokens]</span></span><br><span class="line"><span class="comment"># decoder input = previous answer tokens</span></span><br><span class="line"><span class="comment"># output = next-token logits</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">RAGGenerator</span>(nn.Module):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    RAG generator based on BART.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, model_name: <span class="built_in">str</span></span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        <span class="variable language_">self</span>.model = BartForConditionalGeneration.from_pretrained(model_name)</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params"></span></span><br><span class="line"><span class="params">        self,</span></span><br><span class="line"><span class="params">        context_ids: torch.Tensor,</span></span><br><span class="line"><span class="params">        context_mask: torch.Tensor,</span></span><br><span class="line"><span class="params">        decoder_input_ids: torch.Tensor,</span></span><br><span class="line"><span class="params">        decoder_attention_mask: torch.Tensor,</span></span><br><span class="line"><span class="params">    </span>) -&gt; torch.Tensor:</span><br><span class="line">        <span class="keyword">return</span> <span class="variable language_">self</span>.model(</span><br><span class="line">            input_ids=context_ids,</span><br><span class="line">            attention_mask=context_mask,</span><br><span class="line">            decoder_input_ids=decoder_input_ids,</span><br><span class="line">            decoder_attention_mask=decoder_attention_mask,</span><br><span class="line">        ).logits</span><br><span class="line">        <span class="comment"># returns the logits of the next token prediction</span></span><br><span class="line">        <span class="comment"># log-probabilities can be obtained by applying log_softmax to the logits</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">strip_pad</span>(<span class="params">row: torch.Tensor, pad_id: <span class="built_in">int</span></span>) -&gt; <span class="type">List</span>[<span class="built_in">int</span>]:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Strip padding tokens from a row of token IDs.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    <span class="keyword">return</span> row[row.ne(pad_id)].tolist()</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">pad_sequences</span>(<span class="params">sequences: <span class="type">List</span>[<span class="type">List</span>[<span class="built_in">int</span>]], pad_id: <span class="built_in">int</span></span>) -&gt; <span class="type">Tuple</span>[torch.Tensor, torch.Tensor]:</span><br><span class="line">    max_len = <span class="built_in">max</span>(<span class="built_in">len</span>(seq) <span class="keyword">for</span> seq <span class="keyword">in</span> sequences)</span><br><span class="line">    ids = torch.full((<span class="built_in">len</span>(sequences), max_len), pad_id, dtype=torch.long)</span><br><span class="line">    mask = torch.zeros((<span class="built_in">len</span>(sequences), max_len), dtype=torch.<span class="built_in">bool</span>)</span><br><span class="line">    <span class="keyword">for</span> row, seq <span class="keyword">in</span> <span class="built_in">enumerate</span>(sequences):</span><br><span class="line">        ids[row, : <span class="built_in">len</span>(seq)] = torch.tensor(seq, dtype=torch.long)</span><br><span class="line">        mask[row, : <span class="built_in">len</span>(seq)] = <span class="literal">True</span></span><br><span class="line">    <span class="keyword">return</span> ids, mask</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">build_contexts</span>(<span class="params"></span></span><br><span class="line"><span class="params">    query_ids: torch.Tensor,</span></span><br><span class="line"><span class="params">    query_mask: torch.Tensor,</span></span><br><span class="line"><span class="params">    all_doc_ids: torch.Tensor,</span></span><br><span class="line"><span class="params">    doc_indices: torch.Tensor,</span></span><br><span class="line"><span class="params">    pad_id: <span class="built_in">int</span>,</span></span><br><span class="line"><span class="params">    max_len: <span class="built_in">int</span> = <span class="number">512</span>,</span></span><br><span class="line"><span class="params"></span>) -&gt; <span class="type">Tuple</span>[torch.Tensor, torch.Tensor]:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Build contexts by concatenating query tokens and retrieved document tokens.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    contextx = []</span><br><span class="line">    batch_size, topk = doc_indices.size()</span><br><span class="line">    <span class="keyword">for</span> b <span class="keyword">in</span> <span class="built_in">range</span>(batch_size):</span><br><span class="line">        q = strip_pad(query_ids[b], pad_id)</span><br><span class="line">        <span class="keyword">for</span> k <span class="keyword">in</span> <span class="built_in">range</span>(topk):</span><br><span class="line">            doc_idx = doc_indices[b, k].item()</span><br><span class="line">            d = strip_pad(all_doc_ids[doc_idx], pad_id)</span><br><span class="line">            context = q + d</span><br><span class="line">            <span class="keyword">if</span> <span class="built_in">len</span>(context) &gt; max_len:</span><br><span class="line">                context = context[:max_len]</span><br><span class="line">            contextx.append(context)</span><br><span class="line">    <span class="keyword">return</span> pad_sequences(contextx, pad_id)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">seq_log_prob</span>(<span class="params">logits: torch.Tensor, labels: torch.Tensor, pad_id: <span class="built_in">int</span></span>) -&gt; torch.Tensor:</span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    Compute the log-probabilities of the labels given the logits.</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    log_probs = F.log_softmax(logits, dim=-<span class="number">1</span>)</span><br><span class="line">    label_log_probs = log_probs.gather(dim=-<span class="number">1</span>, index=labels.unsqueeze(-<span class="number">1</span>)).squeeze(-<span class="number">1</span>)</span><br><span class="line">    mask = labels.ne(pad_id)</span><br><span class="line">    <span class="keyword">return</span> (label_log_probs * mask.<span class="built_in">float</span>()).<span class="built_in">sum</span>(dim=-<span class="number">1</span>) / mask.<span class="built_in">float</span>().<span class="built_in">sum</span>(dim=-<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="https://mars-dingdang.github.io/2026/07/09/Retrieval-augmented-Generation/" data-id="cuidLSoNlXW52l9PMo5IWjvNt" data-title="Retrieval-augmented-Generation" class="article-share-link"><span class="fa fa-share" aria-hidden="true"></span><span>Share</span></a>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Deep-Learning/" rel="tag">Deep Learning</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Notes/" rel="tag">Notes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/RAG/" rel="tag">RAG</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Transformer/" rel="tag">Transformer</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+  
+    <a href="/2026/07/02/Transformer-from-scratch/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">Transformer-from-scratch</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+<section id="comments" class="giscus-comments">
+  <div class="comments-heading">
+    <span>Discussion</span>
+    <h2>Comments</h2>
+    <p>Sign in with GitHub to join the conversation.</p>
+  </div>
+  
+    <script src="https://giscus.app/client.js"
+      data-repo="Mars-Dingdang/Mars-Dingdang.github.io"
+      data-repo-id="R_kgDOTJkbMw"
+      data-category="Announcements"
+      data-category-id="DIC_kwDOTJkbM84DAxF_"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="preferred_color_scheme"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async>
+    </script>
+  
+</section>
+
+</section>
+          </div>
+          <footer id="footer">
+  
+  <div class="outer footer-outer">
+    <div class="footer-card">
+      <div id="footer-info" class="inner">
+        
+        <span>&copy; 2026 Mars Dingdang</span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        
+          <a href="/">Front Page</a>
+        
+          <a href="/archives">Archives</a>
+        
+          <a href="/tags">Tags</a>
+        
+          <a href="/categories">Categories</a>
+        
+          <a href="/friends">Friends</a>
+        
+          <a href="/projects">Projects</a>
+        
+          <a href="/about">About</a>
+        
+      </nav>
+    </div>
+  </div>
+</footer>
+
+        </main>
+      </div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Front Page</a>
+  
+    <a href="/archives" class="mobile-nav-link">Archives</a>
+  
+    <a href="/tags" class="mobile-nav-link">Tags</a>
+  
+    <a href="/categories" class="mobile-nav-link">Categories</a>
+  
+    <a href="/friends" class="mobile-nav-link">Friends</a>
+  
+    <a href="/projects" class="mobile-nav-link">Projects</a>
+  
+    <a href="/about" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
