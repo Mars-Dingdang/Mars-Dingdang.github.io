@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>机器学习 06｜线性模型、稀疏性与压缩感知 | Mars Dingdang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="从最小二乘和感知机出发，推导 Logistic 回归、Ridge 与 LASSO，并说明少量线性测量何时能恢复稀疏向量。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习 06｜线性模型、稀疏性与压缩感知">
+<meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/06/index.html">
+<meta property="og:site_name" content="Mars Dingdang">
+<meta property="og:description" content="从最小二乘和感知机出发，推导 Logistic 回归、Ridge 与 LASSO，并说明少量线性测量何时能恢复稀疏向量。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-06/figure.png">
+<meta property="article:published_time" content="2026-11-13T08:06:00.000Z">
+<meta property="article:modified_time" content="2026-11-13T17:56:34.817Z">
+<meta property="article:author" content="Mars Dingdang">
+<meta property="article:tag" content="Compressed Sensing">
+<meta property="article:tag" content="Lecture Notes">
+<meta property="article:tag" content="Linear Models">
+<meta property="article:tag" content="Regularization">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mars-dingdang.github.io/images/posts/ml-06/figure.png">
+  
+  
+    <link rel="icon" href="data:,">
+  
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    <script>
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/ams']
+        },
+        tex: {
+          packages: {'[+]': ['ams']},
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body class="is-inner">
+  
+  <div id="container">
+    <div id="wrap">
+      <button class="mobile-rail-toggle" type="button" aria-label="Open sidebar menu" aria-controls="site-rail" aria-expanded="false">
+        <span class="rail-open-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#menu"></use></svg>
+</span>
+        <span class="rail-close-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+</span>
+        <span class="mobile-rail-toggle-text">Menu</span>
+      </button>
+      <div class="mobile-rail-backdrop" hidden></div>
+      <div class="site-shell">
+        <aside id="site-rail" class="site-rail">
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <div class="rail-username">Mars-Dingdang</div>
+          <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
+          <div class="rail-stats">
+            <a href="/archives/"><strong>26</strong><span>Posts</span></a>
+            <a href="/tags/"><strong>47</strong><span>Tags</span></a>
+            <a href="/categories/"><strong>6</strong><span>Categories</span></a>
+          </div>
+          <div class="rail-profile" aria-label="Profile details">
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#school"></use></svg>
+<span>IIIS, Tsinghua University</span></div>
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#clock"></use></svg>
+<span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#mail"></use></svg>
+<span>dst25@mails.tsinghua.edu.cn</span></a>
+          </div>
+          <nav class="rail-nav" aria-label="Primary">
+            
+            
+              
+              <a class="rail-nav-link" href="/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#home"></use></svg>
+
+                <span>Home</span>
+              </a>
+            
+              
+              <a class="rail-nav-link is-active" href="/notes/" aria-current="location">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+
+                <span>Notes</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/research/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#research"></use></svg>
+
+                <span>Research</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/projects/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#code"></use></svg>
+
+                <span>Projects</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/archives/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#archive"></use></svg>
+
+                <span>Archives</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/tags/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#tag"></use></svg>
+
+                <span>Tags</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/categories/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#layers"></use></svg>
+
+                <span>Categories</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/friends/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#users"></use></svg>
+
+                <span>Friends</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/about/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#user"></use></svg>
+
+                <span>About</span>
+              </a>
+            
+          </nav>
+          <div class="rail-controls">
+            <a class="rail-github" target="_blank" rel="noopener" href="https://github.com/Mars-Dingdang"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+<span>GitHub</span></a>
+            <button class="theme-toggle" type="button" aria-label="Light mode" aria-pressed="false" title="Switch to light mode">
+              <span class="theme-icon-sun"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#sun"></use></svg>
+</span>
+              <span class="theme-icon-moon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#moon"></use></svg>
+</span>
+            </button>
+          </div>
+          <div class="rail-search">
+            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
+              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
+              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+              <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
+</button>
+            </form>
+          </div>
+        </aside>
+        <main class="site-main">
+          <div class="outer">
+            <div id="main"><article id="post-ml-06" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  
+    <nav class="course-breadcrumb" aria-label="Course">
+      <a href="/notes/#ml">Machine Learning</a>
+      <span aria-hidden="true">/</span><span>Lecture 6</span>
+    </nav>
+  
+  <div class="article-meta">
+    <a href="/notes/ml/06/" class="article-date">
+  <time class="dt-published" datetime="2026-11-13T08:06:00.000Z" itemprop="datePublished">2026-11-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header" lang="en">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      机器学习 06｜线性模型、稀疏性与压缩感知
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody" lang="en">
+      
+        <p>从最小二乘和感知机出发，推导 Logistic 回归、Ridge 与 LASSO，并说明少量线性测量何时能恢复稀疏向量。</p>
+<span id="more"></span>
+
+<p><img src="/images/posts/ml-06/figure.png" alt="二维等损失曲线与 L1、L2 约束集合的接触位置"></p>
+<p><em>同一个二次损失在菱形约束下于坐标轴顶点取最小值，在圆盘约束下的最小点有两个非零坐标。</em></p>
+<h2 id="最小二乘和岭回归"><a href="#最小二乘和岭回归" class="headerlink" title="最小二乘和岭回归"></a>最小二乘和岭回归</h2><p>令 <span class="math-inline">\(X\in\mathbb R^{n\times d}\)</span> 每行为特征向量，目标为 <span class="math-inline">\(\|Xw-y\|^2/2\)</span>。梯度 <span class="math-inline">\(X^\top(Xw-y)\)</span> 为零给出正规方程 <span class="math-inline">\(X^\top Xw=X^\top y\)</span>。列满秩时解唯一。秩不足时拟合值 <span class="math-inline">\(Xw\)</span> 仍是 <span class="math-inline">\(y\)</span> 到列空间的正交投影，但参数可加任意 <span class="math-inline">\(\ker X\)</span> 中的向量。</p>
+<p>加入 <span class="math-inline">\(\lambda\|w\|^2/2\)</span> 得 Ridge。若 <span class="math-inline">\(X=U\Sigma V^\top\)</span> 是薄 SVD，</p>
+<div class="math-display">\[w_\lambda=(X^\top X+\lambda I)^{-1}X^\top y
+=\sum_i\frac{\sigma_i}{\sigma_i^2+\lambda}\langle u_i,y\rangle v_i.\]</div>
+<p>最小二乘在 <span class="math-inline">\(\sigma_i&gt;0\)</span> 的方向放大系数 <span class="math-inline">\(1/\sigma_i\)</span>，Ridge 对小奇异值方向的放大更弱。正则后矩阵严格正定，求解时可以用线性方程求解器，无需求出显式逆。</p>
+<h2 id="感知机错误次数界"><a href="#感知机错误次数界" class="headerlink" title="感知机错误次数界"></a>感知机错误次数界</h2><p>令 <span class="math-inline">\(y_i\in\{-1,1\}\)</span> 且 <span class="math-inline">\(\|x_i\|\le R\)</span>。假设存在单位向量 <span class="math-inline">\(w^\star\)</span> 使所有样本满足 <span class="math-inline">\(y_i\langle w^\star,x_i\rangle\ge\gamma&gt;0\)</span>。从 <span class="math-inline">\(w_0=0\)</span> 开始，只在 <span class="math-inline">\(y_i\langle w,x_i\rangle\le0\)</span> 时更新 <span class="math-inline">\(w\gets w+y_ix_i\)</span>。进行了 <span class="math-inline">\(M\)</span> 次更新后，沿目标方向的投影至少为 <span class="math-inline">\(M\gamma\)</span>。另一方面，错误条件令距离展开的交叉项非正。</p>
+<div class="math-display">\[\|w+y_ix_i\|^2=\|w\|^2+2y_i\langle w,x_i\rangle+\|x_i\|^2\le\|w\|^2+R^2.\]</div>
+<p>因此 <span class="math-inline">\(M\gamma\le\langle w_M,w^\star\rangle\le\|w_M\|\le R\sqrt M\)</span>，得到 <span class="math-inline">\(M\le(R/\gamma)^2\)</span>。若有截距，可扩充一个常数特征，并在扩充后的空间里重算 <span class="math-inline">\(R\)</span> 与 <span class="math-inline">\(\gamma\)</span>。</p>
+<h2 id="Logistic-回归的损失和曲率"><a href="#Logistic-回归的损失和曲率" class="headerlink" title="Logistic 回归的损失和曲率"></a>Logistic 回归的损失和曲率</h2><p>用 <span class="math-inline">\(p_i=\sigma(w^\top x_i)\)</span> 拟合 <span class="math-inline">\(y_i\in\{0,1\}\)</span> 的 Bernoulli 分布。负对数似然等于交叉熵，单样本损失可写成 <span class="math-inline">\(\log(1+e^{s_i})-y_is_i\)</span>，其中 <span class="math-inline">\(s_i=w^\top x_i\)</span>。</p>
+<div class="math-display">\[\nabla \ell_i=(p_i-y_i)x_i,\qquad
+\nabla^2\ell_i=p_i(1-p_i)x_ix_i^\top\succeq0.\]</div>
+<p>因此损失凸，且因为 <span class="math-inline">\(p_i(1-p_i)\le1/4\)</span>，总和的 Hessian 由 <span class="math-inline">\(X^\top X/4\)</span> 上界。线性可分且无正则时，沿分离方向放大权重可以使损失不断趋近零，有限参数一般达不到零。概率建模的凸性与是否存在有限最小点是两件事。</p>
+<h2 id="LASSO-的阈值从哪里来"><a href="#LASSO-的阈值从哪里来" class="headerlink" title="LASSO 的阈值从哪里来"></a>LASSO 的阈值从哪里来</h2><p>LASSO 将惩罚换成 <span class="math-inline">\(\lambda\|w\|_1\)</span>。若 <span class="math-inline">\(X^\top X=I\)</span>，展开平方后，各坐标独立解</p>
+<div class="math-display">\[\min_u\ \frac12(u-z)^2+\lambda|u|,\qquad z=(X^\top y)_j.\]</div>
+<p>当 <span class="math-inline">\(u&gt;0\)</span>，导数为 <span class="math-inline">\(u-z+\lambda\)</span>。当 <span class="math-inline">\(u&lt;0\)</span>，导数为 <span class="math-inline">\(u-z-\lambda\)</span>。在 <span class="math-inline">\(u=0\)</span>，次梯度区间包含零恰好当 <span class="math-inline">\(|z|\le\lambda\)</span>。合并得到软阈值</p>
+<div class="math-display">\[S_\lambda(z)=\operatorname{sign}(z)\max\{|z|-\lambda,0\}.\]</div>
+<p>一般设计矩阵可以对平方项做梯度一步，再对每个坐标应用 <span class="math-inline">\(S_{\eta\lambda}\)</span>，这就是近端梯度。图中的菱形顶点对应部分坐标恰好为零，展示了 <span class="math-inline">\(\ell_1\)</span> 的稀疏几何。</p>
+<h2 id="从估计稀疏参数到恢复稀疏信号"><a href="#从估计稀疏参数到恢复稀疏信号" class="headerlink" title="从估计稀疏参数到恢复稀疏信号"></a>从估计稀疏参数到恢复稀疏信号</h2><p>压缩感知观察 <span class="math-inline">\(y=Aw\)</span>，其中 <span class="math-inline">\(A\in\mathbb R^{m\times d}\)</span> 且 <span class="math-inline">\(m&lt;d\)</span>。若真实 <span class="math-inline">\(w\)</span> 至多 <span class="math-inline">\(s\)</span> 稀疏，基追踪（basis pursuit）解 <span class="math-inline">\(\min_z\|z\|_1\)</span> s.t. <span class="math-inline">\(Az=y\)</span>。一个精确的唯一恢复条件是：对所有非零 <span class="math-inline">\(h\in\ker A\)</span> 和所有 <span class="math-inline">\(|S|\le s\)</span>，</p>
+<div class="math-display">\[\|h_S\|_1&lt;\|h_{S^c}\|_1.\]</div>
+<p>若 <span class="math-inline">\(w\)</span> 支撑在 <span class="math-inline">\(S\)</span>，任何其他可行解写成 <span class="math-inline">\(w+h\)</span>。三角不等式给</p>
+<div class="math-display">\[\|w+h\|_1\ge\|w\|_1-\|h_S\|_1+\|h_{S^c}\|_1&gt;\|w\|_1.\]</div>
+<p>反过来，若条件失败，令 <span class="math-inline">\(w=-h_S\)</span>，则 <span class="math-inline">\(w+h=h_{S^c}\)</span> 具有相同观测且范数不大于 <span class="math-inline">\(\|w\|_1\)</span>，唯一恢复失败。这个零空间性质给出充要条件。若信号稀疏在某个已知基 <span class="math-inline">\(\Psi\)</span> 下，把测量矩阵换为 <span class="math-inline">\(A\Psi\)</span>，在系数空间使用同样的分析。</p>
+<p>RIP 给出另一种常用的测量矩阵条件。若对每个至多 <span class="math-inline">\(k\)</span> 稀疏的向量 <span class="math-inline">\(z\)</span> 都有</p>
+<div class="math-display">\[(1-\delta_k)\|z\|^2\le\|Az\|^2\le(1+\delta_k)\|z\|^2,\]</div>
+<p>则称 <span class="math-inline">\(A\)</span> 满足 <span class="math-inline">\(k\)</span> 阶限制等距性质。取 <span class="math-inline">\(k=2s\)</span>，两个 <span class="math-inline">\(s\)</span> 稀疏向量之差仍是 <span class="math-inline">\(2s\)</span> 稀疏。故只要 <span class="math-inline">\(\delta_{2s}&lt;1\)</span>，<span class="math-inline">\(Az=Az'\)</span> 就推出 <span class="math-inline">\(z=z'\)</span>。若两者的测量残差都不超过 <span class="math-inline">\(\varepsilon\)</span>，同样得到 <span class="math-inline">\(\|z-z'\|\le2\varepsilon/\sqrt{1-\delta_{2s}}\)</span>。这是对稀疏可行解的唯一性与稳定性证明。若要保证 <span class="math-inline">\(\ell_1\)</span> 松弛也能找到稀疏真解，还需充分小的 RIP 常数或前述零空间条件。</p>
+<p>有些信号用低维生成模型 <span class="math-inline">\(z=G(u)\)</span> 描述，此时对应问题是最小化 <span class="math-inline">\(\|AG(u)-y\|^2\)</span>。稳定性所需的几何条件改为在模型的割线 <span class="math-inline">\(G(u)-G(u')\)</span> 上保持长度。即使测量对这些方向保真，求解 <span class="math-inline">\(u\)</span> 的非凸优化仍是另一个问题。</p>
+<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>若 <span class="math-inline">\(X^\top X=I\)</span>、<span class="math-inline">\(X^\top y=(3,1,-0.2)\)</span>、<span class="math-inline">\(\lambda=1\)</span>，Ridge 解为 <span class="math-inline">\((1.5,0.5,-0.1)\)</span>，LASSO 解为 <span class="math-inline">\((2,0,0)\)</span>。两种惩罚都收缩权重，后者在阈值内产生精确零。</p>
+<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》2026 年第 6 讲，linear methods 与 compressed sensing。</p>
+<p><a href="/notes/ml/05/">← 第 5 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/07/">第 7 讲 →</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/06/" data-id="cuid4eJjekFxjuBeI4U3lmsmr" data-title="机器学习 06｜线性模型、稀疏性与压缩感知" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>Share</span></button>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Compressed-Sensing/" rel="tag">Compressed Sensing</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lecture-Notes/" rel="tag">Lecture Notes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Linear-Models/" rel="tag">Linear Models</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Regularization/" rel="tag">Regularization</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/notes/ml/07/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          机器学习 07｜支持向量机、对偶与核
+        
+      </div>
+    </a>
+  
+  
+    <a href="/notes/ml/05/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">机器学习 05｜PAC 学习与 VC 维</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+<section id="comments" class="giscus-comments">
+  <div class="comments-heading">
+    <span>Discussion</span>
+    <h2>Comments</h2>
+    <p>Sign in with GitHub to join the conversation.</p>
+  </div>
+  
+    <script src="https://giscus.app/client.js"
+      data-repo="Mars-Dingdang/Mars-Dingdang.github.io"
+      data-repo-id="R_kgDOTJkbMw"
+      data-category="Announcements"
+      data-category-id="DIC_kwDOTJkbM84DAxF_"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="preferred_color_scheme"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async>
+    </script>
+  
+</section>
+
+</div>
+          </div>
+          <footer id="footer">
+  
+  <div class="outer footer-outer">
+    <div class="footer-card">
+      <div id="footer-info" class="inner">
+        
+        <span>&copy; 2026 Mars Dingdang</span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        
+          <a href="/">Home</a>
+        
+          <a href="/notes/">Notes</a>
+        
+          <a href="/research/">Research</a>
+        
+          <a href="/projects/">Projects</a>
+        
+          <a href="/archives/">Archives</a>
+        
+          <a href="/tags/">Tags</a>
+        
+          <a href="/categories/">Categories</a>
+        
+          <a href="/friends/">Friends</a>
+        
+          <a href="/about/">About</a>
+        
+      </nav>
+    </div>
+  </div>
+</footer>
+
+        </main>
+      </div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/notes/" class="mobile-nav-link">Notes</a>
+  
+    <a href="/research/" class="mobile-nav-link">Research</a>
+  
+    <a href="/projects/" class="mobile-nav-link">Projects</a>
+  
+    <a href="/archives/" class="mobile-nav-link">Archives</a>
+  
+    <a href="/tags/" class="mobile-nav-link">Tags</a>
+  
+    <a href="/categories/" class="mobile-nav-link">Categories</a>
+  
+    <a href="/friends/" class="mobile-nav-link">Friends</a>
+  
+    <a href="/about/" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

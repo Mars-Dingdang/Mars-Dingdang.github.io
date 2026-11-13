@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>机器学习 11｜SimCLR、t-SNE 与 RoPE | Mars Dingdang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="从正负配对、邻居概率和旋转内积三个角度理解表示学习中的相似性，推导 InfoNCE 梯度与 RoPE 的相对位置性质。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习 11｜SimCLR、t-SNE 与 RoPE">
+<meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/11/index.html">
+<meta property="og:site_name" content="Mars Dingdang">
+<meta property="og:description" content="从正负配对、邻居概率和旋转内积三个角度理解表示学习中的相似性，推导 InfoNCE 梯度与 RoPE 的相对位置性质。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-11/figure.png">
+<meta property="article:published_time" content="2026-11-13T08:11:00.000Z">
+<meta property="article:modified_time" content="2026-11-13T17:49:18.698Z">
+<meta property="article:author" content="Mars Dingdang">
+<meta property="article:tag" content="Contrastive Learning">
+<meta property="article:tag" content="Lecture Notes">
+<meta property="article:tag" content="Representation Learning">
+<meta property="article:tag" content="Transformers">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mars-dingdang.github.io/images/posts/ml-11/figure.png">
+  
+  
+    <link rel="icon" href="data:,">
+  
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    <script>
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/ams']
+        },
+        tex: {
+          packages: {'[+]': ['ams']},
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body class="is-inner">
+  
+  <div id="container">
+    <div id="wrap">
+      <button class="mobile-rail-toggle" type="button" aria-label="Open sidebar menu" aria-controls="site-rail" aria-expanded="false">
+        <span class="rail-open-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#menu"></use></svg>
+</span>
+        <span class="rail-close-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+</span>
+        <span class="mobile-rail-toggle-text">Menu</span>
+      </button>
+      <div class="mobile-rail-backdrop" hidden></div>
+      <div class="site-shell">
+        <aside id="site-rail" class="site-rail">
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <div class="rail-username">Mars-Dingdang</div>
+          <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
+          <div class="rail-stats">
+            <a href="/archives/"><strong>26</strong><span>Posts</span></a>
+            <a href="/tags/"><strong>47</strong><span>Tags</span></a>
+            <a href="/categories/"><strong>6</strong><span>Categories</span></a>
+          </div>
+          <div class="rail-profile" aria-label="Profile details">
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#school"></use></svg>
+<span>IIIS, Tsinghua University</span></div>
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#clock"></use></svg>
+<span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#mail"></use></svg>
+<span>dst25@mails.tsinghua.edu.cn</span></a>
+          </div>
+          <nav class="rail-nav" aria-label="Primary">
+            
+            
+              
+              <a class="rail-nav-link" href="/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#home"></use></svg>
+
+                <span>Home</span>
+              </a>
+            
+              
+              <a class="rail-nav-link is-active" href="/notes/" aria-current="location">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+
+                <span>Notes</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/research/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#research"></use></svg>
+
+                <span>Research</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/projects/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#code"></use></svg>
+
+                <span>Projects</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/archives/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#archive"></use></svg>
+
+                <span>Archives</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/tags/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#tag"></use></svg>
+
+                <span>Tags</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/categories/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#layers"></use></svg>
+
+                <span>Categories</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/friends/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#users"></use></svg>
+
+                <span>Friends</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/about/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#user"></use></svg>
+
+                <span>About</span>
+              </a>
+            
+          </nav>
+          <div class="rail-controls">
+            <a class="rail-github" target="_blank" rel="noopener" href="https://github.com/Mars-Dingdang"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+<span>GitHub</span></a>
+            <button class="theme-toggle" type="button" aria-label="Light mode" aria-pressed="false" title="Switch to light mode">
+              <span class="theme-icon-sun"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#sun"></use></svg>
+</span>
+              <span class="theme-icon-moon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#moon"></use></svg>
+</span>
+            </button>
+          </div>
+          <div class="rail-search">
+            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
+              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
+              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+              <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
+</button>
+            </form>
+          </div>
+        </aside>
+        <main class="site-main">
+          <div class="outer">
+            <div id="main"><article id="post-ml-11" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  
+    <nav class="course-breadcrumb" aria-label="Course">
+      <a href="/notes/#ml">Machine Learning</a>
+      <span aria-hidden="true">/</span><span>Lecture 11</span>
+    </nav>
+  
+  <div class="article-meta">
+    <a href="/notes/ml/11/" class="article-date">
+  <time class="dt-published" datetime="2026-11-13T08:11:00.000Z" itemprop="datePublished">2026-11-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header" lang="en">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      机器学习 11｜SimCLR、t-SNE 与 RoPE
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody" lang="en">
+      
+        <p>从正负配对、邻居概率和旋转内积三个角度理解表示学习中的相似性，推导 InfoNCE 梯度与 RoPE 的相对位置性质。</p>
+<span id="more"></span>
+
+<p><img src="/images/posts/ml-11/figure.png" alt="同一个查询和键先后旋转后，其夹角变化只由两个位置的旋转角之差决定"></p>
+<p><em>每对坐标共享一个角频率。固定内容向量，两者的内积只通过相对旋转角依赖位置。</em></p>
+<h2 id="SimCLR-如何制造监督信号"><a href="#SimCLR-如何制造监督信号" class="headerlink" title="SimCLR 如何制造监督信号"></a>SimCLR 如何制造监督信号</h2><p>给一张图像独立采样两次数据增强，得到两个视图。由同一原图生成的视图互为正样本，一个批次内来自其他原图的视图作为负样本。编码器输出 <span class="math-inline">\(h_i\)</span>，投影头再产生归一化向量 <span class="math-inline">\(z_i\)</span>。若 <span class="math-inline">\(j\)</span> 是 <span class="math-inline">\(i\)</span> 的正样本，</p>
+<div class="math-display">\[\ell_{i,j}
+=-\log\frac{\exp(z_i^\top z_j/\tau)}
+{\sum_{k\ne i}\exp(z_i^\top z_k/\tau)},
+\qquad \tau&gt;0.\]</div>
+<p>对每对增强使用两个方向的损失。把 <span class="math-inline">\(s_{ik}=z_i^\top z_k\)</span> 看作 logits 的原始分数，记 <span class="math-inline">\(p_{ik}\)</span> 为其温度 softmax，则</p>
+<div class="math-display">\[\frac{\partial \ell_{i,j}}{\partial s_{ik}}
+=\frac{p_{ik}-\mathbf1\{k=j\}}{\tau}.\]</div>
+<p>正样本分数受到向上的驱动力，负样本分数受到向下的驱动力，当前相似度较高的负样本获得更大权重。实际参数更新还通过编码器共享参数和归一化耦合所有分数。投影头服务于训练目标，下游常使用编码器的 <span class="math-inline">\(h_i\)</span>。</p>
+<p>增强分布定义了模型学习的不变性。例如裁剪通常保留物体身份，但在依赖全局构图的任务里可能删掉目标信息。用图理解正样本配对时，令 <span class="math-inline">\(w_{ij}\)</span> 为增强边权，有</p>
+<div class="math-display">\[\frac12\sum_{i,j}w_{ij}\|z_i-z_j\|^2=\operatorname{tr}(Z^\top LZ).\]</div>
+<p>单位范数下它与最大化加权正样本内积等价。这解释了目标吸引项与 <a href="/notes/ml/10/">第 10 讲</a>图 Laplacian 的联系。InfoNCE 还含 log-sum-exp 归一化项，谱方法的正交约束或其他防坍塌条件承担不同角色，完整目标的等价结论需要明确建模假设。图文对比可将正样本图改成图像与文本之间的二部图。</p>
+<h2 id="t-SNE-用概率表达局部近邻"><a href="#t-SNE-用概率表达局部近邻" class="headerlink" title="t-SNE 用概率表达局部近邻"></a>t-SNE 用概率表达局部近邻</h2><p>高维样本 <span class="math-inline">\(x_i\)</span> 的条件邻居分布为</p>
+<div class="math-display">\[p_{j\mid i}=\frac{\exp(-\|x_i-x_j\|^2/(2\sigma_i^2))}
+{\sum_{k\ne i}\exp(-\|x_i-x_k\|^2/(2\sigma_i^2))}.\]</div>
+<p>逐点调整 <span class="math-inline">\(\sigma_i\)</span>，使困惑度 <span class="math-inline">\(2^{-\sum_jp_{j\mid i}\log_2p_{j\mid i}}\)</span> 接近指定值。困惑度是有效邻居数的尺度。高维联合概率取 <span class="math-inline">\(p_{ij}=(p_{j\mid i}+p_{i\mid j})/(2n)\)</span>。低维坐标 <span class="math-inline">\(y_i\)</span> 对应概率</p>
+<div class="math-display">\[q_{ij}=\frac{(1+\|y_i-y_j\|^2)^{-1}}{\sum_{a\ne b}(1+\|y_a-y_b\|^2)^{-1}},\qquad q_{ii}=0.\]</div>
+<p>最小化 <span class="math-inline">\(\operatorname{KL}(P\|Q)\)</span> 使高维强邻居在低维仍有较大概率。<span class="math-inline">\(q\)</span> 的重尾允许在低维拉开中等与较远距离，减轻 crowding。展开梯度可得</p>
+<div class="math-display">\[\nabla_{y_i}\operatorname{KL}(P\|Q)
+=4\sum_{j\ne i}(p_{ij}-q_{ij})
+\frac{y_i-y_j}{1+\|y_i-y_j\|^2}.\]</div>
+<p>符号给出吸引和排斥的方向。坐标可因随机初始化和困惑度改变，簇间空白或面积没有直接的原空间单位。</p>
+<h2 id="RoPE-为何产生相对位置"><a href="#RoPE-为何产生相对位置" class="headerlink" title="RoPE 为何产生相对位置"></a>RoPE 为何产生相对位置</h2><p>把查询、键的偶数维通道分成二维块。在第 <span class="math-inline">\(j\)</span> 块，位置 <span class="math-inline">\(m\)</span> 的查询乘旋转矩阵 <span class="math-inline">\(R(m\theta_j)\)</span>，位置 <span class="math-inline">\(n\)</span> 的键乘 <span class="math-inline">\(R(n\theta_j)\)</span>。正交性和旋转的加法给出</p>
+<div class="math-display">\[(R(m\theta_j)q)^\top R(n\theta_j)k
+=q^\top R((n-m)\theta_j)k.\]</div>
+<p>所以这部分注意力分数的显式位置依赖只经过 <span class="math-inline">\(n-m\)</span>。查询和键的内容本身仍由各自位置的 token 和上下文决定。常用频率为 <span class="math-inline">\(\theta_j=10000^{-2j/d}\)</span>，<span class="math-inline">\(j=0,\dots,d/2-1\)</span>。多个频率让不同通道感知不同距离尺度。RoPE 改变的是查询和键的内积结构，序列外推效果还取决于训练长度、频率设置和模型。</p>
+<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>若二维 <span class="math-inline">\(q=k=(1,0)\)</span>，旋转后的内积为 <span class="math-inline">\(\cos((n-m)\theta)\)</span>。位置同时从 <span class="math-inline">\((m,n)\)</span> 移为 <span class="math-inline">\((m+a,n+a)\)</span>，内积不变。若只移动键，内积通常会变。</p>
+<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》往年课件第 11 讲。原文：<a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v119/chen20j.html">SimCLR</a>，<a target="_blank" rel="noopener" href="https://jmlr.org/papers/v9/vandermaaten08a.html">t-SNE</a>，<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2104.09864">RoFormer</a>。</p>
+<p><a href="/notes/ml/10/">← 第 10 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/12/">第 12 讲 →</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/11/" data-id="cuidpWMHLA1Tqy47C22DF_pG1" data-title="机器学习 11｜SimCLR、t-SNE 与 RoPE" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>Share</span></button>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Contrastive-Learning/" rel="tag">Contrastive Learning</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lecture-Notes/" rel="tag">Lecture Notes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Representation-Learning/" rel="tag">Representation Learning</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Transformers/" rel="tag">Transformers</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/notes/ml/12/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          机器学习 12｜鲁棒学习与随机平滑证书
+        
+      </div>
+    </a>
+  
+  
+    <a href="/notes/ml/10/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">机器学习 10｜K-means 与谱聚类</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+<section id="comments" class="giscus-comments">
+  <div class="comments-heading">
+    <span>Discussion</span>
+    <h2>Comments</h2>
+    <p>Sign in with GitHub to join the conversation.</p>
+  </div>
+  
+    <script src="https://giscus.app/client.js"
+      data-repo="Mars-Dingdang/Mars-Dingdang.github.io"
+      data-repo-id="R_kgDOTJkbMw"
+      data-category="Announcements"
+      data-category-id="DIC_kwDOTJkbM84DAxF_"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="preferred_color_scheme"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async>
+    </script>
+  
+</section>
+
+</div>
+          </div>
+          <footer id="footer">
+  
+  <div class="outer footer-outer">
+    <div class="footer-card">
+      <div id="footer-info" class="inner">
+        
+        <span>&copy; 2026 Mars Dingdang</span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        
+          <a href="/">Home</a>
+        
+          <a href="/notes/">Notes</a>
+        
+          <a href="/research/">Research</a>
+        
+          <a href="/projects/">Projects</a>
+        
+          <a href="/archives/">Archives</a>
+        
+          <a href="/tags/">Tags</a>
+        
+          <a href="/categories/">Categories</a>
+        
+          <a href="/friends/">Friends</a>
+        
+          <a href="/about/">About</a>
+        
+      </nav>
+    </div>
+  </div>
+</footer>
+
+        </main>
+      </div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/notes/" class="mobile-nav-link">Notes</a>
+  
+    <a href="/research/" class="mobile-nav-link">Research</a>
+  
+    <a href="/projects/" class="mobile-nav-link">Projects</a>
+  
+    <a href="/archives/" class="mobile-nav-link">Archives</a>
+  
+    <a href="/tags/" class="mobile-nav-link">Tags</a>
+  
+    <a href="/categories/" class="mobile-nav-link">Categories</a>
+  
+    <a href="/friends/" class="mobile-nav-link">Friends</a>
+  
+    <a href="/about/" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

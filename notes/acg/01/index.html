@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>「ACG 01」图形学导论：从场景到像素 | Mars Dingdang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="一张渲染图是一次计算的结果。几何描述物体的形状，材质和光源决定颜色与明暗，相机决定观察位置，像素则记录有限分辨率下的测量结果。把这些输入分开，才能追问图像里的某种现象究竟由什么引起。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="「ACG 01」图形学导论：从场景到像素">
+<meta property="og:url" content="https://mars-dingdang.github.io/notes/acg/01/index.html">
+<meta property="og:site_name" content="Mars Dingdang">
+<meta property="og:description" content="一张渲染图是一次计算的结果。几何描述物体的形状，材质和光源决定颜色与明暗，相机决定观察位置，像素则记录有限分辨率下的测量结果。把这些输入分开，才能追问图像里的某种现象究竟由什么引起。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/acg-01-introduction/thumbnail.png">
+<meta property="article:published_time" content="2026-11-13T16:01:00.000Z">
+<meta property="article:modified_time" content="2026-11-13T17:42:21.869Z">
+<meta property="article:author" content="Mars Dingdang">
+<meta property="article:tag" content="ACG">
+<meta property="article:tag" content="Lecture Notes">
+<meta property="article:tag" content="Rendering">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mars-dingdang.github.io/images/posts/acg-01-introduction/thumbnail.png">
+  
+  
+    <link rel="icon" href="data:,">
+  
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    <script>
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/ams']
+        },
+        tex: {
+          packages: {'[+]': ['ams']},
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body class="is-inner">
+  
+  <div id="container">
+    <div id="wrap">
+      <button class="mobile-rail-toggle" type="button" aria-label="Open sidebar menu" aria-controls="site-rail" aria-expanded="false">
+        <span class="rail-open-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#menu"></use></svg>
+</span>
+        <span class="rail-close-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+</span>
+        <span class="mobile-rail-toggle-text">Menu</span>
+      </button>
+      <div class="mobile-rail-backdrop" hidden></div>
+      <div class="site-shell">
+        <aside id="site-rail" class="site-rail">
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <div class="rail-username">Mars-Dingdang</div>
+          <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
+          <div class="rail-stats">
+            <a href="/archives/"><strong>26</strong><span>Posts</span></a>
+            <a href="/tags/"><strong>47</strong><span>Tags</span></a>
+            <a href="/categories/"><strong>6</strong><span>Categories</span></a>
+          </div>
+          <div class="rail-profile" aria-label="Profile details">
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#school"></use></svg>
+<span>IIIS, Tsinghua University</span></div>
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#clock"></use></svg>
+<span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#mail"></use></svg>
+<span>dst25@mails.tsinghua.edu.cn</span></a>
+          </div>
+          <nav class="rail-nav" aria-label="Primary">
+            
+            
+              
+              <a class="rail-nav-link" href="/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#home"></use></svg>
+
+                <span>Home</span>
+              </a>
+            
+              
+              <a class="rail-nav-link is-active" href="/notes/" aria-current="location">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+
+                <span>Notes</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/research/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#research"></use></svg>
+
+                <span>Research</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/projects/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#code"></use></svg>
+
+                <span>Projects</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/archives/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#archive"></use></svg>
+
+                <span>Archives</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/tags/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#tag"></use></svg>
+
+                <span>Tags</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/categories/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#layers"></use></svg>
+
+                <span>Categories</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/friends/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#users"></use></svg>
+
+                <span>Friends</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/about/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#user"></use></svg>
+
+                <span>About</span>
+              </a>
+            
+          </nav>
+          <div class="rail-controls">
+            <a class="rail-github" target="_blank" rel="noopener" href="https://github.com/Mars-Dingdang"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+<span>GitHub</span></a>
+            <button class="theme-toggle" type="button" aria-label="Light mode" aria-pressed="false" title="Switch to light mode">
+              <span class="theme-icon-sun"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#sun"></use></svg>
+</span>
+              <span class="theme-icon-moon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#moon"></use></svg>
+</span>
+            </button>
+          </div>
+          <div class="rail-search">
+            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
+              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
+              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+              <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
+</button>
+            </form>
+          </div>
+        </aside>
+        <main class="site-main">
+          <div class="outer">
+            <div id="main"><article id="post-acg-01-introduction" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  
+    <nav class="course-breadcrumb" aria-label="Course">
+      <a href="/notes/#acg">Advanced Computer Graphics</a>
+      <span aria-hidden="true">/</span><span>Lecture 1</span>
+    </nav>
+  
+  <div class="article-meta">
+    <a href="/notes/acg/01/" class="article-date">
+  <time class="dt-published" datetime="2026-11-13T16:01:00.000Z" itemprop="datePublished">2026-11-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Computer-Graphics/">Computer Graphics</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header" lang="zh-CN">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      「ACG 01」图形学导论：从场景到像素
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody" lang="zh-CN">
+      
+        <p>一张渲染图是一次计算的结果。几何描述物体的形状，材质和光源决定颜色与明暗，相机决定观察位置，像素则记录有限分辨率下的测量结果。把这些输入分开，才能追问图像里的某种现象究竟由什么引起。</p>
+<span id="more"></span>
+
+<h2 id="图形学的正向问题与视觉的逆向问题"><a href="#图形学的正向问题与视觉的逆向问题" class="headerlink" title="图形学的正向问题与视觉的逆向问题"></a>图形学的正向问题与视觉的逆向问题</h2><p>把一个场景写成 <span class="math-inline">\(\mathcal S=(G,M,L,C)\)</span>，分别表示几何、材质、照明和相机。渲染器计算图像 <span class="math-inline">\(I=\mathcal R(\mathcal S)\)</span>。在场景固定时改变 <span class="math-inline">\(C\)</span>，我们可以观察透视如何变化。在相机固定时改变 <span class="math-inline">\(M\)</span> 或 <span class="math-inline">\(L\)</span>，则可以比较材质响应和光照。</p>
+<p>三维视觉常面对相反的问题：给定 <span class="math-inline">\(I\)</span>，希望推断 <span class="math-inline">\(\mathcal S\)</span> 的一部分。下面从针孔相机推导一个最小例子。相机看向正 <span class="math-inline">\(Z\)</span> 轴，虚拟成像平面在 <span class="math-inline">\(Z=f\)</span>。空间点 <span class="math-inline">\(P=(X,Y,Z)\)</span> 与针孔的连线在平面上的交点为 <span class="math-inline">\((x,y,f)\)</span>。同一直线上的坐标成比例，所以</p>
+<div class="math-display">\[(x,y)=\left(f\frac{X}{Z},\, f\frac{Y}{Z}\right).\]</div>
+<p><img src="/images/posts/acg-01-introduction/thumbnail.png" alt="针孔相机的侧视图。距离不同的两个点位于从针孔出发的同一条射线上，投影到成像平面的同一点"></p>
+<p>把 <span class="math-inline">\(P\)</span> 换成 <span class="math-inline">\(\lambda P\)</span>（<span class="math-inline">\(\lambda&gt;0\)</span>），两个坐标中的 <span class="math-inline">\(\lambda\)</span> 都会约掉。单张图像上的一个像点只确定方向，不能单独确定深度。若两台相机的位置和朝向已知，从不同视点找到同一空间点的像点，就能用两条射线约束其位置。纹理重复、遮挡或相机基线过小仍会让估计变难。</p>
+<h2 id="几何、动画与显示"><a href="#几何、动画与显示" class="headerlink" title="几何、动画与显示"></a>几何、动画与显示</h2><p><strong>建模</strong>包含形状表示和属性定义。一张角色网格可以存储顶点、三角形连接、法向和纹理坐标。另一种选择是用函数 <span class="math-inline">\(F(x,y,z)=0\)</span> 定义表面。例如球面可写成 <span class="math-inline">\(x^2+y^2+z^2-r^2=0\)</span>，并通过函数的正负判断一个点在球内还是球外。两种表示的运算成本不同，后续会分别遇到曲面采样、网格编辑和射线求交。</p>
+<p><strong>动画</strong>给场景加上时间。一种常见做法是在时刻 <span class="math-inline">\(t_0,t_1\)</span> 记录同一物体的位置 <span class="math-inline">\(p_0,p_1\)</span>，中间用线性插值得到</p>
+<div class="math-display">\[p(t)=(1-s)p_0+sp_1,\qquad s=\frac{t-t_0}{t_1-t_0}.\]</div>
+<p>代入两个端点分别得到 <span class="math-inline">\(p_0,p_1\)</span>，对 <span class="math-inline">\(t\)</span> 求导得到恒定速度 <span class="math-inline">\((p_1-p_0)/(t_1-t_0)\)</span>。连续两段的速度可能不同，所以位置连续的运动在关键帧处仍可能突然改变方向。骨骼动画用父子关节构成变换层次，再让蒙皮顶点跟随一个或多个关节。物理模拟则根据力和约束演化状态，例如弹簧布料的一条边可以用 <span class="math-inline">\(E=\tfrac12 k(\ell-\ell_0)^2\)</span> 近似它偏离原长所需的能量，其沿伸长方向的广义力为 <span class="math-inline">\(-\partial E/\partial \ell=-k(\ell-\ell_0)\)</span>。</p>
+<p><strong>显示</strong>把图像变成设备上的可见光。渲染器通常先写入帧缓冲区，再做颜色映射和显示编码。着色时的线性能量与存入图像的非线性 RGB 值有不同含义。例如两个相等面积区域在线性空间的亮度平均是 <span class="math-inline">\((L_1+L_2)/2\)</span>，应该先在线性空间计算再编码。</p>
+<h2 id="两条渲染路线"><a href="#两条渲染路线" class="headerlink" title="两条渲染路线"></a>两条渲染路线</h2><p>光栅化先把三角形投影到屏幕，再枚举它覆盖的像素样本。多个不透明片元覆盖同一位置时，深度测试保留最近的片元。它适合将顶点变换、覆盖测试和片元着色组织成流水线。</p>
+<p>光线追踪从相机通过像素发出射线，寻找射线上最近的物体。找到交点后，可以向光源发出阴影射线，或继续追踪反射、折射和漫反射路径。它把相机可见性与光照可见性统一成射线查询。两条路线都要回答「看到哪里」和「看到多亮」，也可以在同一个实时系统中协同工作。</p>
+<h2 id="课程路线"><a href="#课程路线" class="headerlink" title="课程路线"></a>课程路线</h2><p><a href="/notes/acg/02/">第 02 讲</a> 从曲线、曲面和网格开始，<a href="/notes/acg/03/">第 03 讲</a> 讨论空间变换和相机，<a href="/notes/acg/04/">第 04 讲</a> 推导投影并引入三维学习。<a href="/notes/acg/05/">第 05 讲</a> 将三角形转换为像素样本，<a href="/notes/acg/06/">第 06 讲</a> 给样本计算颜色和阴影，<a href="/notes/acg/07/">第 07 讲</a> 从射线求交走到渲染方程。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>弋力，《Advanced Computer Graphics》，Lecture 1: Introduction，2026 年 9 月 16 日。</li>
+</ul>
+<hr>
+<p><a href="/notes/">课程笔记</a> · <a href="/notes/acg/02/">下一讲</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/acg/01/" data-id="cuidpf3B2qR0_srGONnlJrtM3" data-title="「ACG 01」图形学导论：从场景到像素" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>分享</span></button>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ACG/" rel="tag">ACG</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lecture-Notes/" rel="tag">Lecture Notes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Rendering/" rel="tag">Rendering</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/notes/acg/02/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          「ACG 02」几何表示：Bézier、网格与隐式曲面
+        
+      </div>
+    </a>
+  
+  
+    <a href="/posts/dimension-free-theorems-in-geometry/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">Dimension Free Theorems in Geometry</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+<section id="comments" class="giscus-comments">
+  <div class="comments-heading">
+    <span>Discussion</span>
+    <h2>Comments</h2>
+    <p>Sign in with GitHub to join the conversation.</p>
+  </div>
+  
+    <script src="https://giscus.app/client.js"
+      data-repo="Mars-Dingdang/Mars-Dingdang.github.io"
+      data-repo-id="R_kgDOTJkbMw"
+      data-category="Announcements"
+      data-category-id="DIC_kwDOTJkbM84DAxF_"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="preferred_color_scheme"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async>
+    </script>
+  
+</section>
+
+</div>
+          </div>
+          <footer id="footer">
+  
+  <div class="outer footer-outer">
+    <div class="footer-card">
+      <div id="footer-info" class="inner">
+        
+        <span>&copy; 2026 Mars Dingdang</span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        
+          <a href="/">Home</a>
+        
+          <a href="/notes/">Notes</a>
+        
+          <a href="/research/">Research</a>
+        
+          <a href="/projects/">Projects</a>
+        
+          <a href="/archives/">Archives</a>
+        
+          <a href="/tags/">Tags</a>
+        
+          <a href="/categories/">Categories</a>
+        
+          <a href="/friends/">Friends</a>
+        
+          <a href="/about/">About</a>
+        
+      </nav>
+    </div>
+  </div>
+</footer>
+
+        </main>
+      </div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/notes/" class="mobile-nav-link">Notes</a>
+  
+    <a href="/research/" class="mobile-nav-link">Research</a>
+  
+    <a href="/projects/" class="mobile-nav-link">Projects</a>
+  
+    <a href="/archives/" class="mobile-nav-link">Archives</a>
+  
+    <a href="/tags/" class="mobile-nav-link">Tags</a>
+  
+    <a href="/categories/" class="mobile-nav-link">Categories</a>
+  
+    <a href="/friends/" class="mobile-nav-link">Friends</a>
+  
+    <a href="/about/" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Dimension Free Theorems in Geometry | Mars Dingdang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Maurey’s empirical method gives dimension-free convex approximation. Gaussian projections preserve distances and approximate supporting half-spaces for finite point sets.">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dimension Free Theorems in Geometry">
+<meta property="og:url" content="https://mars-dingdang.github.io/posts/dimension-free-theorems-in-geometry/index.html">
+<meta property="og:site_name" content="Mars Dingdang">
+<meta property="og:description" content="Maurey’s empirical method gives dimension-free convex approximation. Gaussian projections preserve distances and approximate supporting half-spaces for finite point sets.">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/dimension-free-theorems-in-geometry/approximate-caratheodory.webp">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/dimension-free-theorems-in-geometry/polytope-cover.webp">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/dimension-free-theorems-in-geometry/johnson-lindenstrauss.webp">
+<meta property="article:published_time" content="2026-11-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2026-11-13T17:52:04.721Z">
+<meta property="article:author" content="Mars Dingdang">
+<meta property="article:tag" content="Convex Geometry">
+<meta property="article:tag" content="Dimension Reduction">
+<meta property="article:tag" content="High-Dimensional Probability">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mars-dingdang.github.io/images/posts/dimension-free-theorems-in-geometry/approximate-caratheodory.webp">
+  
+  
+    <link rel="icon" href="data:,">
+  
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    <script>
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/ams']
+        },
+        tex: {
+          packages: {'[+]': ['ams']},
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body class="is-inner">
+  
+  <div id="container">
+    <div id="wrap">
+      <button class="mobile-rail-toggle" type="button" aria-label="Open sidebar menu" aria-controls="site-rail" aria-expanded="false">
+        <span class="rail-open-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#menu"></use></svg>
+</span>
+        <span class="rail-close-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+</span>
+        <span class="mobile-rail-toggle-text">Menu</span>
+      </button>
+      <div class="mobile-rail-backdrop" hidden></div>
+      <div class="site-shell">
+        <aside id="site-rail" class="site-rail">
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <div class="rail-username">Mars-Dingdang</div>
+          <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
+          <div class="rail-stats">
+            <a href="/archives/"><strong>26</strong><span>Posts</span></a>
+            <a href="/tags/"><strong>47</strong><span>Tags</span></a>
+            <a href="/categories/"><strong>6</strong><span>Categories</span></a>
+          </div>
+          <div class="rail-profile" aria-label="Profile details">
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#school"></use></svg>
+<span>IIIS, Tsinghua University</span></div>
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#clock"></use></svg>
+<span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#mail"></use></svg>
+<span>dst25@mails.tsinghua.edu.cn</span></a>
+          </div>
+          <nav class="rail-nav" aria-label="Primary">
+            
+            
+              
+              <a class="rail-nav-link" href="/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#home"></use></svg>
+
+                <span>Home</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/notes/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+
+                <span>Notes</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/research/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#research"></use></svg>
+
+                <span>Research</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/projects/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#code"></use></svg>
+
+                <span>Projects</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/archives/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#archive"></use></svg>
+
+                <span>Archives</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/tags/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#tag"></use></svg>
+
+                <span>Tags</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/categories/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#layers"></use></svg>
+
+                <span>Categories</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/friends/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#users"></use></svg>
+
+                <span>Friends</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/about/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#user"></use></svg>
+
+                <span>About</span>
+              </a>
+            
+          </nav>
+          <div class="rail-controls">
+            <a class="rail-github" target="_blank" rel="noopener" href="https://github.com/Mars-Dingdang"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+<span>GitHub</span></a>
+            <button class="theme-toggle" type="button" aria-label="Light mode" aria-pressed="false" title="Switch to light mode">
+              <span class="theme-icon-sun"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#sun"></use></svg>
+</span>
+              <span class="theme-icon-moon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#moon"></use></svg>
+</span>
+            </button>
+          </div>
+          <div class="rail-search">
+            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
+              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
+              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+              <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
+</button>
+            </form>
+          </div>
+        </aside>
+        <main class="site-main">
+          <div class="outer">
+            <div id="main"><article id="post-dimension-free-theorems-in-geometry" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  
+  <div class="article-meta">
+    <a href="/posts/dimension-free-theorems-in-geometry/" class="article-date">
+  <time class="dt-published" datetime="2026-11-13T16:00:00.000Z" itemprop="datePublished">2026-11-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Mathematics/">Mathematics</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header" lang="en">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      Dimension Free Theorems in Geometry
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody" lang="en">
+      
+        <p><em>Mars-Dingdang · Original notes dated April 13, 2026</em></p>
+<p>在传统几何中，许多定理的陈述依赖空间维数。例如，Carathéodory 定理保证 <span class="math-inline">\(\mathbb R^n\)</span> 中的每个凸包内点都能用至多 <span class="math-inline">\(n+1\)</span> 个点精确表示。如果允许欧氏距离有 <span class="math-inline">\(\varepsilon\)</span> 的误差，就可以只用 <span class="math-inline">\(\lceil\varepsilon^{-2}\rceil\)</span> 个点，数量与空间维数无关。这种近似适用于处理高维数据的算法分析。</p>
+<p>In these notes we use Maurey’s empirical method to obtain that approximation, count the resulting cover of a polytope, and turn the cover into a volume bound. Then we use the Johnson–Lindenstrauss lemma to preserve distances and approximate supporting half-spaces under a linear map.</p>
+<span id="more"></span>
+
+<h2 id="Caratheodory’s-theorem"><a href="#Caratheodory’s-theorem" class="headerlink" title="Carathéodory’s theorem"></a>Carathéodory’s theorem</h2><h3 id="Convex-combinations-and-convex-hulls"><a href="#Convex-combinations-and-convex-hulls" class="headerlink" title="Convex combinations and convex hulls"></a>Convex combinations and convex hulls</h3><p>A <strong>convex combination</strong> of <span class="math-inline">\(x_1,\ldots,x_k\in\mathbb R^n\)</span> is a sum <span class="math-inline">\(\sum_{i=1}^k\lambda_i x_i\)</span> with <span class="math-inline">\(\lambda_i\ge0\)</span> and <span class="math-inline">\(\sum_{i=1}^k\lambda_i=1\)</span>. The <strong>convex hull</strong> of <span class="math-inline">\(T\subseteq\mathbb R^n\)</span> is the set of all its finite convex combinations:</p>
+<div class="math-display">\[\operatorname{conv}(T)=
+\left\{\sum_{i=1}^k\lambda_i x_i:
+x_i\in T,\ \lambda_i\ge0,\ \sum_{i=1}^k\lambda_i=1,\ k\ge1\right\}.\]</div>
+<p><strong>Theorem (Carathéodory).</strong> Every <span class="math-inline">\(x\in\operatorname{conv}(T)\)</span> is a convex combination of at most <span class="math-inline">\(n+1\)</span> points from <span class="math-inline">\(T\)</span>.</p>
+<p><strong>Proof.</strong> Write <span class="math-inline">\(x=\sum_{i=1}^m\lambda_i x_i\)</span>, dropping zero coefficients. If <span class="math-inline">\(m&gt;n+1\)</span>, the <span class="math-inline">\(m-1\)</span> vectors <span class="math-inline">\(x_2-x_1,\ldots,x_m-x_1\)</span> are linearly dependent. Choose coefficients <span class="math-inline">\(c_2,\ldots,c_m\)</span>, not all zero, with <span class="math-inline">\(\sum_{i=2}^m c_i(x_i-x_1)=0\)</span>. Setting <span class="math-inline">\(\mu_1=-\sum_{i=2}^m c_i\)</span> and <span class="math-inline">\(\mu_i=c_i\)</span> for <span class="math-inline">\(i\ge2\)</span> gives</p>
+<div class="math-display">\[\sum_{i=1}^m\mu_i=0,\qquad \sum_{i=1}^m\mu_i x_i=0.\]</div>
+<p>Since the <span class="math-inline">\(\mu_i\)</span> sum to zero and are not all zero, some are positive. Take</p>
+<div class="math-display">\[\alpha=\min_{\mu_i&gt;0}\frac{\lambda_i}{\mu_i}.\]</div>
+<p>The new coefficients <span class="math-inline">\(\lambda_i-\alpha\mu_i\)</span> are nonnegative and sum to one. They represent the same <span class="math-inline">\(x\)</span>, and at least one is zero. Repeat until at most <span class="math-inline">\(n+1\)</span> coefficients remain. <span class="math-inline">\(\square\)</span></p>
+<p>The bound is tight. The origin and the <span class="math-inline">\(n\)</span> standard basis vectors form an <span class="math-inline">\(n\)</span>-simplex. Each point in its interior has all <span class="math-inline">\(n+1\)</span> barycentric coordinates positive.</p>
+<h3 id="Approximate-Caratheodory-by-independent-sampling"><a href="#Approximate-Caratheodory-by-independent-sampling" class="headerlink" title="Approximate Carathéodory by independent sampling"></a>Approximate Carathéodory by independent sampling</h3><p><strong>Theorem.</strong> Suppose <span class="math-inline">\(T\subseteq B_2^n\)</span>, the unit Euclidean ball. For every <span class="math-inline">\(x\in\operatorname{conv}(T)\)</span> and every integer <span class="math-inline">\(k\ge1\)</span>, there are <span class="math-inline">\(x_1,\ldots,x_k\in T\)</span>, with repetition allowed, such that</p>
+<div class="math-display">\[\left\|x-\frac1k\sum_{j=1}^k x_j\right\|_2\le \frac1{\sqrt{k}}.\]</div>
+<p><strong>Proof.</strong> Write <span class="math-inline">\(x=\sum_{i=1}^m\lambda_i z_i\)</span> and define a random vector <span class="math-inline">\(Z\)</span> by sampling <span class="math-inline">\(z_i\)</span> with probability <span class="math-inline">\(\lambda_i\)</span>. Then <span class="math-inline">\(\mathbb E Z=x\)</span>. Let <span class="math-inline">\(Z_1,\ldots,Z_k\)</span> be independent copies of <span class="math-inline">\(Z\)</span>. Cross terms have expectation zero, so</p>
+<div class="math-display">\[\begin{aligned}
+\mathbb E\left\|\frac1k\sum_{j=1}^k Z_j-x\right\|_2^2
+&amp;=\frac1{k^2}\sum_{j=1}^k\mathbb E\|Z_j-x\|_2^2\\
+&amp;=\frac{\mathbb E\|Z\|_2^2-\|x\|_2^2}{k}
+\le \frac1k.
+\end{aligned}\]</div>
+<p>At least one sample attains squared error at most <span class="math-inline">\(1/k\)</span>. This is Maurey’s empirical method. <span class="math-inline">\(\square\)</span></p>
+<p><img src="/images/posts/dimension-free-theorems-in-geometry/approximate-caratheodory.webp" alt="Three-dimensional convex hull with sampled points, the target point, and their empirical average"></p>
+<p><em>Figure 1. The empirical mean approximates a point in a three-dimensional convex hull.</em></p>
+<p><strong>Tightness.</strong> For <span class="math-inline">\(1\le k\le n\)</span>, take <span class="math-inline">\(T=\{e_1,\ldots,e_n\}\)</span> and <span class="math-inline">\(x=n^{-1}\sum_{i=1}^n e_i\)</span>. If <span class="math-inline">\(u=\sum_{j=1}^k\lambda_j x_j\)</span> is a convex combination from <span class="math-inline">\(T\)</span>, merge coefficients on repeated points. Write <span class="math-inline">\(u=\sum_{i=1}^n a_i e_i\)</span>, with <span class="math-inline">\(\sum_i a_i=1\)</span> and at most <span class="math-inline">\(k\)</span> nonzero entries. Then</p>
+<div class="math-display">\[\|x-u\|_2^2
+=\sum_{i=1}^n\left(a_i-\frac1n\right)^2
+=\sum_{i=1}^n a_i^2-\frac1n
+\ge \frac1k-\frac1n.\]</div>
+<p>The last step is Cauchy–Schwarz. Equality is attained by placing mass <span class="math-inline">\(1/k\)</span> on <span class="math-inline">\(k\)</span> distinct basis vectors. Thus even arbitrary convex weights cannot improve the <span class="math-inline">\(k^{-1/2}\)</span> order when <span class="math-inline">\(n\)</span> is large compared with <span class="math-inline">\(k\)</span>.</p>
+<h3 id="Covering-a-polytope-and-bounding-its-volume"><a href="#Covering-a-polytope-and-bounding-its-volume" class="headerlink" title="Covering a polytope and bounding its volume"></a>Covering a polytope and bounding its volume</h3><p>Let <span class="math-inline">\(P\subseteq B_2^n\)</span> be a polytope with <span class="math-inline">\(N\)</span> vertices, and let <span class="math-inline">\(k\ge1\)</span> be an integer. Every point in <span class="math-inline">\(P\)</span> is within <span class="math-inline">\(1/\sqrt{k}\)</span> of the average of <span class="math-inline">\(k\)</span> vertices. Taking all ordered choices gives at most <span class="math-inline">\(N^k\)</span> centers. The order of the vertices has no effect on the average. Counting the possible multiplicities <span class="math-inline">\(c_1,\ldots,c_N\ge0\)</span> with <span class="math-inline">\(\sum_i c_i=k\)</span> gives a smaller upper bound by stars and bars:</p>
+<div class="math-display">\[M\le \binom{N+k-1}{k}.\]</div>
+<p>Several multiplicity vectors can give the same center, which only reduces the cover size.</p>
+<p><img src="/images/posts/dimension-free-theorems-in-geometry/polytope-cover.webp" alt="Blue convex polytope covered by overlapping balls centered on empirical means"></p>
+<p><em>Figure 2. A cover of a three-dimensional polytope by balls centered on averages of vertices.</em></p>
+<p>For a cover by <span class="math-inline">\(M\)</span> balls of radius <span class="math-inline">\(1/\sqrt{k}\)</span>, volume subadditivity gives</p>
+<div class="math-display">\[\left(\frac{\operatorname{Vol}(P)}{\operatorname{Vol}(B_2^n)}\right)^{1/n}
+\le \frac{M^{1/n}}{\sqrt{k}}.\]</div>
+<p><strong>A first volume bound.</strong> With <span class="math-inline">\(M=N^k\)</span>,</p>
+<div class="math-display">\[\frac{\operatorname{Vol}(P)}{\operatorname{Vol}(B_2^n)}
+\le \left(3\sqrt{\frac{\log N}{n}}\right)^n.\]</div>
+<p>For <span class="math-inline">\(N=1\)</span> the volume is zero. When <span class="math-inline">\(n&lt;9\log N\)</span>, the right side exceeds one, which suffices since <span class="math-inline">\(P\subseteq B_2^n\)</span>. Otherwise take <span class="math-inline">\(k=\lceil n/(2\log N)\rceil\)</span>. Then</p>
+<div class="math-display">\[k^{-1/2}\le\sqrt{\frac{2\log N}{n}},\qquad
+N^{k/n}\le e^{1/2}N^{1/n}\le e^{11/18}.\]</div>
+<p>Now <span class="math-inline">\(\sqrt2\,e^{11/18}&lt;3\)</span>. <span class="math-inline">\(\square\)</span></p>
+<p><strong>A combinatorial estimate.</strong> For integers <span class="math-inline">\(1\le k\le m\)</span>,</p>
+<div class="math-display">\[\left(\frac{m}{k}\right)^k
+\le\binom{m}{k}
+\le\sum_{j=0}^k\binom{m}{j}
+\le\left(\frac{em}{k}\right)^k.\]</div>
+<p>For the first inequality, each factor <span class="math-inline">\((m-i)/(k-i)\)</span> in the product for <span class="math-inline">\(\binom{m}{k}\)</span> is at least <span class="math-inline">\(m/k\)</span>. For the last, take <span class="math-inline">\(t=k/m\in(0,1]\)</span>. Since <span class="math-inline">\(t^j\ge t^k\)</span> for <span class="math-inline">\(j\le k\)</span>,</p>
+<div class="math-display">\[\sum_{j=0}^k\binom{m}{j}
+\le t^{-k}(1+t)^m
+\le t^{-k}e^{mt}=\left(\frac{em}{k}\right)^k.\]</div>
+<p><strong>Theorem (Carl–Pajor volume bound).</strong> If <span class="math-inline">\(P\)</span> is full-dimensional and has <span class="math-inline">\(N\)</span> vertices, then</p>
+<div class="math-display">\[\frac{\operatorname{Vol}(P)}{\operatorname{Vol}(B_2^n)}
+\le \left(23\sqrt{\frac{\log(eN/n)}{n}}\right)^n.\]</div>
+<p>If <span class="math-inline">\(P\)</span> is lower-dimensional, its <span class="math-inline">\(n\)</span>-dimensional volume is zero.</p>
+<p><strong>Proof.</strong> Full dimension implies <span class="math-inline">\(N\ge n+1\)</span>. Write <span class="math-inline">\(L=\log(eN/n)&gt;1\)</span>. If <span class="math-inline">\(n&lt;2L\)</span>, the bound follows from <span class="math-inline">\(P\subseteq B_2^n\)</span>. Otherwise take <span class="math-inline">\(k=\lceil n/(2L)\rceil\)</span>. Then <span class="math-inline">\(n/(2L)\le k\le n/L\le n\)</span>, so</p>
+<div class="math-display">\[M\le\binom{N+k-1}{k}\le\left(\frac{2eN}{k}\right)^k.\]</div>
+<p>Using <span class="math-inline">\(2eN/k\le 4eNL/n\)</span> and <span class="math-inline">\(k/n\le1/L\)</span>, we obtain</p>
+<div class="math-display">\[\log(M^{1/n})
+\le \frac{\log 4+L+\log L}{L}
+\le \log 4+1+1/e&lt;2.76.\]</div>
+<p>Here <span class="math-inline">\(\log L/L\le1/e\)</span> for <span class="math-inline">\(L\ge1\)</span>. Thus <span class="math-inline">\(M^{1/n}&lt;16\)</span>, while <span class="math-inline">\(1/\sqrt{k}\le\sqrt{2L/n}\)</span>. Their product is bounded by <span class="math-inline">\(23\sqrt{L/n}\)</span>. <span class="math-inline">\(\square\)</span></p>
+<h2 id="The-Johnson–Lindenstrauss-lemma"><a href="#The-Johnson–Lindenstrauss-lemma" class="headerlink" title="The Johnson–Lindenstrauss lemma"></a>The Johnson–Lindenstrauss lemma</h2><p><strong>Theorem.</strong> For <span class="math-inline">\(0&lt;\varepsilon&lt;1\)</span> and <span class="math-inline">\(n\ge2\)</span>, any set of <span class="math-inline">\(n\)</span> points in <span class="math-inline">\(\mathbb R^d\)</span> admits a linear map <span class="math-inline">\(f\colon\mathbb R^d\to\mathbb R^k\)</span> such that</p>
+<div class="math-display">\[(1-\varepsilon)\|x-y\|_2^2
+\le\|f(x)-f(y)\|_2^2
+\le(1+\varepsilon)\|x-y\|_2^2\]</div>
+<p>for every pair of points, provided <span class="math-inline">\(k\ge8\log n/\varepsilon^2\)</span>.</p>
+<p><strong>Proof.</strong> Let <span class="math-inline">\(A\in\mathbb R^{k\times d}\)</span> have independent <span class="math-inline">\(\mathcal N(0,1/k)\)</span> entries. For any fixed nonzero <span class="math-inline">\(v\)</span>,</p>
+<div class="math-display">\[X=\frac{k\|Av\|_2^2}{\|v\|_2^2}\sim\chi_k^2.\]</div>
+<p>Its moment generating function is <span class="math-inline">\((1-2t)^{-k/2}\)</span> for <span class="math-inline">\(t&lt;1/2\)</span>. Applying Markov’s inequality to <span class="math-inline">\(e^{tX}\)</span> with <span class="math-inline">\(t=(r-1)/(2r)\)</span> gives the upper tail when <span class="math-inline">\(r&gt;1\)</span> and the lower tail when <span class="math-inline">\(0&lt;r&lt;1\)</span>:</p>
+<div class="math-display">\[\begin{aligned}
+\Pr(X\ge kr)&amp;\le e^{-\frac k2(r-1-\log r)} &amp;&amp;(r&gt;1),\\
+\Pr(X\le kr)&amp;\le e^{-\frac k2(r-1-\log r)} &amp;&amp;(0&lt;r&lt;1).
+\end{aligned}\]</div>
+<p>To obtain the stated constant, set <span class="math-inline">\(s=\operatorname{arctanh}(\varepsilon)/\varepsilon\)</span> and choose <span class="math-inline">\(f(x)=Ax/\sqrt{s}\)</span>. The two thresholds for <span class="math-inline">\(X/k\)</span> are <span class="math-inline">\(r_\pm=s(1\pm\varepsilon)\)</span>. We have <span class="math-inline">\(r_+&gt;1\)</span> and <span class="math-inline">\(0&lt;r_-&lt;1\)</span> by bounding the integrand in <span class="math-inline">\(\operatorname{arctanh}\varepsilon=\int_0^\varepsilon(1-t^2)^{-1}\,dt\)</span>. Since <span class="math-inline">\(r_+-r_-=2s\varepsilon=\log(r_+/r_-)\)</span>, the two rate terms <span class="math-inline">\(r_\pm-1-\log r_\pm\)</span> are equal. Each is their average:</p>
+<div class="math-display">\[s-1-\log s-\tfrac12\log(1-\varepsilon^2)\ge\tfrac12\varepsilon^2.\]</div>
+<p>Thus each fixed pair fails with probability at most <span class="math-inline">\(2e^{-k\varepsilon^2/4}\)</span>. A union bound over the <span class="math-inline">\(\binom n2\)</span> pairs gives a failure probability at most <span class="math-inline">\((n-1)/n&lt;1\)</span> when <span class="math-inline">\(k\ge8\log n/\varepsilon^2\)</span>. <span class="math-inline">\(\square\)</span></p>
+<p><img src="/images/posts/dimension-free-theorems-in-geometry/johnson-lindenstrauss.webp" alt="A three-dimensional point cloud and its two-dimensional Gaussian projection, with selected pairs highlighted"></p>
+<p><em>Figure 3. The two Gaussian projections shown here go from 3D through 283D to 2D. The final panel illustrates the geometry. The theorem’s dimension bound determines when a uniform distortion guarantee applies.</em></p>
+<p>For fixed distortion, the order <span class="math-inline">\(\log n\)</span> is necessary for some sets of <span class="math-inline">\(n\)</span> points, even if the embedding may be nonlinear. Exercise 4 gives a packing argument.</p>
+<h3 id="Approximate-supporting-half-spaces-after-projection"><a href="#Approximate-supporting-half-spaces-after-projection" class="headerlink" title="Approximate supporting half-spaces after projection"></a>Approximate supporting half-spaces after projection</h3><p>Suppose <span class="math-inline">\(K\subseteq\mathbb R^d\)</span> is a convex body containing the unit ball, and <span class="math-inline">\(x_1,\ldots,x_m\in\partial K\)</span>. The points lie on supporting hyperplanes in the original space. Under a suitable linear map to dimension <span class="math-inline">\(O(\varepsilon^{-2}\log(2m))\)</span>, we can place the images inside a convex body whose boundary stays within <span class="math-inline">\(O((1+D^2)\varepsilon)\)</span> of each image, where <span class="math-inline">\(D=\operatorname{diam}K\)</span>. We can also keep the projected supporting directions with a comparable one-sided error.</p>
+<p><strong>Projection onto a closed convex set.</strong> If <span class="math-inline">\(C\)</span> is nonempty, closed and convex, every <span class="math-inline">\(y\)</span> has a unique closest point <span class="math-inline">\(x\in C\)</span>. A minimizing sequence for <span class="math-inline">\(\|y-z\|_2\)</span> is bounded and has a subsequence converging in <span class="math-inline">\(C\)</span>. Uniqueness follows because for two different minimizers, the squared distance to their midpoint is strictly less than the common minimum. The closest point is characterized by</p>
+<div class="math-display">\[\langle y-x,z-x\rangle\le0\qquad(z\in C).\]</div>
+<p>Indeed, for <span class="math-inline">\(0\le t\le1\)</span>, the segment <span class="math-inline">\(x+t(z-x)\)</span> belongs to <span class="math-inline">\(C\)</span>. The right derivative of <span class="math-inline">\(\|y-x-t(z-x)\|_2^2\)</span> at <span class="math-inline">\(t=0\)</span> must be nonnegative, which gives the inequality. Conversely, expanding <span class="math-inline">\(\|y-z\|_2^2\)</span> shows it is at least <span class="math-inline">\(\|y-x\|_2^2\)</span>.</p>
+<p><strong>Supporting hyperplane at a boundary point.</strong> Given <span class="math-inline">\(x\in\partial K\)</span>, take <span class="math-inline">\(y_\ell\notin K\)</span> with <span class="math-inline">\(y_\ell\to x\)</span>. If <span class="math-inline">\(z_\ell\)</span> is the closest point in <span class="math-inline">\(K\)</span> to <span class="math-inline">\(y_\ell\)</span>, then <span class="math-inline">\(\|y_\ell-z_\ell\|_2\le\|y_\ell-x\|_2\)</span>, so <span class="math-inline">\(z_\ell\to x\)</span>. A subsequence of the unit vectors <span class="math-inline">\((z_\ell-y_\ell)/\|z_\ell-y_\ell\|_2\)</span> converges to a unit vector <span class="math-inline">\(n\)</span>. The projection inequality then gives <span class="math-inline">\(\langle z-x,n\rangle\ge0\)</span> for every <span class="math-inline">\(z\in K\)</span>. Thus <span class="math-inline">\(n\)</span> is an inward normal of a supporting hyperplane through <span class="math-inline">\(x\)</span>.</p>
+<p><strong>Preservation argument.</strong> Let <span class="math-inline">\(0&lt;\varepsilon&lt;1/2\)</span>. Choose a unit inward normal <span class="math-inline">\(n_i\)</span> at each <span class="math-inline">\(x_i\)</span> and put <span class="math-inline">\(y_i=x_i+n_i\)</span>. Apply Johnson–Lindenstrauss to the set <span class="math-inline">\(\{x_1,\ldots,x_m,y_1,\ldots,y_m\}\)</span>. Write <span class="math-inline">\(x'_i=f(x_i)\)</span> and <span class="math-inline">\(n'_i=f(n_i)\)</span>. For each <span class="math-inline">\(i,j\)</span> the three squared distances of the triangle <span class="math-inline">\(x_i,y_i,x_j\)</span> are preserved within factors <span class="math-inline">\(1\pm\varepsilon\)</span>. Polarization gives</p>
+<div class="math-display">\[\begin{aligned}
+\langle n'_i,x'_j-x'_i\rangle
+&amp;=\tfrac12\bigl(\|f(y_i-x_i)\|_2^2+\|f(x_j-x_i)\|_2^2-\|f(y_i-x_j)\|_2^2\bigr)\\
+&amp;\ge (1+\varepsilon)\langle n_i,x_j-x_i\rangle
+-\varepsilon\bigl(1+\|x_j-x_i\|_2^2\bigr)\\
+&amp;\ge -(1+D^2)\varepsilon.
+\end{aligned}\]</div>
+<p>Set <span class="math-inline">\(C_D=1+D^2\)</span>. Each <span class="math-inline">\(x'_j\)</span> is strictly inside every half-space</p>
+<div class="math-display">\[H_i=\{z:\langle z-x'_i,n'_i\rangle\ge -(C_D+1)\varepsilon\}.\]</div>
+<p>Intersect the <span class="math-inline">\(H_i\)</span> with a closed ball large enough to contain all <span class="math-inline">\(x'_j\)</span> in its interior. This gives a compact convex body <span class="math-inline">\(K'\)</span> with nonempty interior. In direction <span class="math-inline">\(n'_i\)</span>, its actual supporting plane is attained at the minimum of <span class="math-inline">\(z\mapsto\langle z-x'_i,n'_i\rangle\)</span> on <span class="math-inline">\(K'\)</span>. That minimum lies between <span class="math-inline">\(-(C_D+1)\varepsilon\)</span> and <span class="math-inline">\(0\)</span> because <span class="math-inline">\(K'\subseteq H_i\)</span> and <span class="math-inline">\(x'_i\in K'\)</span>. Since <span class="math-inline">\(\|n'_i\|_2\ge\sqrt{1-\varepsilon}&gt;1/2\)</span>, the plane is within <span class="math-inline">\(2(C_D+1)\varepsilon\)</span> of <span class="math-inline">\(x'_i\)</span>. The segment from <span class="math-inline">\(x'_i\)</span> to its orthogonal projection onto the plane meets <span class="math-inline">\(\partial K'\)</span> no later than it meets the plane. This yields the desired distance bound. Normalizing <span class="math-inline">\(n'_i\)</span> to unit length changes the half-space error by at most a factor of two. <span class="math-inline">\(\square\)</span></p>
+<h2 id="Exercises"><a href="#Exercises" class="headerlink" title="Exercises"></a>Exercises</h2><h3 id="1-Independent-sets-by-the-probabilistic-method"><a href="#1-Independent-sets-by-the-probabilistic-method" class="headerlink" title="1. Independent sets by the probabilistic method"></a>1. Independent sets by the probabilistic method</h3><p>Let <span class="math-inline">\(G=(V,E)\)</span> be an undirected graph and <span class="math-inline">\(d(v)\)</span> the degree of <span class="math-inline">\(v\)</span>.</p>
+<ol>
+<li>Prove that <span class="math-inline">\(G\)</span> has an independent set of size at least <span class="math-inline">\(\sum_{v\in V}1/(d(v)+1)\)</span>. <em>Hint.</em> Order the vertices uniformly at random and keep those that come before every neighbor.</li>
+<li>If <span class="math-inline">\(|V|=n\)</span> and <span class="math-inline">\(|E|=m\)</span>, deduce a lower bound of <span class="math-inline">\(n^2/(2m+n)\)</span>.</li>
+</ol>
+<h3 id="2-Where-the-mass-of-a-Euclidean-ball-lies"><a href="#2-Where-the-mass-of-a-Euclidean-ball-lies" class="headerlink" title="2. Where the mass of a Euclidean ball lies"></a>2. Where the mass of a Euclidean ball lies</h3><p>Let <span class="math-inline">\(X\)</span> be uniform in <span class="math-inline">\(B_2^n\)</span>, so <span class="math-inline">\(\Pr(X\in A)=\operatorname{Vol}(A)/\operatorname{Vol}(B_2^n)\)</span> for measurable <span class="math-inline">\(A\subseteq B_2^n\)</span>.</p>
+<ol>
+<li>Prove that the shell <span class="math-inline">\(1-5/n\le\|X\|_2\le1\)</span> contains at least <span class="math-inline">\(99\%\)</span> of the mass.</li>
+<li>Prove that <span class="math-inline">\(\mathbb E\|X\|_2=n/(n+1)\)</span>.</li>
+</ol>
+<h3 id="3-The-chi-square-distribution-and-random-projection"><a href="#3-The-chi-square-distribution-and-random-projection" class="headerlink" title="3. The chi-square distribution and random projection"></a>3. The chi-square distribution and random projection</h3><p>Let <span class="math-inline">\(X=\sum_{i=1}^k Z_i^2\)</span>, where the <span class="math-inline">\(Z_i\)</span> are independent standard Gaussians.</p>
+<ol>
+<li>Compute <span class="math-inline">\(\mathbb EX\)</span> and <span class="math-inline">\(\operatorname{Var}(X)\)</span>.</li>
+<li>Derive <span class="math-inline">\(\mathbb E e^{tX}=(1-2t)^{-k/2}\)</span> for <span class="math-inline">\(t&lt;1/2\)</span>.</li>
+<li>Use the moment generating function and the logarithm’s Taylor bound to show that for <span class="math-inline">\(0&lt;\varepsilon&lt;1\)</span>,</li>
+</ol>
+<div class="math-display">\[\Pr\bigl(|X-\mathbb EX|&gt;\varepsilon\mathbb EX\bigr)
+   \le2\exp\left(-\frac{k}{4}(\varepsilon^2-\varepsilon^3)\right).\]</div>
+<p>   Show also that the probability is at most <span class="math-inline">\(2e^{-Ck\varepsilon^2}\)</span> for an absolute <span class="math-inline">\(C&gt;0\)</span> over this range. <em>Hint.</em> For the second bound, use <span class="math-inline">\(\varepsilon-\log(1+\varepsilon)=\int_0^\varepsilon t/(1+t)\,dt\)</span>.<br>4. Combine this estimate with a union bound to derive the Johnson–Lindenstrauss dimension order.</p>
+<h3 id="4-A-dimension-lower-bound-by-packing"><a href="#4-A-dimension-lower-bound-by-packing" class="headerlink" title="4. A dimension lower bound by packing"></a>4. A dimension lower bound by packing</h3><ol>
+<li>If <span class="math-inline">\(z_1,\ldots,z_n\in\mathbb R^k\)</span> satisfy <span class="math-inline">\(1&lt;\|z_i-z_j\|_2\le2\)</span> for all <span class="math-inline">\(i\ne j\)</span>, show that <span class="math-inline">\(n\le5^k\)</span>. <em>Hint.</em> Pack disjoint open balls of radius <span class="math-inline">\(1/2\)</span> around the points inside a ball of radius <span class="math-inline">\(5/2\)</span>.</li>
+<li>Find <span class="math-inline">\(n\)</span> vectors in <span class="math-inline">\(\mathbb R^n\)</span> for which no map into <span class="math-inline">\(\mathbb R^k\)</span> preserves every distance to relative error <span class="math-inline">\(0.01\)</span> when <span class="math-inline">\(k&lt;\tfrac12\log n\)</span>. <em>Hint.</em> Try the standard basis vectors and use part 1.</li>
+</ol>
+<h3 id="5-Characterizing-a-closest-point"><a href="#5-Characterizing-a-closest-point" class="headerlink" title="5. Characterizing a closest point"></a>5. Characterizing a closest point</h3><p>Given a nonempty closed convex set <span class="math-inline">\(C\)</span> and <span class="math-inline">\(x\in C\)</span>, prove that <span class="math-inline">\(x\)</span> is the projection of <span class="math-inline">\(y\)</span> onto <span class="math-inline">\(C\)</span> if and only if <span class="math-inline">\(\langle y-x,z-x\rangle\le0\)</span> for all <span class="math-inline">\(z\in C\)</span>. Try proving both directions before checking the argument above.</p>
+<h3 id="6-A-deterministic-greedy-construction"><a href="#6-A-deterministic-greedy-construction" class="headerlink" title="6. A deterministic greedy construction"></a>6. A deterministic greedy construction</h3><p>Let <span class="math-inline">\(T\subseteq B_2^n\)</span> and <span class="math-inline">\(x\in\operatorname{conv}(T)\)</span>. Construct a sequence <span class="math-inline">\(x_1,x_2,\ldots\in T\)</span> such that for every <span class="math-inline">\(k\ge1\)</span>, its empirical mean <span class="math-inline">\(p_k=k^{-1}\sum_{i=1}^k x_i\)</span> satisfies</p>
+<div class="math-display">\[\|x-p_k\|_2^2\le 4/k.\]</div>
+<p><em>Hint.</em> Set <span class="math-inline">\(e_k=x-p_k\)</span>. Express <span class="math-inline">\(x\)</span> as a convex combination from <span class="math-inline">\(T\)</span> and choose <span class="math-inline">\(x_{k+1}\)</span> with <span class="math-inline">\(\langle e_k,x-x_{k+1}\rangle\le0\)</span>. Then bound the change in the squared norm of <span class="math-inline">\(ke_k\)</span>.</p>
+<p>The choice of a point by a linear objective also appears in Frank–Wolfe optimization. In this exercise the iterates retain a sparse convex representation.</p>
+<h3 id="7-Sparse-strategies-in-a-large-zero-sum-game"><a href="#7-Sparse-strategies-in-a-large-zero-sum-game" class="headerlink" title="7. Sparse strategies in a large zero-sum game"></a>7. Sparse strategies in a large zero-sum game</h3><p>Let <span class="math-inline">\(A\in[-1,1]^{m\times n}\)</span> be the payoff matrix and let <span class="math-inline">\(y\in\Delta_n\)</span> be a mixed strategy for the column player. Here <span class="math-inline">\(\Delta_n=\{u\in\mathbb R^n:u_i\ge0,\ \sum_i u_i=1\}\)</span>. Given <span class="math-inline">\(\varepsilon&gt;0\)</span>, show that a strategy <span class="math-inline">\(\widehat y\in\Delta_n\)</span> supported on at most</p>
+<div class="math-display">\[k=\left\lceil\frac{2\log(2m)}{\varepsilon^2}\right\rceil\]</div>
+<p>columns can satisfy <span class="math-inline">\(\|A\widehat y-Ay\|_\infty\le\varepsilon\)</span>. <em>Hint.</em> Sample columns independently according to <span class="math-inline">\(y\)</span>. Apply Hoeffding’s inequality coordinate by coordinate and count the possible payoff deviations.</p>
+<h3 id="8-Coresets-for-an-SVM-margin"><a href="#8-Coresets-for-an-SVM-margin" class="headerlink" title="8. Coresets for an SVM margin"></a>8. Coresets for an SVM margin</h3><p>Let <span class="math-inline">\(P,Q\subset B_2^n\)</span> be two point sets whose convex hulls attain a minimum distance <span class="math-inline">\(\gamma&gt;0\)</span>. Prove that for every <span class="math-inline">\(\varepsilon&gt;0\)</span> there are subsets <span class="math-inline">\(P'\subseteq P\)</span> and <span class="math-inline">\(Q'\subseteq Q\)</span>, each of size at most <span class="math-inline">\(\lceil4/\varepsilon^2\rceil\)</span>, such that</p>
+<div class="math-display">\[\gamma\le\min_{\substack{p\in\operatorname{conv}(P')\\q\in\operatorname{conv}(Q')}}\|p-q\|_2
+\le\gamma+\varepsilon.\]</div>
+<p><em>Hint.</em> Approximate one closest pair <span class="math-inline">\(p_\star,q_\star\)</span> by averages of <span class="math-inline">\(k\)</span> points from the respective sets, with <span class="math-inline">\(k=\lceil4/\varepsilon^2\rceil\)</span>, and apply the triangle inequality. The result gives a dimension-independent coreset for the optimal margin value.</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <button type="button" data-url="https://mars-dingdang.github.io/posts/dimension-free-theorems-in-geometry/" data-id="cuidOOsV6eTDMq4gGBEzBKLIP" data-title="Dimension Free Theorems in Geometry" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>Share</span></button>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Convex-Geometry/" rel="tag">Convex Geometry</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Dimension-Reduction/" rel="tag">Dimension Reduction</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/High-Dimensional-Probability/" rel="tag">High-Dimensional Probability</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/notes/acg/01/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          「ACG 01」图形学导论：从场景到像素
+        
+      </div>
+    </a>
+  
+  
+    <a href="/notes/ml/14/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">机器学习 14｜模型解释、积分梯度与 Shapley 值</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+<section id="comments" class="giscus-comments">
+  <div class="comments-heading">
+    <span>Discussion</span>
+    <h2>Comments</h2>
+    <p>Sign in with GitHub to join the conversation.</p>
+  </div>
+  
+    <script src="https://giscus.app/client.js"
+      data-repo="Mars-Dingdang/Mars-Dingdang.github.io"
+      data-repo-id="R_kgDOTJkbMw"
+      data-category="Announcements"
+      data-category-id="DIC_kwDOTJkbM84DAxF_"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="preferred_color_scheme"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async>
+    </script>
+  
+</section>
+
+</div>
+          </div>
+          <footer id="footer">
+  
+  <div class="outer footer-outer">
+    <div class="footer-card">
+      <div id="footer-info" class="inner">
+        
+        <span>&copy; 2026 Mars Dingdang</span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        
+          <a href="/">Home</a>
+        
+          <a href="/notes/">Notes</a>
+        
+          <a href="/research/">Research</a>
+        
+          <a href="/projects/">Projects</a>
+        
+          <a href="/archives/">Archives</a>
+        
+          <a href="/tags/">Tags</a>
+        
+          <a href="/categories/">Categories</a>
+        
+          <a href="/friends/">Friends</a>
+        
+          <a href="/about/">About</a>
+        
+      </nav>
+    </div>
+  </div>
+</footer>
+
+        </main>
+      </div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/notes/" class="mobile-nav-link">Notes</a>
+  
+    <a href="/research/" class="mobile-nav-link">Research</a>
+  
+    <a href="/projects/" class="mobile-nav-link">Projects</a>
+  
+    <a href="/archives/" class="mobile-nav-link">Archives</a>
+  
+    <a href="/tags/" class="mobile-nav-link">Tags</a>
+  
+    <a href="/categories/" class="mobile-nav-link">Categories</a>
+  
+    <a href="/friends/" class="mobile-nav-link">Friends</a>
+  
+    <a href="/about/" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

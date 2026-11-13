@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>Tag: Lecture Notes | Mars Dingdang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Research notes, experiments, and projects by Mars Dingdang.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Mars Dingdang">
+<meta property="og:url" content="https://mars-dingdang.github.io/tags/Lecture-Notes/index.html">
+<meta property="og:site_name" content="Mars Dingdang">
+<meta property="og:description" content="Research notes, experiments, and projects by Mars Dingdang.">
+<meta property="og:locale" content="en_US">
+<meta property="article:author" content="Mars Dingdang">
+<meta name="twitter:card" content="summary">
+  
+  
+    <link rel="icon" href="data:,">
+  
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    <script>
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/ams']
+        },
+        tex: {
+          packages: {'[+]': ['ams']},
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body class="is-inner">
+  
+  <div id="container">
+    <div id="wrap">
+      <button class="mobile-rail-toggle" type="button" aria-label="Open sidebar menu" aria-controls="site-rail" aria-expanded="false">
+        <span class="rail-open-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#menu"></use></svg>
+</span>
+        <span class="rail-close-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+</span>
+        <span class="mobile-rail-toggle-text">Menu</span>
+      </button>
+      <div class="mobile-rail-backdrop" hidden></div>
+      <div class="site-shell">
+        <aside id="site-rail" class="site-rail">
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <div class="rail-username">Mars-Dingdang</div>
+          <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
+          <div class="rail-stats">
+            <a href="/archives/"><strong>26</strong><span>Posts</span></a>
+            <a href="/tags/"><strong>47</strong><span>Tags</span></a>
+            <a href="/categories/"><strong>6</strong><span>Categories</span></a>
+          </div>
+          <div class="rail-profile" aria-label="Profile details">
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#school"></use></svg>
+<span>IIIS, Tsinghua University</span></div>
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#clock"></use></svg>
+<span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#mail"></use></svg>
+<span>dst25@mails.tsinghua.edu.cn</span></a>
+          </div>
+          <nav class="rail-nav" aria-label="Primary">
+            
+            
+              
+              <a class="rail-nav-link" href="/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#home"></use></svg>
+
+                <span>Home</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/notes/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+
+                <span>Notes</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/research/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#research"></use></svg>
+
+                <span>Research</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/projects/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#code"></use></svg>
+
+                <span>Projects</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/archives/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#archive"></use></svg>
+
+                <span>Archives</span>
+              </a>
+            
+              
+              <a class="rail-nav-link is-active" href="/tags/" aria-current="location">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#tag"></use></svg>
+
+                <span>Tags</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/categories/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#layers"></use></svg>
+
+                <span>Categories</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/friends/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#users"></use></svg>
+
+                <span>Friends</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/about/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#user"></use></svg>
+
+                <span>About</span>
+              </a>
+            
+          </nav>
+          <div class="rail-controls">
+            <a class="rail-github" target="_blank" rel="noopener" href="https://github.com/Mars-Dingdang"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+<span>GitHub</span></a>
+            <button class="theme-toggle" type="button" aria-label="Light mode" aria-pressed="false" title="Switch to light mode">
+              <span class="theme-icon-sun"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#sun"></use></svg>
+</span>
+              <span class="theme-icon-moon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#moon"></use></svg>
+</span>
+            </button>
+          </div>
+          <div class="rail-search">
+            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
+              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
+              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+              <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
+</button>
+            </form>
+          </div>
+        </aside>
+        <main class="site-main">
+          <div class="outer">
+            <div id="main">
+<header class="page-hero compact archive-page-hero">
+  <p class="home-kicker">Tag</p>
+  <h1># Lecture Notes</h1>
+  <p>Posts filed under this tag.</p>
+</header>
+
+
+  
+  
+    
+    
+      
+      
+      <section class="archives-wrap archive-row-section">
+        <div class="archive-year-wrap">
+          <a href="/archives/2026" class="archive-year">2026</a>
+        </div>
+        <div class="archives archive-post-list">
+    
+    
+<article class="recent-item post-row archive-type-post">
+  <a class="recent-cover" href="/notes/acg/07/" aria-label="「ACG 07」光线追踪 I：求交、加速结构与渲染方程">
+    <img src="/images/posts/acg-07-ray-tracing/thumbnail.png" alt="" loading="lazy" decoding="async">
+  </a>
+  <div class="recent-copy">
+    <div class="recent-meta post-row-meta">
+      <time datetime="2026-11-14">2026-11-14</time>
+      
+        <span class="post-row-terms post-row-categories">
+          
+            <a class="post-row-term post-row-category" href="/categories/Computer-Graphics/">Computer Graphics</a>
+          
+        </span>
+      
+      
+        <span class="post-row-terms post-row-tags">
+          
+            <a class="post-row-term post-row-tag" href="/tags/ACG/"># ACG</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Lecture-Notes/"># Lecture Notes</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Ray-Tracing/"># Ray Tracing</a>
+          
+        </span>
+      
+    </div>
+    <a class="recent-title" href="/notes/acg/07/">「ACG 07」光线追踪 I：求交、加速结构与渲染方程</a>
+    
+      <div class="recent-excerpt">光线追踪把画图拆成两类问题。几何查询回答一条射线先碰到哪里，光传输计算回答交点沿某个方向送出多少光。最近交点、阴影、反射与折射都依赖同一个射线查询，只是参数区间与返回值不同。</div>
+    
+  </div>
+  <a class="recent-jump" href="/notes/acg/07/" aria-label="Open 「ACG 07」光线追踪 I：求交、加速结构与渲染方程">
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+  </a>
+</article>
+
+
+  
+    
+    
+    
+<article class="recent-item post-row archive-type-post">
+  <a class="recent-cover" href="/notes/acg/06/" aria-label="「ACG 06」着色：局部光照、纹理过滤与阴影映射">
+    <img src="/images/posts/acg-06-shading/thumbnail.png" alt="" loading="lazy" decoding="async">
+  </a>
+  <div class="recent-copy">
+    <div class="recent-meta post-row-meta">
+      <time datetime="2026-11-14">2026-11-14</time>
+      
+        <span class="post-row-terms post-row-categories">
+          
+            <a class="post-row-term post-row-category" href="/categories/Computer-Graphics/">Computer Graphics</a>
+          
+        </span>
+      
+      
+        <span class="post-row-terms post-row-tags">
+          
+            <a class="post-row-term post-row-tag" href="/tags/ACG/"># ACG</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Lecture-Notes/"># Lecture Notes</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Shading/"># Shading</a>
+          
+        </span>
+      
+    </div>
+    <a class="recent-title" href="/notes/acg/06/">「ACG 06」着色：局部光照、纹理过滤与阴影映射</a>
+    
+      <div class="recent-excerpt">光栅化给出了可见样本，着色器要为样本算出颜色。顶点属性怎样传到像素、像素在纹理上覆盖多大区域、光源到样本的路径是否被挡住，都会改变这个颜色。</div>
+    
+  </div>
+  <a class="recent-jump" href="/notes/acg/06/" aria-label="Open 「ACG 06」着色：局部光照、纹理过滤与阴影映射">
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+  </a>
+</article>
+
+
+  
+    
+    
+    
+<article class="recent-item post-row archive-type-post">
+  <a class="recent-cover" href="/notes/acg/05/" aria-label="「ACG 05」光栅化：覆盖率、采样与深度测试">
+    <img src="/images/posts/acg-05-rasterization/thumbnail.png" alt="" loading="lazy" decoding="async">
+  </a>
+  <div class="recent-copy">
+    <div class="recent-meta post-row-meta">
+      <time datetime="2026-11-14">2026-11-14</time>
+      
+        <span class="post-row-terms post-row-categories">
+          
+            <a class="post-row-term post-row-category" href="/categories/Computer-Graphics/">Computer Graphics</a>
+          
+        </span>
+      
+      
+        <span class="post-row-terms post-row-tags">
+          
+            <a class="post-row-term post-row-tag" href="/tags/ACG/"># ACG</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Lecture-Notes/"># Lecture Notes</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Rasterization/"># Rasterization</a>
+          
+        </span>
+      
+    </div>
+    <a class="recent-title" href="/notes/acg/05/">「ACG 05」光栅化：覆盖率、采样与深度测试</a>
+    
+      <div class="recent-excerpt">投影后的三角形仍然是连续的几何对象，帧缓冲区却只有离散样本。光栅化用边函数决定哪些样本被覆盖，用过滤控制离散采样造成的锯齿，再用深度测试解决多个片元的可见性。</div>
+    
+  </div>
+  <a class="recent-jump" href="/notes/acg/05/" aria-label="Open 「ACG 05」光栅化：覆盖率、采样与深度测试">
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+  </a>
+</article>
+
+
+  
+    
+    
+    
+<article class="recent-item post-row archive-type-post">
+  <a class="recent-cover" href="/notes/acg/04/" aria-label="「ACG 04」投影与三维学习：从相机视锥到点云">
+    <img src="/images/posts/acg-04-learning-geometry/thumbnail.png" alt="" loading="lazy" decoding="async">
+  </a>
+  <div class="recent-copy">
+    <div class="recent-meta post-row-meta">
+      <time datetime="2026-11-14">2026-11-14</time>
+      
+        <span class="post-row-terms post-row-categories">
+          
+            <a class="post-row-term post-row-category" href="/categories/Computer-Graphics/">Computer Graphics</a>
+          
+        </span>
+      
+      
+        <span class="post-row-terms post-row-tags">
+          
+            <a class="post-row-term post-row-tag" href="/tags/ACG/"># ACG</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Lecture-Notes/"># Lecture Notes</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/3D-Vision/"># 3D Vision</a>
+          
+        </span>
+      
+    </div>
+    <a class="recent-title" href="/notes/acg/04/">「ACG 04」投影与三维学习：从相机视锥到点云</a>
+    
+      <div class="recent-excerpt">相机投影把一个三维位置压缩成屏幕坐标，单视图重建试图从这些不完整观测恢复形状。投影矩阵解释了信息在哪里丢失，三维学习则利用数据中的形状先验补充约束。</div>
+    
+  </div>
+  <a class="recent-jump" href="/notes/acg/04/" aria-label="Open 「ACG 04」投影与三维学习：从相机视锥到点云">
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+  </a>
+</article>
+
+
+  
+    
+    
+    
+<article class="recent-item post-row archive-type-post">
+  <a class="recent-cover" href="/notes/acg/03/" aria-label="「ACG 03」空间变换：齐次坐标、旋转与相机">
+    <img src="/images/posts/acg-03-transformation/thumbnail.png" alt="" loading="lazy" decoding="async">
+  </a>
+  <div class="recent-copy">
+    <div class="recent-meta post-row-meta">
+      <time datetime="2026-11-14">2026-11-14</time>
+      
+        <span class="post-row-terms post-row-categories">
+          
+            <a class="post-row-term post-row-category" href="/categories/Computer-Graphics/">Computer Graphics</a>
+          
+        </span>
+      
+      
+        <span class="post-row-terms post-row-tags">
+          
+            <a class="post-row-term post-row-tag" href="/tags/ACG/"># ACG</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Lecture-Notes/"># Lecture Notes</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Transformations/"># Transformations</a>
+          
+        </span>
+      
+    </div>
+    <a class="recent-title" href="/notes/acg/03/">「ACG 03」空间变换：齐次坐标、旋转与相机</a>
+    
+      <div class="recent-excerpt">移动一个物体、换一套坐标系和转动一台相机，常常写成相似的矩阵。判断矩阵是否写对，先明确输入和输出属于哪个坐标系，再用原点、基向量和已知方向检验。</div>
+    
+  </div>
+  <a class="recent-jump" href="/notes/acg/03/" aria-label="Open 「ACG 03」空间变换：齐次坐标、旋转与相机">
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+  </a>
+</article>
+
+
+  
+    
+    
+    
+<article class="recent-item post-row archive-type-post">
+  <a class="recent-cover" href="/notes/acg/02/" aria-label="「ACG 02」几何表示：Bézier、网格与隐式曲面">
+    <img src="/images/posts/acg-02-geometry/thumbnail.png" alt="" loading="lazy" decoding="async">
+  </a>
+  <div class="recent-copy">
+    <div class="recent-meta post-row-meta">
+      <time datetime="2026-11-14">2026-11-14</time>
+      
+        <span class="post-row-terms post-row-categories">
+          
+            <a class="post-row-term post-row-category" href="/categories/Computer-Graphics/">Computer Graphics</a>
+          
+        </span>
+      
+      
+        <span class="post-row-terms post-row-tags">
+          
+            <a class="post-row-term post-row-tag" href="/tags/ACG/"># ACG</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Lecture-Notes/"># Lecture Notes</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Geometry/"># Geometry</a>
+          
+        </span>
+      
+    </div>
+    <a class="recent-title" href="/notes/acg/02/">「ACG 02」几何表示：Bézier、网格与隐式曲面</a>
+    
+      <div class="recent-excerpt">圆可以写成点的轨迹，也可以写成方程的零点集合。前者给定参数就能生成点，后者给定空间点就能判断内外。沿着这两个基本操作比较各种表示，就能理解曲线、网格和距离场为什么常在一个图形系统里共存。</div>
+    
+  </div>
+  <a class="recent-jump" href="/notes/acg/02/" aria-label="Open 「ACG 02」几何表示：Bézier、网格与隐式曲面">
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+  </a>
+</article>
+
+
+  
+    
+    
+    
+<article class="recent-item post-row archive-type-post">
+  <a class="recent-cover" href="/notes/acg/01/" aria-label="「ACG 01」图形学导论：从场景到像素">
+    <img src="/images/posts/acg-01-introduction/thumbnail.png" alt="" loading="lazy" decoding="async">
+  </a>
+  <div class="recent-copy">
+    <div class="recent-meta post-row-meta">
+      <time datetime="2026-11-14">2026-11-14</time>
+      
+        <span class="post-row-terms post-row-categories">
+          
+            <a class="post-row-term post-row-category" href="/categories/Computer-Graphics/">Computer Graphics</a>
+          
+        </span>
+      
+      
+        <span class="post-row-terms post-row-tags">
+          
+            <a class="post-row-term post-row-tag" href="/tags/ACG/"># ACG</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Lecture-Notes/"># Lecture Notes</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Rendering/"># Rendering</a>
+          
+        </span>
+      
+    </div>
+    <a class="recent-title" href="/notes/acg/01/">「ACG 01」图形学导论：从场景到像素</a>
+    
+      <div class="recent-excerpt">一张渲染图是一次计算的结果。几何描述物体的形状，材质和光源决定颜色与明暗，相机决定观察位置，像素则记录有限分辨率下的测量结果。把这些输入分开，才能追问图像里的某种现象究竟由什么引起。</div>
+    
+  </div>
+  <a class="recent-jump" href="/notes/acg/01/" aria-label="Open 「ACG 01」图形学导论：从场景到像素">
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+  </a>
+</article>
+
+
+  
+    
+    
+    
+<article class="recent-item post-row archive-type-post">
+  <a class="recent-cover" href="/notes/ml/14/" aria-label="机器学习 14｜模型解释、积分梯度与 Shapley 值">
+    <img src="/images/posts/ml-14/figure.png" alt="" loading="lazy" decoding="async">
+  </a>
+  <div class="recent-copy">
+    <div class="recent-meta post-row-meta">
+      <time datetime="2026-11-13">2026-11-13</time>
+      
+        <span class="post-row-terms post-row-categories">
+          
+            <a class="post-row-term post-row-category" href="/categories/Machine-Learning/">Machine Learning</a>
+          
+        </span>
+      
+      
+        <span class="post-row-terms post-row-tags">
+          
+            <a class="post-row-term post-row-tag" href="/tags/Lecture-Notes/"># Lecture Notes</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Interpretability/"># Interpretability</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Feature-Attribution/"># Feature Attribution</a>
+          
+        </span>
+      
+    </div>
+    <a class="recent-title" href="/notes/ml/14/">机器学习 14｜模型解释、积分梯度与 Shapley 值</a>
+    
+      <div class="recent-excerpt">从局部代理模型走到相对基线的特征归因，证明积分梯度的完备性和 Shapley 值的效率性。</div>
+    
+  </div>
+  <a class="recent-jump" href="/notes/ml/14/" aria-label="Open 机器学习 14｜模型解释、积分梯度与 Shapley 值">
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+  </a>
+</article>
+
+
+  
+    
+    
+    
+<article class="recent-item post-row archive-type-post">
+  <a class="recent-cover" href="/notes/ml/13/" aria-label="机器学习 13｜超参数优化与预算分配">
+    <img src="/images/posts/ml-13/figure.png" alt="" loading="lazy" decoding="async">
+  </a>
+  <div class="recent-copy">
+    <div class="recent-meta post-row-meta">
+      <time datetime="2026-11-13">2026-11-13</time>
+      
+        <span class="post-row-terms post-row-categories">
+          
+            <a class="post-row-term post-row-category" href="/categories/Machine-Learning/">Machine Learning</a>
+          
+        </span>
+      
+      
+        <span class="post-row-terms post-row-tags">
+          
+            <a class="post-row-term post-row-tag" href="/tags/Lecture-Notes/"># Lecture Notes</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Hyperparameter-Optimization/"># Hyperparameter Optimization</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Bayesian-Optimization/"># Bayesian Optimization</a>
+          
+        </span>
+      
+    </div>
+    <a class="recent-title" href="/notes/ml/13/">机器学习 13｜超参数优化与预算分配</a>
+    
+      <div class="recent-excerpt">用双层优化区分训练和模型选择，推导高斯过程后验与超梯度，并分析 Successive Halving 的预算分配。</div>
+    
+  </div>
+  <a class="recent-jump" href="/notes/ml/13/" aria-label="Open 机器学习 13｜超参数优化与预算分配">
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+  </a>
+</article>
+
+
+  
+    
+    
+    
+<article class="recent-item post-row archive-type-post">
+  <a class="recent-cover" href="/notes/ml/12/" aria-label="机器学习 12｜鲁棒学习与随机平滑证书">
+    <img src="/images/posts/ml-12/figure.png" alt="" loading="lazy" decoding="async">
+  </a>
+  <div class="recent-copy">
+    <div class="recent-meta post-row-meta">
+      <time datetime="2026-11-13">2026-11-13</time>
+      
+        <span class="post-row-terms post-row-categories">
+          
+            <a class="post-row-term post-row-category" href="/categories/Machine-Learning/">Machine Learning</a>
+          
+        </span>
+      
+      
+        <span class="post-row-terms post-row-tags">
+          
+            <a class="post-row-term post-row-tag" href="/tags/Lecture-Notes/"># Lecture Notes</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Robust-Learning/"># Robust Learning</a>
+          
+            <a class="post-row-term post-row-tag" href="/tags/Randomized-Smoothing/"># Randomized Smoothing</a>
+          
+        </span>
+      
+    </div>
+    <a class="recent-title" href="/notes/ml/12/">机器学习 12｜鲁棒学习与随机平滑证书</a>
+    
+      <div class="recent-excerpt">用有界输入扰动刻画鲁棒风险，推导线性分类器的精确鲁棒间隔，并说明 Gaussian 随机平滑如何给出可证明的半径。</div>
+    
+  </div>
+  <a class="recent-jump" href="/notes/ml/12/" aria-label="Open 机器学习 12｜鲁棒学习与随机平滑证书">
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+  </a>
+</article>
+
+
+  
+  
+    </div></section>
+  
+
+
+  <nav id="page-nav">
+    
+    <span class="page-number current">1</span><a class="page-number" href="/tags/Lecture-Notes/page/2/">2</a><a class="page-number" href="/tags/Lecture-Notes/page/3/">3</a><a class="extend next" rel="next" href="/tags/Lecture-Notes/page/2/">Next &raquo;</a>
+  </nav>
+
+</div>
+          </div>
+          <footer id="footer">
+  
+  <div class="outer footer-outer">
+    <div class="footer-card">
+      <div id="footer-info" class="inner">
+        
+        <span>&copy; 2026 Mars Dingdang</span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        
+          <a href="/">Home</a>
+        
+          <a href="/notes/">Notes</a>
+        
+          <a href="/research/">Research</a>
+        
+          <a href="/projects/">Projects</a>
+        
+          <a href="/archives/">Archives</a>
+        
+          <a href="/tags/">Tags</a>
+        
+          <a href="/categories/">Categories</a>
+        
+          <a href="/friends/">Friends</a>
+        
+          <a href="/about/">About</a>
+        
+      </nav>
+    </div>
+  </div>
+</footer>
+
+        </main>
+      </div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/notes/" class="mobile-nav-link">Notes</a>
+  
+    <a href="/research/" class="mobile-nav-link">Research</a>
+  
+    <a href="/projects/" class="mobile-nav-link">Projects</a>
+  
+    <a href="/archives/" class="mobile-nav-link">Archives</a>
+  
+    <a href="/tags/" class="mobile-nav-link">Tags</a>
+  
+    <a href="/categories/" class="mobile-nav-link">Categories</a>
+  
+    <a href="/friends/" class="mobile-nav-link">Friends</a>
+  
+    <a href="/about/" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

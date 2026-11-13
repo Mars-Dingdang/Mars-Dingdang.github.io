@@ -69,15 +69,15 @@
       $('body').append(box);
     }
 
-    $('.article-share-box.on').hide();
+    $('.article-share-box.on').removeClass('on');
 
     box.css({
-      top: offset.top + 25,
-      left: offset.left
+      top: offset.top + $this.outerHeight() + 5,
+      left: Math.max(8, Math.min(offset.left, document.documentElement.clientWidth - 208))
     }).addClass('on');
   }).on('click', '.article-share-box', function(e){
     e.stopPropagation();
-  }).on('click', '.article-share-box-input', function(){
+  }).on('click', '.article-share-input', function(){
     $(this).select();
   }).on('click', '.article-share-box-link', function(e){
     e.preventDefault();
@@ -126,11 +126,7 @@
     document.documentElement.setAttribute('data-theme', nextMode);
     $('.theme-toggle')
       .attr('aria-pressed', nextMode === 'light')
-      .find('.theme-toggle-text')
-      .text(nextMode === 'light' ? 'Dark Mode' : 'Light Mode');
-    $('.theme-toggle .fa')
-      .removeClass('fa-sun fa-moon')
-      .addClass(nextMode === 'light' ? 'fa-moon' : 'fa-sun');
+      .attr('title', nextMode === 'light' ? 'Switch to dark mode' : 'Switch to light mode');
     setGiscusTheme(nextMode);
   };
 
@@ -172,18 +168,24 @@
   // Responsive sidebar drawer
   var $mobileRailToggle = $('.mobile-rail-toggle');
   var $mobileRailBackdrop = $('.mobile-rail-backdrop');
+  var mobileRailWidth = window.matchMedia('(max-width: 980px)');
+  var rail = document.getElementById('site-rail');
+  var main = document.querySelector('.site-main');
 
   var setMobileRail = function(open){
     var isOpen = !!open;
 
     $container.toggleClass('is-rail-open', isOpen);
     $('body').toggleClass('mobile-rail-locked', isOpen);
+    rail.inert = mobileRailWidth.matches && !isOpen;
+    main.inert = isOpen;
     $mobileRailToggle
       .attr('aria-expanded', isOpen ? 'true' : 'false')
       .attr('aria-label', isOpen ? 'Close sidebar menu' : 'Open sidebar menu');
 
     if (isOpen) {
       $mobileRailBackdrop.removeAttr('hidden');
+      (rail.querySelector('.rail-nav-link.is-active') || rail.querySelector('.rail-nav-link')).focus();
     } else {
       $mobileRailBackdrop.attr('hidden', 'hidden');
     }
@@ -197,25 +199,36 @@
 
   $mobileRailBackdrop.on('click', function(){
     setMobileRail(false);
+    $mobileRailToggle.trigger('focus');
   });
 
   $('.site-rail').on('click', 'a', function(){
-    if (window.matchMedia('(max-width: 980px)').matches) {
+    if (mobileRailWidth.matches) {
       setMobileRail(false);
     }
   });
 
-  $(document).on('keyup', function(e){
+  $(document).on('keydown', function(e){
     if (e.key === 'Escape' && $container.hasClass('is-rail-open')) {
       setMobileRail(false);
+      $mobileRailToggle.trigger('focus');
+    }
+    if (e.key === 'Tab' && $container.hasClass('is-rail-open')) {
+      var lastControl = rail.querySelector('.search-form-submit');
+      if (e.shiftKey && document.activeElement === $mobileRailToggle[0]) {
+        e.preventDefault();
+        lastControl.focus();
+      } else if (!e.shiftKey && document.activeElement === lastControl) {
+        e.preventDefault();
+        $mobileRailToggle.trigger('focus');
+      }
     }
   });
 
-  $(window).on('resize', function(){
-    if (!window.matchMedia('(max-width: 980px)').matches) {
-      setMobileRail(false);
-    }
+  mobileRailWidth.addEventListener('change', function(){
+    setMobileRail(false);
   });
+  rail.inert = mobileRailWidth.matches;
 
   // Taxonomy search
   $('#taxonomy-filter').on('input', function(){

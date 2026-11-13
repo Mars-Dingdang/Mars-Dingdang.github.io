@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>「ACG 02」几何表示：Bézier、网格与隐式曲面 | Mars Dingdang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="圆可以写成点的轨迹，也可以写成方程的零点集合。前者给定参数就能生成点，后者给定空间点就能判断内外。沿着这两个基本操作比较各种表示，就能理解曲线、网格和距离场为什么常在一个图形系统里共存。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="「ACG 02」几何表示：Bézier、网格与隐式曲面">
+<meta property="og:url" content="https://mars-dingdang.github.io/notes/acg/02/index.html">
+<meta property="og:site_name" content="Mars Dingdang">
+<meta property="og:description" content="圆可以写成点的轨迹，也可以写成方程的零点集合。前者给定参数就能生成点，后者给定空间点就能判断内外。沿着这两个基本操作比较各种表示，就能理解曲线、网格和距离场为什么常在一个图形系统里共存。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/acg-02-geometry/thumbnail.png">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/acg-02-geometry/loop-stencil.png">
+<meta property="article:published_time" content="2026-11-13T16:02:00.000Z">
+<meta property="article:modified_time" content="2026-11-13T17:51:32.095Z">
+<meta property="article:author" content="Mars Dingdang">
+<meta property="article:tag" content="ACG">
+<meta property="article:tag" content="Geometry">
+<meta property="article:tag" content="Lecture Notes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mars-dingdang.github.io/images/posts/acg-02-geometry/thumbnail.png">
+  
+  
+    <link rel="icon" href="data:,">
+  
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    <script>
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/ams']
+        },
+        tex: {
+          packages: {'[+]': ['ams']},
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body class="is-inner">
+  
+  <div id="container">
+    <div id="wrap">
+      <button class="mobile-rail-toggle" type="button" aria-label="Open sidebar menu" aria-controls="site-rail" aria-expanded="false">
+        <span class="rail-open-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#menu"></use></svg>
+</span>
+        <span class="rail-close-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+</span>
+        <span class="mobile-rail-toggle-text">Menu</span>
+      </button>
+      <div class="mobile-rail-backdrop" hidden></div>
+      <div class="site-shell">
+        <aside id="site-rail" class="site-rail">
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <div class="rail-username">Mars-Dingdang</div>
+          <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
+          <div class="rail-stats">
+            <a href="/archives/"><strong>26</strong><span>Posts</span></a>
+            <a href="/tags/"><strong>47</strong><span>Tags</span></a>
+            <a href="/categories/"><strong>6</strong><span>Categories</span></a>
+          </div>
+          <div class="rail-profile" aria-label="Profile details">
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#school"></use></svg>
+<span>IIIS, Tsinghua University</span></div>
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#clock"></use></svg>
+<span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#mail"></use></svg>
+<span>dst25@mails.tsinghua.edu.cn</span></a>
+          </div>
+          <nav class="rail-nav" aria-label="Primary">
+            
+            
+              
+              <a class="rail-nav-link" href="/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#home"></use></svg>
+
+                <span>Home</span>
+              </a>
+            
+              
+              <a class="rail-nav-link is-active" href="/notes/" aria-current="location">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+
+                <span>Notes</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/research/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#research"></use></svg>
+
+                <span>Research</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/projects/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#code"></use></svg>
+
+                <span>Projects</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/archives/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#archive"></use></svg>
+
+                <span>Archives</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/tags/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#tag"></use></svg>
+
+                <span>Tags</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/categories/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#layers"></use></svg>
+
+                <span>Categories</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/friends/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#users"></use></svg>
+
+                <span>Friends</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/about/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#user"></use></svg>
+
+                <span>About</span>
+              </a>
+            
+          </nav>
+          <div class="rail-controls">
+            <a class="rail-github" target="_blank" rel="noopener" href="https://github.com/Mars-Dingdang"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+<span>GitHub</span></a>
+            <button class="theme-toggle" type="button" aria-label="Light mode" aria-pressed="false" title="Switch to light mode">
+              <span class="theme-icon-sun"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#sun"></use></svg>
+</span>
+              <span class="theme-icon-moon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#moon"></use></svg>
+</span>
+            </button>
+          </div>
+          <div class="rail-search">
+            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
+              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
+              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+              <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
+</button>
+            </form>
+          </div>
+        </aside>
+        <main class="site-main">
+          <div class="outer">
+            <div id="main"><article id="post-acg-02-geometry" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  
+    <nav class="course-breadcrumb" aria-label="Course">
+      <a href="/notes/#acg">Advanced Computer Graphics</a>
+      <span aria-hidden="true">/</span><span>Lecture 2</span>
+    </nav>
+  
+  <div class="article-meta">
+    <a href="/notes/acg/02/" class="article-date">
+  <time class="dt-published" datetime="2026-11-13T16:02:00.000Z" itemprop="datePublished">2026-11-14</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Computer-Graphics/">Computer Graphics</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header" lang="zh-CN">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      「ACG 02」几何表示：Bézier、网格与隐式曲面
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody" lang="zh-CN">
+      
+        <p>圆可以写成点的轨迹，也可以写成方程的零点集合。前者给定参数就能生成点，后者给定空间点就能判断内外。沿着这两个基本操作比较各种表示，就能理解曲线、网格和距离场为什么常在一个图形系统里共存。</p>
+<span id="more"></span>
+
+<h2 id="从线性插值到-Bezier-曲线"><a href="#从线性插值到-Bezier-曲线" class="headerlink" title="从线性插值到 Bézier 曲线"></a>从线性插值到 Bézier 曲线</h2><p>给定控制点 <span class="math-inline">\(P_0,\ldots,P_n\)</span>，令 <span class="math-inline">\(P_i^{(0)}=P_i\)</span>，逐层计算</p>
+<div class="math-display">\[P_i^{(k)}(t)=(1-t)P_i^{(k-1)}(t)+tP_{i+1}^{(k-1)}(t).\]</div>
+<p>最终的 <span class="math-inline">\(P_0^{(n)}(t)\)</span> 就是 de Casteljau 算法求得的曲线点。展开时，<span class="math-inline">\(P_i\)</span> 的每一项都经历了 <span class="math-inline">\(i\)</span> 次右分支与 <span class="math-inline">\(n-i\)</span> 次左分支。这些分支的排列有 <span class="math-inline">\(\binom ni\)</span> 种，因而</p>
+<div class="math-display">\[B(t)=\sum_{i=0}^n P_i b_{i,n}(t),\qquad
+b_{i,n}(t)=\binom ni(1-t)^{n-i}t^i.\]</div>
+<p><img src="/images/posts/acg-02-geometry/thumbnail.png" alt="三次 Bézier 曲线的控制多边形、三层 de Casteljau 插值线及最终曲线点"></p>
+<p>在 <span class="math-inline">\(t\in[0,1]\)</span> 内，所有权重非负。由二项式定理可知 <span class="math-inline">\(\sum_i b_{i,n}=(1-t+t)^n=1\)</span>，因此曲线落在控制点的凸包内。仿射变换 <span class="math-inline">\(P\mapsto AP+c\)</span> 可以提到加权和之外，原因也是权重和为 <span class="math-inline">\(1\)</span>。两个端点由 <span class="math-inline">\(t=0,1\)</span> 直接得到，中间控制点通常只控制形状。</p>
+<p>对 Bernstein 基求导，把两项分别用组合恒等式降阶，可得 <span class="math-inline">\(b'_{i,n}=n(b_{i-1,n-1}-b_{i,n-1})\)</span>，其中越界项取零。重排后</p>
+<div class="math-display">\[B'(t)=n\sum_{i=0}^{n-1}(P_{i+1}-P_i)b_{i,n-1}(t).\]</div>
+<p>所以两端速度分别为 <span class="math-inline">\(n(P_1-P_0)\)</span> 与 <span class="math-inline">\(n(P_n-P_{n-1})\)</span>。两段三次 Bézier 相接时，<span class="math-inline">\(C^0\)</span> 要求 <span class="math-inline">\(P_3=Q_0\)</span>。若两段在全局参数上的区间长度为 <span class="math-inline">\(h_P,h_Q\)</span>，链式法则给出 <span class="math-inline">\(C^1\)</span> 条件</p>
+<div class="math-display">\[\frac{P_3-P_2}{h_P}=\frac{Q_1-Q_0}{h_Q}.\]</div>
+<p>若只要求两个非零切向量同向，可得到几何连续 <span class="math-inline">\(G^1\)</span>。工程里常用分段三次曲线来限制一个控制点的影响范围。Hermite 用端点和切向量描述每段。Catmull–Rom 可由邻点估计切线，并穿过输入节点。B 样条用局部支撑的基函数控制更长的曲线。</p>
+<h2 id="从曲线到参数曲面"><a href="#从曲线到参数曲面" class="headerlink" title="从曲线到参数曲面"></a>从曲线到参数曲面</h2><p>张量积 Bézier 曲面把两个参数分别交给 Bernstein 基。</p>
+<div class="math-display">\[S(u,v)=\sum_{i=0}^m\sum_{j=0}^n b_{i,m}(u)b_{j,n}(v)P_{ij}.\]</div>
+<p>固定 <span class="math-inline">\(u\)</span> 后，可以先对每一列控制点求一条 Bézier 曲线，再沿 <span class="math-inline">\(v\)</span> 方向做一次求值。这来自有限和的重排。若 <span class="math-inline">\(\partial_u S\)</span> 和 <span class="math-inline">\(\partial_v S\)</span> 线性无关，它们张成切平面，法向可取 <span class="math-inline">\(\partial_uS\times\partial_vS\)</span> 后归一化。叉积为零时需要另行分析该参数点是否退化。</p>
+<h2 id="点云和三角网格"><a href="#点云和三角网格" class="headerlink" title="点云和三角网格"></a>点云和三角网格</h2><p>点云直接保存离散位置，可附带颜色或法向。均匀地从模型表面采点时，先按三角形面积选择面，再在面上均匀取样。一种面内采样方法是取独立均匀的 <span class="math-inline">\(u,v\in[0,1]\)</span>，若 <span class="math-inline">\(u+v&gt;1\)</span>，令 <span class="math-inline">\((u,v)\leftarrow(1-u,1-v)\)</span>。两个半正方形通过面积保持的反射映射到同一参数三角形，再用仿射映射 <span class="math-inline">\(P=A+u(B-A)+v(C-A)\)</span> 送到目标三角形。</p>
+<p>索引三角网格把几何位置与连接关系分开。三角形 <span class="math-inline">\((i,j,k)\)</span> 的法向方向由 <span class="math-inline">\((v_j-v_i)\times(v_k-v_i)\)</span> 给出，交换任意一对索引会翻转朝向。在二维流形网格中，内部边邻接两个面，边界边邻接一个面，顶点邻域还必须形成单一扇环或扇链。两个仅共享一个顶点的三角片团可以满足边的计数条件，却在该顶点形成两个互不相连的扇区。</p>
+<h2 id="网格细分、简化与变形"><a href="#网格细分、简化与变形" class="headerlink" title="网格细分、简化与变形"></a>网格细分、简化与变形</h2><p><strong>Loop 细分</strong>对三角形进行一分四，再调整顶点使表面变平滑。对于内部边 <span class="math-inline">\(AB\)</span>，邻面上的对顶点为 <span class="math-inline">\(C,D\)</span>，新边点为 <span class="math-inline">\(\tfrac38(A+B)+\tfrac18(C+D)\)</span>。旧顶点同样用其一环邻居更新。Catmull–Clark 引入面点、边点和更新后的旧顶点，可把多边形面细分为四边形。两种方法都需要对边界和折痕采用合适的规则。</p>
+<p><img src="/images/posts/acg-02-geometry/loop-stencil.png" alt="Loop 细分的内部边模板。共享边两端各占八分之三，两个对顶点各占八分之一"></p>
+<p><strong>QEM 简化</strong>给每个候选边折叠赋一个误差。归一化平面 <span class="math-inline">\((n,d)\)</span> 到点 <span class="math-inline">\(x\)</span> 的有符号距离为 <span class="math-inline">\(n^\mathsf T x+d\)</span>。记 <span class="math-inline">\(\tilde x=(x,1)\)</span> 与 <span class="math-inline">\(p=(n,d)\)</span>，则平方距离是 <span class="math-inline">\(\tilde x^\mathsf T pp^\mathsf T\tilde x\)</span>。对原顶点关联的平面求和便得到二次型 <span class="math-inline">\(Q\)</span>，折叠边时可以合并两个端点的 <span class="math-inline">\(Q\)</span>。写出其分块形式</p>
+<div class="math-display">\[Q=\begin{pmatrix}A&amp;b\\ b^\mathsf T&amp;c\end{pmatrix},\qquad
+E(x)=x^\mathsf T A x+2b^\mathsf T x+c .\]</div>
+<p>由于 <span class="math-inline">\(A\)</span> 对称半正定，令 <span class="math-inline">\(\nabla E=2Ax+2b=0\)</span>。若 <span class="math-inline">\(A\)</span> 可逆，最小点是 <span class="math-inline">\(-A^{-1}b\)</span>。局部面近乎共面时，平面距离几乎无法约束切向位置，可以比较两端点和中点的误差作为候选。完整算法还要判断折叠是否破坏网格连接或导致三角面翻转。</p>
+<p><strong>ARAP 变形</strong>希望每个小邻域尽量接近刚体运动。在原顶点 <span class="math-inline">\(p_i\)</span> 和新顶点 <span class="math-inline">\(p_i'\)</span> 之间，可以最小化</p>
+<div class="math-display">\[\sum_i\sum_{j\in N(i)} w_{ij}
+\left\|(p_i'-p_j')-R_i(p_i-p_j)\right\|^2,\qquad R_i\in SO(3).\]</div>
+<p>若所有顶点都经历同一个刚体变换 <span class="math-inline">\(p_i'=Rp_i+t\)</span>，差分消掉 <span class="math-inline">\(t\)</span>，取 <span class="math-inline">\(R_i=R\)</span> 即得零误差。给少量顶点加位置约束后，可交替求局部旋转和全局位置。自由形变（FFD）则用嵌套物体的控制格插值位移，移动少量格点即可驱动整个形状。</p>
+<h2 id="隐式函数与-CSG"><a href="#隐式函数与-CSG" class="headerlink" title="隐式函数与 CSG"></a>隐式函数与 CSG</h2><p>对球体取 <span class="math-inline">\(F(x)=\|x-c\|-r\)</span>，那么 <span class="math-inline">\(F&lt;0\)</span> 表示内部、<span class="math-inline">\(F&gt;0\)</span> 表示外部。若 <span class="math-inline">\(F\)</span> 可微且梯度非零，沿表面曲线 <span class="math-inline">\(x(s)\)</span> 求导有 <span class="math-inline">\(\nabla F(x)\cdot x'(s)=0\)</span>，因此 <span class="math-inline">\(\nabla F\)</span> 提供法向。</p>
+<p>采用负内正外的约定，两形状的并集可由 <span class="math-inline">\(\min(F_A,F_B)\)</span> 的非正区域表示，交集对应 <span class="math-inline">\(\max(F_A,F_B)\)</span>。做差时，<span class="math-inline">\(\max(F_A,-F_B)&lt;0\)</span> 同时要求 <span class="math-inline">\(F_A&lt;0\)</span> 和 <span class="math-inline">\(F_B&gt;0\)</span>，留下 <span class="math-inline">\(A\)</span> 内部且在 <span class="math-inline">\(B\)</span> 外部的区域。取其边界时需要留意两表面重合的情况，因为零值还可能出现在没有负值邻域的位置。这类组合主要保留符号，组合场一般只近似欧氏距离。把场值离散到网格后，可以插值得到零等值面，再转换回可显示的三角网格。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li>弋力，《Advanced Computer Graphics》，Lecture 2: Geometry，2026 年 9 月 23 日，课件第 15–55 页（曲线和曲面）、第 57–96 页（表示和网格）、第 97–152 页（处理和隐式表示）。</li>
+</ul>
+<hr>
+<p><a href="/notes/acg/01/">上一讲</a> · <a href="/notes/">课程笔记</a> · <a href="/notes/acg/03/">下一讲</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/acg/02/" data-id="cuidYp-Qg_R3WKl8JodxADUOG" data-title="「ACG 02」几何表示：Bézier、网格与隐式曲面" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>分享</span></button>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/ACG/" rel="tag">ACG</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Geometry/" rel="tag">Geometry</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lecture-Notes/" rel="tag">Lecture Notes</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/notes/acg/03/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">前一篇</strong>
+      <div class="article-nav-title">
+        
+          「ACG 03」空间变换：齐次坐标、旋转与相机
+        
+      </div>
+    </a>
+  
+  
+    <a href="/notes/acg/01/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">后一篇</strong>
+      <div class="article-nav-title">「ACG 01」图形学导论：从场景到像素</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+<section id="comments" class="giscus-comments">
+  <div class="comments-heading">
+    <span>Discussion</span>
+    <h2>Comments</h2>
+    <p>Sign in with GitHub to join the conversation.</p>
+  </div>
+  
+    <script src="https://giscus.app/client.js"
+      data-repo="Mars-Dingdang/Mars-Dingdang.github.io"
+      data-repo-id="R_kgDOTJkbMw"
+      data-category="Announcements"
+      data-category-id="DIC_kwDOTJkbM84DAxF_"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="preferred_color_scheme"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async>
+    </script>
+  
+</section>
+
+</div>
+          </div>
+          <footer id="footer">
+  
+  <div class="outer footer-outer">
+    <div class="footer-card">
+      <div id="footer-info" class="inner">
+        
+        <span>&copy; 2026 Mars Dingdang</span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        
+          <a href="/">Home</a>
+        
+          <a href="/notes/">Notes</a>
+        
+          <a href="/research/">Research</a>
+        
+          <a href="/projects/">Projects</a>
+        
+          <a href="/archives/">Archives</a>
+        
+          <a href="/tags/">Tags</a>
+        
+          <a href="/categories/">Categories</a>
+        
+          <a href="/friends/">Friends</a>
+        
+          <a href="/about/">About</a>
+        
+      </nav>
+    </div>
+  </div>
+</footer>
+
+        </main>
+      </div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/notes/" class="mobile-nav-link">Notes</a>
+  
+    <a href="/research/" class="mobile-nav-link">Research</a>
+  
+    <a href="/projects/" class="mobile-nav-link">Projects</a>
+  
+    <a href="/archives/" class="mobile-nav-link">Archives</a>
+  
+    <a href="/tags/" class="mobile-nav-link">Tags</a>
+  
+    <a href="/categories/" class="mobile-nav-link">Categories</a>
+  
+    <a href="/friends/" class="mobile-nav-link">Friends</a>
+  
+    <a href="/about/" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

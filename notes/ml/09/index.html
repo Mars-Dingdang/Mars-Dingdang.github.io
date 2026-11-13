@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>机器学习 09｜PCA、近邻搜索与度量学习 | Mars Dingdang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="证明 PCA 的投影方差与重构误差等价，分析近邻搜索中的 LSH 碰撞率，并说明怎样用标签学习距离。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习 09｜PCA、近邻搜索与度量学习">
+<meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/09/index.html">
+<meta property="og:site_name" content="Mars Dingdang">
+<meta property="og:description" content="证明 PCA 的投影方差与重构误差等价，分析近邻搜索中的 LSH 碰撞率，并说明怎样用标签学习距离。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-09/figure.png">
+<meta property="article:published_time" content="2026-11-13T08:09:00.000Z">
+<meta property="article:modified_time" content="2026-11-13T17:47:56.391Z">
+<meta property="article:author" content="Mars Dingdang">
+<meta property="article:tag" content="Lecture Notes">
+<meta property="article:tag" content="Metric Learning">
+<meta property="article:tag" content="Nearest Neighbors">
+<meta property="article:tag" content="PCA">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mars-dingdang.github.io/images/posts/ml-09/figure.png">
+  
+  
+    <link rel="icon" href="data:,">
+  
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    <script>
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/ams']
+        },
+        tex: {
+          packages: {'[+]': ['ams']},
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body class="is-inner">
+  
+  <div id="container">
+    <div id="wrap">
+      <button class="mobile-rail-toggle" type="button" aria-label="Open sidebar menu" aria-controls="site-rail" aria-expanded="false">
+        <span class="rail-open-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#menu"></use></svg>
+</span>
+        <span class="rail-close-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+</span>
+        <span class="mobile-rail-toggle-text">Menu</span>
+      </button>
+      <div class="mobile-rail-backdrop" hidden></div>
+      <div class="site-shell">
+        <aside id="site-rail" class="site-rail">
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <div class="rail-username">Mars-Dingdang</div>
+          <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
+          <div class="rail-stats">
+            <a href="/archives/"><strong>26</strong><span>Posts</span></a>
+            <a href="/tags/"><strong>47</strong><span>Tags</span></a>
+            <a href="/categories/"><strong>6</strong><span>Categories</span></a>
+          </div>
+          <div class="rail-profile" aria-label="Profile details">
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#school"></use></svg>
+<span>IIIS, Tsinghua University</span></div>
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#clock"></use></svg>
+<span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#mail"></use></svg>
+<span>dst25@mails.tsinghua.edu.cn</span></a>
+          </div>
+          <nav class="rail-nav" aria-label="Primary">
+            
+            
+              
+              <a class="rail-nav-link" href="/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#home"></use></svg>
+
+                <span>Home</span>
+              </a>
+            
+              
+              <a class="rail-nav-link is-active" href="/notes/" aria-current="location">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+
+                <span>Notes</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/research/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#research"></use></svg>
+
+                <span>Research</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/projects/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#code"></use></svg>
+
+                <span>Projects</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/archives/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#archive"></use></svg>
+
+                <span>Archives</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/tags/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#tag"></use></svg>
+
+                <span>Tags</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/categories/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#layers"></use></svg>
+
+                <span>Categories</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/friends/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#users"></use></svg>
+
+                <span>Friends</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/about/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#user"></use></svg>
+
+                <span>About</span>
+              </a>
+            
+          </nav>
+          <div class="rail-controls">
+            <a class="rail-github" target="_blank" rel="noopener" href="https://github.com/Mars-Dingdang"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+<span>GitHub</span></a>
+            <button class="theme-toggle" type="button" aria-label="Light mode" aria-pressed="false" title="Switch to light mode">
+              <span class="theme-icon-sun"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#sun"></use></svg>
+</span>
+              <span class="theme-icon-moon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#moon"></use></svg>
+</span>
+            </button>
+          </div>
+          <div class="rail-search">
+            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
+              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
+              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+              <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
+</button>
+            </form>
+          </div>
+        </aside>
+        <main class="site-main">
+          <div class="outer">
+            <div id="main"><article id="post-ml-09" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  
+    <nav class="course-breadcrumb" aria-label="Course">
+      <a href="/notes/#ml">Machine Learning</a>
+      <span aria-hidden="true">/</span><span>Lecture 9</span>
+    </nav>
+  
+  <div class="article-meta">
+    <a href="/notes/ml/09/" class="article-date">
+  <time class="dt-published" datetime="2026-11-13T08:09:00.000Z" itemprop="datePublished">2026-11-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header" lang="en">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      机器学习 09｜PCA、近邻搜索与度量学习
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody" lang="en">
+      
+        <p>证明 PCA 的投影方差与重构误差等价，分析近邻搜索中的 LSH 碰撞率，并说明怎样用标签学习距离。</p>
+<span id="more"></span>
+
+<p><img src="/images/posts/ml-09/figure.png" alt="二维散点投影到第一主成分，浅色连线显示正交重构残差"></p>
+<p><em>蓝色散点是中心化样本，橙线沿最大方差方向。浅色线段把每个点连到正交投影，长度平方相加就是该直线的重构代价。</em></p>
+<h2 id="PCA-的两个等价目标"><a href="#PCA-的两个等价目标" class="headerlink" title="PCA 的两个等价目标"></a>PCA 的两个等价目标</h2><p>将样本中心化后写成 <span class="math-inline">\(X=[x_1,\dots,x_n]\in\mathbb R^{d\times n}\)</span>，经验协方差 <span class="math-inline">\(C=XX^\top/n\)</span>。单位向量 <span class="math-inline">\(v\)</span> 方向上的投影方差是 <span class="math-inline">\(v^\top Cv\)</span>。若用该方向重构样本，估计为 <span class="math-inline">\(vv^\top x_i\)</span>。投影和残差正交，因此</p>
+<div class="math-display">\[\frac1n\sum_i\|x_i-vv^\top x_i\|^2
+=\operatorname{tr}(C)-v^\top Cv.\]</div>
+<p>这证明最小化正交重构误差等价于最大化投影方差。展开 <span class="math-inline">\(v=\sum_j a_j u_j\)</span>，其中 <span class="math-inline">\(u_j\)</span> 是 <span class="math-inline">\(C\)</span> 的正交特征向量，则 <span class="math-inline">\(v^\top Cv=\sum_j\lambda_j a_j^2\)</span>，在 <span class="math-inline">\(\sum_j a_j^2=1\)</span> 时由最大特征值取到。对有 <span class="math-inline">\(k\)</span> 列的正交矩阵 <span class="math-inline">\(V\)</span>，同理最大化 <span class="math-inline">\(\operatorname{tr}(V^\top CV)\)</span>，解由最大的 <span class="math-inline">\(k\)</span> 个特征值的特征空间给出。最优残差是剩余特征值的和。</p>
+<p>只求第一主成分时，幂法迭代 <span class="math-inline">\(v_{t+1}=Cv_t/\|Cv_t\|\)</span>。若 <span class="math-inline">\(\lambda_1&gt;\lambda_2\)</span> 且 <span class="math-inline">\(v_0\)</span> 在 <span class="math-inline">\(u_1\)</span> 上有非零分量，沿 <span class="math-inline">\(u_j\)</span> 的相对系数乘 <span class="math-inline">\((\lambda_j/\lambda_1)^t\)</span>。因此特征值间隔决定速度。列尺度也会改变 <span class="math-inline">\(C\)</span>，量纲不同的特征可先标准化，具体选择取决于任务要保留绝对变动还是相对变动。</p>
+<h2 id="kNN-与近邻查询"><a href="#kNN-与近邻查询" class="headerlink" title="kNN 与近邻查询"></a>kNN 与近邻查询</h2><p>kNN 以最接近 <span class="math-inline">\(x\)</span> 的 <span class="math-inline">\(k\)</span> 个训练点投票。<span class="math-inline">\(k\)</span> 小时分界面能追随局部变化，也容易受单点噪声影响。<span class="math-inline">\(k\)</span> 大时更平滑，但稀有小簇可能被周围多数类吞没。近邻查询本身是一个几何搜索问题。给定半径 <span class="math-inline">\(R\)</span> 与近似因子 <span class="math-inline">\(c&gt;1\)</span>，若有一点在 <span class="math-inline">\(R\)</span> 内，<span class="math-inline">\((R,cR)\)</span>-近邻查询希望返回某个在 <span class="math-inline">\(cR\)</span> 内的点。候选是否合格可用真实距离检查。</p>
+<h2 id="用-LSH-的碰撞概率控制查询成本"><a href="#用-LSH-的碰撞概率控制查询成本" class="headerlink" title="用 LSH 的碰撞概率控制查询成本"></a>用 LSH 的碰撞概率控制查询成本</h2><p>一个 <span class="math-inline">\((R,cR,p_1,p_2)\)</span>-敏感哈希族要求近点碰撞概率至少 <span class="math-inline">\(p_1\)</span>，远点碰撞概率至多 <span class="math-inline">\(p_2&lt;p_1\)</span>。对二进制向量的 Hamming 距离，均匀抽一个坐标 <span class="math-inline">\(J\)</span> 并取 <span class="math-inline">\(h_J(x)=x_J\)</span>，碰撞概率恰为 <span class="math-inline">\(1-d_H(x,y)/d\)</span>。</p>
+<p>拼接 <span class="math-inline">\(k\)</span> 个独立哈希成一个桶键，单表近点与远点碰撞概率分别至少 <span class="math-inline">\(p_1^k\)</span>、至多 <span class="math-inline">\(p_2^k\)</span>。再做 <span class="math-inline">\(L\)</span> 个独立哈希表，漏掉某个确定近点的概率至多</p>
+<div class="math-display">\[(1-p_1^k)^L\le e^{-Lp_1^k}.\]</div>
+<p>取 <span class="math-inline">\(k=\lceil\log_{1/p_2}n\rceil\)</span>，则远点在每表的预期碰撞数至多 1。取 <span class="math-inline">\(L\)</span> 与 <span class="math-inline">\(p_1^{-k}\)</span> 同阶可得到常数成功概率。因为</p>
+<div class="math-display">\[p_1^{-k}=\Theta(n^\rho),\qquad
+\rho=\frac{\log(1/p_1)}{\log(1/p_2)}&lt;1,\]</div>
+<p>哈希候选扫描的预期远点负担为次线性。还需计入桶键计算、去重和实际距离检查。实现时可遇到大量本身就合格的近点，此时找到一个合格候选即可返回。</p>
+<p>对欧氏空间，一类哈希是 <span class="math-inline">\(h(x)=\lfloor(a^\top x+b)/w\rfloor\)</span>，<span class="math-inline">\(a\)</span> 为标准高斯向量、<span class="math-inline">\(b\)</span> 在 <span class="math-inline">\([0,w)\)</span> 均匀。固定两点的投影距离 <span class="math-inline">\(t\)</span> 后，两个点同桶的条件概率为 <span class="math-inline">\((1-t/w)_+\)</span>。由于 <span class="math-inline">\(t\)</span> 与原距离的乘积关系为 <span class="math-inline">\(t\stackrel{d}{=}\|x-y\||Z|\)</span>，<span class="math-inline">\(Z\sim N(0,1)\)</span>，取期望可知碰撞概率随原距离非增。</p>
+<h2 id="学一个更合适的距离"><a href="#学一个更合适的距离" class="headerlink" title="学一个更合适的距离"></a>学一个更合适的距离</h2><p>线性映射 <span class="math-inline">\(A\)</span> 定义距离 <span class="math-inline">\(\|A(x_i-x_j)\|^2=(x_i-x_j)^\top A^\top A(x_i-x_j)\)</span>。Neighborhood Components Analysis 用</p>
+<div class="math-display">\[p_{ij}=\frac{e^{-\|A(x_i-x_j)\|^2}}{\sum_{k\ne i}e^{-\|A(x_i-x_k)\|^2}}
+\quad(j\ne i),\qquad p_{ii}=0\]</div>
+<p>代替硬最近邻。最大化 <span class="math-inline">\(\sum_i\sum_{j:y_i=y_j}p_{ij}\)</span> 相当于提高随机近邻分类器的留一训练正确数。排除自身使目标依赖类内邻居。另一类方法直接约束三元组 <span class="math-inline">\((x,x^+,x^-)\)</span>，使正样本距离比负样本距离至少小一个间隔。监督度量有助于抑制与标签无关的高方差方向。</p>
+<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>若中心化数据的协方差特征值是 <span class="math-inline">\((5,2,1)\)</span>，一维 PCA 保留的方差比例为 <span class="math-inline">\(5/8\)</span>，平均平方重构误差为 <span class="math-inline">\(2+1=3\)</span>。</p>
+<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》往年课件第 9 讲。LSH 参见 <a target="_blank" rel="noopener" href="https://doi.org/10.1145/276698.276876">Indyk 与 Motwani</a> 和 <a target="_blank" rel="noopener" href="https://graphics.stanford.edu/courses/cs468-06-fall/Papers/12%20lsh04.pdf">Datar 等人的 p-stable 构造</a>。</p>
+<p><a href="/notes/ml/08/">← 第 8 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/10/">第 10 讲 →</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/09/" data-id="cuidpb39cMOih5kMMvzVOFSFl" data-title="机器学习 09｜PCA、近邻搜索与度量学习" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>Share</span></button>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lecture-Notes/" rel="tag">Lecture Notes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Metric-Learning/" rel="tag">Metric Learning</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Nearest-Neighbors/" rel="tag">Nearest Neighbors</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/PCA/" rel="tag">PCA</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/notes/ml/10/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          机器学习 10｜K-means 与谱聚类
+        
+      </div>
+    </a>
+  
+  
+    <a href="/notes/ml/08/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">机器学习 08｜决策树、随机森林与 Boosting</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+<section id="comments" class="giscus-comments">
+  <div class="comments-heading">
+    <span>Discussion</span>
+    <h2>Comments</h2>
+    <p>Sign in with GitHub to join the conversation.</p>
+  </div>
+  
+    <script src="https://giscus.app/client.js"
+      data-repo="Mars-Dingdang/Mars-Dingdang.github.io"
+      data-repo-id="R_kgDOTJkbMw"
+      data-category="Announcements"
+      data-category-id="DIC_kwDOTJkbM84DAxF_"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="preferred_color_scheme"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async>
+    </script>
+  
+</section>
+
+</div>
+          </div>
+          <footer id="footer">
+  
+  <div class="outer footer-outer">
+    <div class="footer-card">
+      <div id="footer-info" class="inner">
+        
+        <span>&copy; 2026 Mars Dingdang</span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        
+          <a href="/">Home</a>
+        
+          <a href="/notes/">Notes</a>
+        
+          <a href="/research/">Research</a>
+        
+          <a href="/projects/">Projects</a>
+        
+          <a href="/archives/">Archives</a>
+        
+          <a href="/tags/">Tags</a>
+        
+          <a href="/categories/">Categories</a>
+        
+          <a href="/friends/">Friends</a>
+        
+          <a href="/about/">About</a>
+        
+      </nav>
+    </div>
+  </div>
+</footer>
+
+        </main>
+      </div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/notes/" class="mobile-nav-link">Notes</a>
+  
+    <a href="/research/" class="mobile-nav-link">Research</a>
+  
+    <a href="/projects/" class="mobile-nav-link">Projects</a>
+  
+    <a href="/archives/" class="mobile-nav-link">Archives</a>
+  
+    <a href="/tags/" class="mobile-nav-link">Tags</a>
+  
+    <a href="/categories/" class="mobile-nav-link">Categories</a>
+  
+    <a href="/friends/" class="mobile-nav-link">Friends</a>
+  
+    <a href="/about/" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

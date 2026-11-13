@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>机器学习 14｜模型解释、积分梯度与 Shapley 值 | Mars Dingdang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="从局部代理模型走到相对基线的特征归因，证明积分梯度的完备性和 Shapley 值的效率性。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习 14｜模型解释、积分梯度与 Shapley 值">
+<meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/14/index.html">
+<meta property="og:site_name" content="Mars Dingdang">
+<meta property="og:description" content="从局部代理模型走到相对基线的特征归因，证明积分梯度的完备性和 Shapley 值的效率性。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-14/figure.png">
+<meta property="article:published_time" content="2026-11-13T08:14:00.000Z">
+<meta property="article:modified_time" content="2026-11-13T17:50:33.229Z">
+<meta property="article:author" content="Mars Dingdang">
+<meta property="article:tag" content="Feature Attribution">
+<meta property="article:tag" content="Interpretability">
+<meta property="article:tag" content="Lecture Notes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mars-dingdang.github.io/images/posts/ml-14/figure.png">
+  
+  
+    <link rel="icon" href="data:,">
+  
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    <script>
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/ams']
+        },
+        tex: {
+          packages: {'[+]': ['ams']},
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body class="is-inner">
+  
+  <div id="container">
+    <div id="wrap">
+      <button class="mobile-rail-toggle" type="button" aria-label="Open sidebar menu" aria-controls="site-rail" aria-expanded="false">
+        <span class="rail-open-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#menu"></use></svg>
+</span>
+        <span class="rail-close-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+</span>
+        <span class="mobile-rail-toggle-text">Menu</span>
+      </button>
+      <div class="mobile-rail-backdrop" hidden></div>
+      <div class="site-shell">
+        <aside id="site-rail" class="site-rail">
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <div class="rail-username">Mars-Dingdang</div>
+          <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
+          <div class="rail-stats">
+            <a href="/archives/"><strong>26</strong><span>Posts</span></a>
+            <a href="/tags/"><strong>47</strong><span>Tags</span></a>
+            <a href="/categories/"><strong>6</strong><span>Categories</span></a>
+          </div>
+          <div class="rail-profile" aria-label="Profile details">
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#school"></use></svg>
+<span>IIIS, Tsinghua University</span></div>
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#clock"></use></svg>
+<span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#mail"></use></svg>
+<span>dst25@mails.tsinghua.edu.cn</span></a>
+          </div>
+          <nav class="rail-nav" aria-label="Primary">
+            
+            
+              
+              <a class="rail-nav-link" href="/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#home"></use></svg>
+
+                <span>Home</span>
+              </a>
+            
+              
+              <a class="rail-nav-link is-active" href="/notes/" aria-current="location">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+
+                <span>Notes</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/research/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#research"></use></svg>
+
+                <span>Research</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/projects/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#code"></use></svg>
+
+                <span>Projects</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/archives/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#archive"></use></svg>
+
+                <span>Archives</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/tags/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#tag"></use></svg>
+
+                <span>Tags</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/categories/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#layers"></use></svg>
+
+                <span>Categories</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/friends/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#users"></use></svg>
+
+                <span>Friends</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/about/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#user"></use></svg>
+
+                <span>About</span>
+              </a>
+            
+          </nav>
+          <div class="rail-controls">
+            <a class="rail-github" target="_blank" rel="noopener" href="https://github.com/Mars-Dingdang"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+<span>GitHub</span></a>
+            <button class="theme-toggle" type="button" aria-label="Light mode" aria-pressed="false" title="Switch to light mode">
+              <span class="theme-icon-sun"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#sun"></use></svg>
+</span>
+              <span class="theme-icon-moon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#moon"></use></svg>
+</span>
+            </button>
+          </div>
+          <div class="rail-search">
+            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
+              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
+              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+              <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
+</button>
+            </form>
+          </div>
+        </aside>
+        <main class="site-main">
+          <div class="outer">
+            <div id="main"><article id="post-ml-14" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  
+    <nav class="course-breadcrumb" aria-label="Course">
+      <a href="/notes/#ml">Machine Learning</a>
+      <span aria-hidden="true">/</span><span>Lecture 14</span>
+    </nav>
+  
+  <div class="article-meta">
+    <a href="/notes/ml/14/" class="article-date">
+  <time class="dt-published" datetime="2026-11-13T08:14:00.000Z" itemprop="datePublished">2026-11-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header" lang="en">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      机器学习 14｜模型解释、积分梯度与 Shapley 值
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody" lang="en">
+      
+        <p>从局部代理模型走到相对基线的特征归因，证明积分梯度的完备性和 Shapley 值的效率性。</p>
+<span id="more"></span>
+
+<p><img src="/images/posts/ml-14/figure.png" alt="饱和函数在输入点处斜率为零，积分梯度沿基线到输入的整段路径累积导数"></p>
+<p><em>函数在右侧进入平坦区。输入点的局部斜率为零，而基线和输入的输出差为 1，这一差值由路径上的非零斜率贡献。</em></p>
+<h2 id="解释一个模型的哪部分行为"><a href="#解释一个模型的哪部分行为" class="headerlink" title="解释一个模型的哪部分行为"></a>解释一个模型的哪部分行为</h2><p>解释可能指小范围输入变化时预测怎样改变，也可能问一个预测相对参考样本的差异由哪些特征贡献。局部代理模型与基线归因分别回答这两个问题。特征存在相关性时，还必须定义“只改变一个特征”对应什么输入。缺失特征的填充值或采样分布会影响归因含义。</p>
+<h2 id="LIME-是带邻域权重的局部拟合"><a href="#LIME-是带邻域权重的局部拟合" class="headerlink" title="LIME 是带邻域权重的局部拟合"></a>LIME 是带邻域权重的局部拟合</h2><p>固定待解释输入 <span class="math-inline">\(x\)</span>。在附近采样或遮挡得到扰动输入 <span class="math-inline">\(z_j\)</span>，调用黑盒得到 <span class="math-inline">\(f(z_j)\)</span>。用人可读的表示 <span class="math-inline">\(z_j'\)</span> 拟合简单模型 <span class="math-inline">\(g\)</span>，例如稀疏线性函数。</p>
+<div class="math-display">\[\min_g \sum_j\pi_x(z_j)\big(f(z_j)-g(z_j')\big)^2+\Omega(g).\]</div>
+<p><span class="math-inline">\(\pi_x\)</span> 给近邻更高权重，<span class="math-inline">\(\Omega\)</span> 限制特征数等复杂度。若选择固定特征集且暂不加惩罚，设 <span class="math-inline">\(A\)</span> 为含截距的解释特征矩阵、<span class="math-inline">\(W\)</span> 为权重对角矩阵，则正规方程为 <span class="math-inline">\(A^\top WA\,\beta=A^\top Wf\)</span>。这是普通加权回归。改变核宽度、遮挡方法和样本采样会改变所拟合的局部问题。以图中饱和函数为例，小邻域线性拟合会给接近零的斜率，这与输入点附近的函数行为一致。</p>
+<h2 id="积分梯度补上从基线到输入的变化"><a href="#积分梯度补上从基线到输入的变化" class="headerlink" title="积分梯度补上从基线到输入的变化"></a>积分梯度补上从基线到输入的变化</h2><p>设基线 <span class="math-inline">\(x'\)</span>、输入 <span class="math-inline">\(x\)</span>，沿直线路径 <span class="math-inline">\(\gamma(\alpha)=x'+\alpha(x-x')\)</span> 积分。第 <span class="math-inline">\(i\)</span> 个特征的积分梯度为</p>
+<div class="math-display">\[\operatorname{IG}_i(x;x')=(x_i-x_i')\int_0^1 \partial_i F(\gamma(\alpha))\,d\alpha.\]</div>
+<p>若 <span class="math-inline">\(F\)</span> 沿路径满足链式法则且 <span class="math-inline">\(F\circ\gamma\)</span> 绝对连续，求和后可用微积分基本定理：</p>
+<div class="math-display">\[\begin{aligned}
+\sum_i\operatorname{IG}_i
+&amp;=\int_0^1\nabla F(\gamma(\alpha))^\top(x-x')\,d\alpha\\
+&amp;=\int_0^1\frac{d}{d\alpha}F(\gamma(\alpha))\,d\alpha\\
+&amp;=F(x)-F(x').
+\end{aligned}\]</div>
+<p>这称为完备性。比如 <span class="math-inline">\(F(x)=\min\{\max(x,0),1\}\)</span>，取 <span class="math-inline">\(x'=0\)</span>、<span class="math-inline">\(x=2\)</span>。在 <span class="math-inline">\(x=2\)</span> 导数为零，而路径前半段导数为 1，于是积分归因为 <span class="math-inline">\(2\times1/2=1\)</span>。数值实现以离散采样近似积分，完备性残差可检查积分精度。基线仍决定差值的含义。</p>
+<h2 id="Shapley-值是平均边际贡献"><a href="#Shapley-值是平均边际贡献" class="headerlink" title="Shapley 值是平均边际贡献"></a>Shapley 值是平均边际贡献</h2><p>设 <span class="math-inline">\(N\)</span> 为全部特征集合，给定一个集合价值函数 <span class="math-inline">\(v(S)\)</span>，表示只掌握 <span class="math-inline">\(S\)</span> 时的预测价值。对特征 <span class="math-inline">\(i\)</span>，</p>
+<div class="math-display">\[\phi_i=\sum_{S\subseteq N\setminus\{i\}}
+\frac{|S|!(|N|-|S|-1)!}{|N|!}
+\big[v(S\cup\{i\})-v(S)\big].\]</div>
+<p>在随机排列里，恰好 <span class="math-inline">\(S\)</span> 出现在 <span class="math-inline">\(i\)</span> 前的排列数是 <span class="math-inline">\(|S|!(|N|-|S|-1)!\)</span>，所以公式等于对所有加入顺序取平均边际贡献。对一个固定排列，所有边际贡献望远镜求和为 <span class="math-inline">\(v(N)-v(\varnothing)\)</span>。再取平均得到效率性 <span class="math-inline">\(\sum_i\phi_i=v(N)-v(\varnothing)\)</span>。对称玩家的边际贡献在交换排列后相同，没有任何边际贡献的玩家得到零。</p>
+<p>SHAP 方法在具体预测问题中选择集合价值及求解方式。可以用固定基线填补缺失特征，也可以用背景数据作边际或条件期望。若特征相关，按条件分布补全会允许一个特征通过提供对其他特征的信息获得归因。报告数值时同时给出价值函数、基线或背景数据，读者才能比较结果。</p>
+<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>对 <span class="math-inline">\(F(x_1,x_2)=x_1x_2\)</span>、基线 <span class="math-inline">\((0,0)\)</span>、输入 <span class="math-inline">\((2,3)\)</span>，直线路径上 <span class="math-inline">\(\partial_1F=3\alpha\)</span>、<span class="math-inline">\(\partial_2F=2\alpha\)</span>，积分梯度各为 3。用基线填补定义 Shapley 游戏时，只有两个特征都加入后价值才是 6，所以先加入者贡献 0、后加入者贡献 6，平均也各为 3。这个例子中两个分解恰好一致。</p>
+<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》往年课件第 14 讲。原文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1602.04938">LIME</a>，<a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v70/sundararajan17a.html">Integrated Gradients</a>，<a target="_blank" rel="noopener" href="https://papers.neurips.cc/paper_files/paper/2017/hash/8a20a8621978632d76c43dfd28b67767-Abstract.html">SHAP</a>。</p>
+<p><a href="/notes/ml/13/">← 第 13 讲</a> · <a href="/notes/">课程目录</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/14/" data-id="cuidJkAqD6gaLvyXG4QD2e0qD" data-title="机器学习 14｜模型解释、积分梯度与 Shapley 值" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>Share</span></button>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Feature-Attribution/" rel="tag">Feature Attribution</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Interpretability/" rel="tag">Interpretability</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lecture-Notes/" rel="tag">Lecture Notes</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/posts/dimension-free-theorems-in-geometry/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          Dimension Free Theorems in Geometry
+        
+      </div>
+    </a>
+  
+  
+    <a href="/notes/ml/13/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">机器学习 13｜超参数优化与预算分配</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+<section id="comments" class="giscus-comments">
+  <div class="comments-heading">
+    <span>Discussion</span>
+    <h2>Comments</h2>
+    <p>Sign in with GitHub to join the conversation.</p>
+  </div>
+  
+    <script src="https://giscus.app/client.js"
+      data-repo="Mars-Dingdang/Mars-Dingdang.github.io"
+      data-repo-id="R_kgDOTJkbMw"
+      data-category="Announcements"
+      data-category-id="DIC_kwDOTJkbM84DAxF_"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="preferred_color_scheme"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async>
+    </script>
+  
+</section>
+
+</div>
+          </div>
+          <footer id="footer">
+  
+  <div class="outer footer-outer">
+    <div class="footer-card">
+      <div id="footer-info" class="inner">
+        
+        <span>&copy; 2026 Mars Dingdang</span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        
+          <a href="/">Home</a>
+        
+          <a href="/notes/">Notes</a>
+        
+          <a href="/research/">Research</a>
+        
+          <a href="/projects/">Projects</a>
+        
+          <a href="/archives/">Archives</a>
+        
+          <a href="/tags/">Tags</a>
+        
+          <a href="/categories/">Categories</a>
+        
+          <a href="/friends/">Friends</a>
+        
+          <a href="/about/">About</a>
+        
+      </nav>
+    </div>
+  </div>
+</footer>
+
+        </main>
+      </div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/notes/" class="mobile-nav-link">Notes</a>
+  
+    <a href="/research/" class="mobile-nav-link">Research</a>
+  
+    <a href="/projects/" class="mobile-nav-link">Projects</a>
+  
+    <a href="/archives/" class="mobile-nav-link">Archives</a>
+  
+    <a href="/tags/" class="mobile-nav-link">Tags</a>
+  
+    <a href="/categories/" class="mobile-nav-link">Categories</a>
+  
+    <a href="/friends/" class="mobile-nav-link">Friends</a>
+  
+    <a href="/about/" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

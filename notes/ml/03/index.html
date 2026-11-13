@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>机器学习 03｜SGD、SVRG 与镜像下降 | Mars Dingdang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="把随机梯度的噪声写入收敛证明，再用控制变量降低方差，并把下降几何推广到概率单纯形。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习 03｜SGD、SVRG 与镜像下降">
+<meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/03/index.html">
+<meta property="og:site_name" content="Mars Dingdang">
+<meta property="og:description" content="把随机梯度的噪声写入收敛证明，再用控制变量降低方差，并把下降几何推广到概率单纯形。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-03/figure.png">
+<meta property="article:published_time" content="2026-11-13T08:03:00.000Z">
+<meta property="article:modified_time" content="2026-11-13T17:55:47.430Z">
+<meta property="article:author" content="Mars Dingdang">
+<meta property="article:tag" content="Lecture Notes">
+<meta property="article:tag" content="Mirror Descent">
+<meta property="article:tag" content="Optimization">
+<meta property="article:tag" content="SGD">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mars-dingdang.github.io/images/posts/ml-03/figure.png">
+  
+  
+    <link rel="icon" href="data:,">
+  
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    <script>
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/ams']
+        },
+        tex: {
+          packages: {'[+]': ['ams']},
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body class="is-inner">
+  
+  <div id="container">
+    <div id="wrap">
+      <button class="mobile-rail-toggle" type="button" aria-label="Open sidebar menu" aria-controls="site-rail" aria-expanded="false">
+        <span class="rail-open-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#menu"></use></svg>
+</span>
+        <span class="rail-close-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+</span>
+        <span class="mobile-rail-toggle-text">Menu</span>
+      </button>
+      <div class="mobile-rail-backdrop" hidden></div>
+      <div class="site-shell">
+        <aside id="site-rail" class="site-rail">
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <div class="rail-username">Mars-Dingdang</div>
+          <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
+          <div class="rail-stats">
+            <a href="/archives/"><strong>26</strong><span>Posts</span></a>
+            <a href="/tags/"><strong>47</strong><span>Tags</span></a>
+            <a href="/categories/"><strong>6</strong><span>Categories</span></a>
+          </div>
+          <div class="rail-profile" aria-label="Profile details">
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#school"></use></svg>
+<span>IIIS, Tsinghua University</span></div>
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#clock"></use></svg>
+<span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#mail"></use></svg>
+<span>dst25@mails.tsinghua.edu.cn</span></a>
+          </div>
+          <nav class="rail-nav" aria-label="Primary">
+            
+            
+              
+              <a class="rail-nav-link" href="/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#home"></use></svg>
+
+                <span>Home</span>
+              </a>
+            
+              
+              <a class="rail-nav-link is-active" href="/notes/" aria-current="location">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+
+                <span>Notes</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/research/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#research"></use></svg>
+
+                <span>Research</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/projects/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#code"></use></svg>
+
+                <span>Projects</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/archives/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#archive"></use></svg>
+
+                <span>Archives</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/tags/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#tag"></use></svg>
+
+                <span>Tags</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/categories/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#layers"></use></svg>
+
+                <span>Categories</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/friends/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#users"></use></svg>
+
+                <span>Friends</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/about/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#user"></use></svg>
+
+                <span>About</span>
+              </a>
+            
+          </nav>
+          <div class="rail-controls">
+            <a class="rail-github" target="_blank" rel="noopener" href="https://github.com/Mars-Dingdang"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+<span>GitHub</span></a>
+            <button class="theme-toggle" type="button" aria-label="Light mode" aria-pressed="false" title="Switch to light mode">
+              <span class="theme-icon-sun"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#sun"></use></svg>
+</span>
+              <span class="theme-icon-moon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#moon"></use></svg>
+</span>
+            </button>
+          </div>
+          <div class="rail-search">
+            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
+              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
+              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+              <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
+</button>
+            </form>
+          </div>
+        </aside>
+        <main class="site-main">
+          <div class="outer">
+            <div id="main"><article id="post-ml-03" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  
+    <nav class="course-breadcrumb" aria-label="Course">
+      <a href="/notes/#ml">Machine Learning</a>
+      <span aria-hidden="true">/</span><span>Lecture 3</span>
+    </nav>
+  
+  <div class="article-meta">
+    <a href="/notes/ml/03/" class="article-date">
+  <time class="dt-published" datetime="2026-11-13T08:03:00.000Z" itemprop="datePublished">2026-11-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header" lang="en">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      机器学习 03｜SGD、SVRG 与镜像下降
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody" lang="en">
+      
+        <p>把随机梯度的噪声写入收敛证明，再用控制变量降低方差，并把下降几何推广到概率单纯形。</p>
+<span id="more"></span>
+
+<p><img src="/images/posts/ml-03/figure.png" alt="一维二次有限和上 SGD 与 SVRG 的收敛轨迹"></p>
+<p><em>两项的曲率与最优点各不相同。随机梯度在总体最优点仍有波动，SVRG 的修正项随迭代点靠近快照而减小。图中的横轴为累计分量梯度计算次数。</em></p>
+<h2 id="SGD-控制了哪个输出"><a href="#SGD-控制了哪个输出" class="headerlink" title="SGD 控制了哪个输出"></a>SGD 控制了哪个输出</h2><p>设 <span class="math-inline">\(f\)</span> 是 <span class="math-inline">\(L\)</span> 光滑凸函数，<span class="math-inline">\(w^\star\)</span> 是其最优点。更新 <span class="math-inline">\(w_{t+1}=w_t-\eta G_t\)</span>。给定抽取本步随机样本之前的历史 <span class="math-inline">\(\mathcal F_t\)</span>，假设</p>
+<div class="math-display">\[\mathbb E[G_t\mid\mathcal F_t]=g_t=\nabla f(w_t),\qquad
+v_t=\mathbb E[\|G_t-g_t\|^2\mid\mathcal F_t]\le\sigma^2.\]</div>
+<p>条件无偏性允许把依赖 <span class="math-inline">\(w_t\)</span> 的内积里的 <span class="math-inline">\(G_t\)</span> 换成 <span class="math-inline">\(g_t\)</span>。直接展开距离平方得到</p>
+<div class="math-display">\[\mathbb E[\|w_{t+1}-w^\star\|^2\mid\mathcal F_t]
+=\|w_t-w^\star\|^2-2\eta\langle g_t,w_t-w^\star\rangle+\eta^2(\|g_t\|^2+v_t).\]</div>
+<p>用光滑性给 <span class="math-inline">\(f(w_{t+1})\)</span> 上界，并用凸性给 <span class="math-inline">\(f(w_t)-f(w^\star)\)</span> 上界。当 <span class="math-inline">\(\eta\le 1/L\)</span>，</p>
+<div class="math-display">\[\begin{aligned}
+\mathbb E[f(w_{t+1})-f(w^\star)\mid\mathcal F_t]
+&amp;\le \langle g_t,w_t-w^\star\rangle-\frac\eta2\|g_t\|^2+\frac\eta2v_t\\
+&amp;=\frac{\|w_t-w^\star\|^2-\mathbb E[\|w_{t+1}-w^\star\|^2\mid\mathcal F_t]}{2\eta}+\eta v_t.
+\end{aligned}\]</div>
+<p>取全期望并求和。对 <span class="math-inline">\(\bar w_T=T^{-1}\sum_{t=1}^T w_t\)</span> 用 Jensen 不等式，得</p>
+<div class="math-display">\[\mathbb E[f(\bar w_T)-f(w^\star)]
+\le \frac{\|w_0-w^\star\|^2}{2\eta T}+\eta\sigma^2.\]</div>
+<p>取 <span class="math-inline">\(\eta\)</span> 与 <span class="math-inline">\(T^{-1/2}\)</span> 同阶可平衡两项。这个推导也适用于均匀随机选择某步作为输出。随机误差会破坏每步单调性，末次迭代需要独立论证。大小为 <span class="math-inline">\(b\)</span> 的独立同分布 mini-batch 平均可把条件方差缩小为单样本的 <span class="math-inline">\(1/b\)</span>。</p>
+<h2 id="SVRG-的控制变量"><a href="#SVRG-的控制变量" class="headerlink" title="SVRG 的控制变量"></a>SVRG 的控制变量</h2><p>对 <span class="math-inline">\(f(w)=n^{-1}\sum_i f_i(w)\)</span>，每一轮在快照 <span class="math-inline">\(\tilde w\)</span> 算一次全梯度 <span class="math-inline">\(g(\tilde w)\)</span>。内循环均匀选 <span class="math-inline">\(i\)</span>，使用</p>
+<div class="math-display">\[V=\nabla f_i(w)-\nabla f_i(\tilde w)+g(\tilde w).\]</div>
+<p>固定历史后，后两项在期望中抵消，因此 <span class="math-inline">\(\mathbb E[V\mid w,\tilde w]=\nabla f(w)\)</span>。让 <span class="math-inline">\(A_i=\nabla f_i(w)-\nabla f_i(\tilde w)\)</span>。条件方差就是 <span class="math-inline">\(\mathbb E\|A_i-\mathbb EA_i\|^2\)</span>，不超过 <span class="math-inline">\(\mathbb E\|A_i\|^2\)</span>。若每个 <span class="math-inline">\(f_i\)</span> 都 <span class="math-inline">\(L\)</span> 光滑，立刻得到 <span class="math-inline">\(L^2\|w-\tilde w\|^2\)</span>。同一个 <span class="math-inline">\(i\)</span> 的两次计算在这里至关重要。</p>
+<p>若每个 <span class="math-inline">\(f_i\)</span> 还凸，可以用更适合分析收敛的函数值上界。对 <span class="math-inline">\(h_i(u)=f_i(u)-\langle\nabla f_i(w^\star),u\rangle\)</span>，<span class="math-inline">\(w^\star\)</span> 是它的最优点。对 <span class="math-inline">\(h_i\)</span> 执行一步步长 <span class="math-inline">\(1/L\)</span> 的 GD，下降量至多为当前点到最优值的差，故</p>
+<div class="math-display">\[\|\nabla f_i(u)-\nabla f_i(w^\star)\|^2
+\le 2L\,[f_i(u)-f_i(w^\star)-\langle\nabla f_i(w^\star),u-w^\star\rangle].\]</div>
+<p>将 <span class="math-inline">\(A_i\)</span> 通过 <span class="math-inline">\(\nabla f_i(w^\star)\)</span> 拆成两项，平方范数用 <span class="math-inline">\(\|a+b\|^2\le2\|a\|^2+2\|b\|^2\)</span>，并利用 <span class="math-inline">\(\nabla f(w^\star)=0\)</span>。</p>
+<div class="math-display">\[\operatorname{Var}(V\mid w,\tilde w)
+\le 4L[f(w)-f^\star+f(\tilde w)-f^\star].\]</div>
+<p>当当前点和快照都接近最优时，这个上界趋零。重新计算快照全梯度有成本，适合以一个内循环分摊。使用分量梯度评估次数比较算法时，快照计算也计入横轴。</p>
+<p>若 <span class="math-inline">\(f\)</span> 还 <span class="math-inline">\(\mu\)</span> 强凸，可看出怎样从方差界得到每轮收缩。写 <span class="math-inline">\(\Delta(w)=f(w)-f^\star\)</span>。利用同一个分量梯度差不等式，可以将 <span class="math-inline">\(\mathbb E\|V\|^2\)</span> 也上界为 <span class="math-inline">\(4L(\Delta(w)+\Delta(\tilde w))\)</span>。具体地，把 <span class="math-inline">\(V\)</span> 写成 <span class="math-inline">\(\nabla f_i(w)-\nabla f_i(w^\star)\)</span> 减去 <span class="math-inline">\(\nabla f_i(\tilde w)-\nabla f_i(w^\star)\)</span> 的中心化版本，再分别界两个平方范数。对更新展开距离并用凸性，</p>
+<div class="math-display">\[\mathbb E[\|w^+-w^\star\|^2\mid w,\tilde w]
+\;2\eta(1-2L\eta)\Delta(w)
+\le \|w-w^\star\|^2+4L\eta^2\Delta(\tilde w).\]</div>
+<p>从 <span class="math-inline">\(w_0=\tilde w\)</span> 开始，内循环 <span class="math-inline">\(m\)</span> 步后，从 <span class="math-inline">\(w_0,\ldots,w_{m-1}\)</span> 均匀选新快照 <span class="math-inline">\(\tilde w^+\)</span>。求和并用 <span class="math-inline">\(\|w_0-w^\star\|^2\le 2\Delta(\tilde w)/\mu\)</span> 得</p>
+<div class="math-display">\[\mathbb E[\Delta(\tilde w^+)\mid\tilde w]\le
+\frac{1/(m\mu\eta)+2L\eta}{1-2L\eta}\Delta(\tilde w).\]</div>
+<p>例如取 <span class="math-inline">\(\eta=1/(8L)\)</span>，<span class="math-inline">\(m\ge32L/\mu\)</span>，收缩因子至多 <span class="math-inline">\(2/3\)</span>。每轮成本为 <span class="math-inline">\(n+2m\)</span> 次分量梯度计算，故该版本达到期望误差 <span class="math-inline">\(\varepsilon\)</span> 的计算次数是 <span class="math-inline">\(O((n+L/\mu)\log(\Delta(\tilde w_0)/\varepsilon))\)</span>。图中为突出轨迹对比，每轮取末次内迭代作快照，图示和上述收缩证明使用不同的输出规则。</p>
+<h2 id="镜像下降：更新发生在哪个空间"><a href="#镜像下降：更新发生在哪个空间" class="headerlink" title="镜像下降：更新发生在哪个空间"></a>镜像下降：更新发生在哪个空间</h2><p>取严格凸可微的势函数 <span class="math-inline">\(\psi\)</span>，定义 Bregman 散度</p>
+<div class="math-display">\[D_\psi(u,w)=\psi(u)-\psi(w)-\langle\nabla\psi(w),u-w\rangle.\]</div>
+<p>在凸域 <span class="math-inline">\(\mathcal C\)</span> 上的镜像下降选择</p>
+<div class="math-display">\[w_{t+1}\in\arg\min_{u\in\mathcal C}
+\{\eta\langle g_t,u\rangle+D_\psi(u,w_t)\}.\]</div>
+<p>无约束且解在定义域内部时，<span class="math-inline">\(\nabla\psi(w_{t+1})=\nabla\psi(w_t)-\eta g_t\)</span>，即在对偶坐标中做加法。若 <span class="math-inline">\(\psi(w)=\|w\|^2/2\)</span>，这个步骤就是欧氏投影梯度下降。</p>
+<p>对任意 <span class="math-inline">\(u\in\mathcal C\)</span>，把最优性条件和 Bregman 三点恒等式相乘展开，得到</p>
+<div class="math-display">\[\eta\langle g_t,w_{t+1}-u\rangle
+\le D_\psi(u,w_t)-D_\psi(u,w_{t+1})-D_\psi(w_{t+1},w_t).\]</div>
+<p>若 <span class="math-inline">\(\psi\)</span> 对选定范数是 1 强凸，将 <span class="math-inline">\(\eta\langle g_t,w_t-w_{t+1}\rangle\)</span> 用对偶范数的 Young 不等式上界，便得到</p>
+<div class="math-display">\[\sum_{t=0}^{T-1}\langle g_t,w_t-u\rangle
+\le \frac{D_\psi(u,w_0)}{\eta}
++\frac{\eta}{2}\sum_{t=0}^{T-1}\|g_t\|_*^2.\]</div>
+<p>取 <span class="math-inline">\(\psi(w)=\sum_j w_j\log w_j\)</span> 且 <span class="math-inline">\(w\)</span> 为概率向量，驻点方程加上归一化约束给出</p>
+<div class="math-display">\[w_{t+1,j}=\frac{w_{t,j}e^{-\eta g_{t,j}}}{\sum_k w_{t,k}e^{-\eta g_{t,k}}}.\]</div>
+<p>这是乘法权重更新。若初始为均匀分布，<span class="math-inline">\(D_\psi(u,w_0)\le\log d\)</span>，对偶范数是 <span class="math-inline">\(\ell_\infty\)</span>。维数以 <span class="math-inline">\(\log d\)</span> 进入初始距离项。</p>
+<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>两个分量为 <span class="math-inline">\(f_1(w)=\tfrac12(w-1)^2\)</span> 与 <span class="math-inline">\(f_2(w)=\tfrac12(w+1)^2\)</span>。在 <span class="math-inline">\(w^\star=0\)</span>，SGD 梯度取 <span class="math-inline">\(\pm1\)</span>，方差为 1。SVRG 修正后无论抽到哪项都等于 <span class="math-inline">\(w\)</span>，方差为 0。原因是两项 Hessian 完全一致。</p>
+<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》2026 年第 3 讲。SVRG 的有限和收敛分析参见 <a target="_blank" rel="noopener" href="https://proceedings.neurips.cc/paper/2013/hash/ac1dd209cbcc5e5d1c6e28598e8cbbe8-Abstract.html">Johnson 与 Zhang，NeurIPS 2013</a>。</p>
+<p><a href="/notes/ml/02/">← 第 2 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/04/">第 4 讲 →</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/03/" data-id="cuidsnIV9HjSjq4e16dckumJ6" data-title="机器学习 03｜SGD、SVRG 与镜像下降" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>Share</span></button>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lecture-Notes/" rel="tag">Lecture Notes</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Mirror-Descent/" rel="tag">Mirror Descent</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Optimization/" rel="tag">Optimization</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/SGD/" rel="tag">SGD</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/notes/ml/04/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          机器学习 04｜矩阵补全、核范数与鞍点
+        
+      </div>
+    </a>
+  
+  
+    <a href="/notes/ml/02/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">机器学习 02｜梯度下降的下降量与收敛率</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+<section id="comments" class="giscus-comments">
+  <div class="comments-heading">
+    <span>Discussion</span>
+    <h2>Comments</h2>
+    <p>Sign in with GitHub to join the conversation.</p>
+  </div>
+  
+    <script src="https://giscus.app/client.js"
+      data-repo="Mars-Dingdang/Mars-Dingdang.github.io"
+      data-repo-id="R_kgDOTJkbMw"
+      data-category="Announcements"
+      data-category-id="DIC_kwDOTJkbM84DAxF_"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="preferred_color_scheme"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async>
+    </script>
+  
+</section>
+
+</div>
+          </div>
+          <footer id="footer">
+  
+  <div class="outer footer-outer">
+    <div class="footer-card">
+      <div id="footer-info" class="inner">
+        
+        <span>&copy; 2026 Mars Dingdang</span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        
+          <a href="/">Home</a>
+        
+          <a href="/notes/">Notes</a>
+        
+          <a href="/research/">Research</a>
+        
+          <a href="/projects/">Projects</a>
+        
+          <a href="/archives/">Archives</a>
+        
+          <a href="/tags/">Tags</a>
+        
+          <a href="/categories/">Categories</a>
+        
+          <a href="/friends/">Friends</a>
+        
+          <a href="/about/">About</a>
+        
+      </nav>
+    </div>
+  </div>
+</footer>
+
+        </main>
+      </div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/notes/" class="mobile-nav-link">Notes</a>
+  
+    <a href="/research/" class="mobile-nav-link">Research</a>
+  
+    <a href="/projects/" class="mobile-nav-link">Projects</a>
+  
+    <a href="/archives/" class="mobile-nav-link">Archives</a>
+  
+    <a href="/tags/" class="mobile-nav-link">Tags</a>
+  
+    <a href="/categories/" class="mobile-nav-link">Categories</a>
+  
+    <a href="/friends/" class="mobile-nav-link">Friends</a>
+  
+    <a href="/about/" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>

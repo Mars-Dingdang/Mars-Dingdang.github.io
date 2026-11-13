@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  
+  
+  <title>机器学习 13｜超参数优化与预算分配 | Mars Dingdang</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="用双层优化区分训练和模型选择，推导高斯过程后验与超梯度，并分析 Successive Halving 的预算分配。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="机器学习 13｜超参数优化与预算分配">
+<meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/13/index.html">
+<meta property="og:site_name" content="Mars Dingdang">
+<meta property="og:description" content="用双层优化区分训练和模型选择，推导高斯过程后验与超梯度，并分析 Successive Halving 的预算分配。">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-13/figure.png">
+<meta property="article:published_time" content="2026-11-13T08:13:00.000Z">
+<meta property="article:modified_time" content="2026-11-13T17:50:32.893Z">
+<meta property="article:author" content="Mars Dingdang">
+<meta property="article:tag" content="Bayesian Optimization">
+<meta property="article:tag" content="Hyperparameter Optimization">
+<meta property="article:tag" content="Lecture Notes">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://mars-dingdang.github.io/images/posts/ml-13/figure.png">
+  
+  
+    <link rel="icon" href="data:,">
+  
+  <script>
+    (function(){
+      try {
+        var saved = localStorage.getItem('theme-mode');
+        var mode = saved || 'dark';
+        document.documentElement.setAttribute('data-theme', mode);
+      } catch (e) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  
+  
+<link rel="stylesheet" href="/css/style.css">
+
+  
+    
+<link rel="stylesheet" href="/fancybox/jquery.fancybox.min.css">
+
+  
+  
+    <script>
+      window.MathJax = {
+        loader: {
+          load: ['[tex]/ams']
+        },
+        tex: {
+          packages: {'[+]': ['ams']},
+          inlineMath: [['$', '$'], ['\\(', '\\)']],
+          displayMath: [['$$', '$$'], ['\\[', '\\]']],
+          processEscapes: true,
+          processEnvironments: true
+        },
+        options: {
+          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+        },
+        svg: {
+          fontCache: 'global'
+        }
+      };
+    </script>
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  
+<meta name="generator" content="Hexo 8.1.2"></head>
+
+<body class="is-inner">
+  
+  <div id="container">
+    <div id="wrap">
+      <button class="mobile-rail-toggle" type="button" aria-label="Open sidebar menu" aria-controls="site-rail" aria-expanded="false">
+        <span class="rail-open-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#menu"></use></svg>
+</span>
+        <span class="rail-close-icon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+</span>
+        <span class="mobile-rail-toggle-text">Menu</span>
+      </button>
+      <div class="mobile-rail-backdrop" hidden></div>
+      <div class="site-shell">
+        <aside id="site-rail" class="site-rail">
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <div class="rail-username">Mars-Dingdang</div>
+          <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
+          <div class="rail-stats">
+            <a href="/archives/"><strong>26</strong><span>Posts</span></a>
+            <a href="/tags/"><strong>47</strong><span>Tags</span></a>
+            <a href="/categories/"><strong>6</strong><span>Categories</span></a>
+          </div>
+          <div class="rail-profile" aria-label="Profile details">
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#school"></use></svg>
+<span>IIIS, Tsinghua University</span></div>
+            <div><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#clock"></use></svg>
+<span id="rail-time" data-timezone-label="UTC +8"></span></div>
+            <a href="mailto:dst25@mails.tsinghua.edu.cn"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#mail"></use></svg>
+<span>dst25@mails.tsinghua.edu.cn</span></a>
+          </div>
+          <nav class="rail-nav" aria-label="Primary">
+            
+            
+              
+              <a class="rail-nav-link" href="/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#home"></use></svg>
+
+                <span>Home</span>
+              </a>
+            
+              
+              <a class="rail-nav-link is-active" href="/notes/" aria-current="location">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+
+                <span>Notes</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/research/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#research"></use></svg>
+
+                <span>Research</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/projects/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#code"></use></svg>
+
+                <span>Projects</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/archives/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#archive"></use></svg>
+
+                <span>Archives</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/tags/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#tag"></use></svg>
+
+                <span>Tags</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/categories/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#layers"></use></svg>
+
+                <span>Categories</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/friends/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#users"></use></svg>
+
+                <span>Friends</span>
+              </a>
+            
+              
+              <a class="rail-nav-link" href="/about/">
+                <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#user"></use></svg>
+
+                <span>About</span>
+              </a>
+            
+          </nav>
+          <div class="rail-controls">
+            <a class="rail-github" target="_blank" rel="noopener" href="https://github.com/Mars-Dingdang"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+<span>GitHub</span></a>
+            <button class="theme-toggle" type="button" aria-label="Light mode" aria-pressed="false" title="Switch to light mode">
+              <span class="theme-icon-sun"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#sun"></use></svg>
+</span>
+              <span class="theme-icon-moon"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#moon"></use></svg>
+</span>
+            </button>
+          </div>
+          <div class="rail-search">
+            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
+              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
+              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+              <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
+</button>
+            </form>
+          </div>
+        </aside>
+        <main class="site-main">
+          <div class="outer">
+            <div id="main"><article id="post-ml-13" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+  
+  
+    <nav class="course-breadcrumb" aria-label="Course">
+      <a href="/notes/#ml">Machine Learning</a>
+      <span aria-hidden="true">/</span><span>Lecture 13</span>
+    </nav>
+  
+  <div class="article-meta">
+    <a href="/notes/ml/13/" class="article-date">
+  <time class="dt-published" datetime="2026-11-13T08:13:00.000Z" itemprop="datePublished">2026-11-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/Machine-Learning/">Machine Learning</a>
+  </div>
+
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header" lang="en">
+        
+  
+    <h1 class="p-name article-title" itemprop="headline name">
+      机器学习 13｜超参数优化与预算分配
+    </h1>
+  
+
+      </header>
+    
+    <div class="e-content article-entry" itemprop="articleBody" lang="en">
+      
+        <p>用双层优化区分训练和模型选择，推导高斯过程后验与超梯度，并分析 Successive Halving 的预算分配。</p>
+<span id="more"></span>
+
+<p><img src="/images/posts/ml-13/figure.png" alt="高斯过程回归的后验均值、置信带、观测点和下一处候选"></p>
+<p><em>曲线与阴影给出一个合成验证目标的高斯过程后验均值和两倍后验标准差。候选位置由 Expected Improvement 取得最大值。</em></p>
+<h2 id="为什么有两个目标"><a href="#为什么有两个目标" class="headerlink" title="为什么有两个目标"></a>为什么有两个目标</h2><p>令 <span class="math-inline">\(\lambda\)</span> 为学习率、正则强度或网络宽度等配置。训练流程得到 <span class="math-inline">\(w_T(\lambda)\)</span>，外层选择使独立验证损失最小的 <span class="math-inline">\(\lambda\)</span>。</p>
+<div class="math-display">\[\min_\lambda F(\lambda),\qquad F(\lambda)=L_{\rm val}(w_T(\lambda),\lambda).\]</div>
+<p>不同配置可能消耗不同时间。比较一次完整运行的验证表现、固定时间预算下的表现、训练早期的表现，会得到不同目标。随机种子使单次观测含噪，必要时用多个种子估计均值或比较不确定性。最终测试集留到配置选定后使用。</p>
+<p>在 <span class="math-inline">\(d\)</span> 维空间做每维 <span class="math-inline">\(m\)</span> 取值的网格需要 <span class="math-inline">\(m^d\)</span> 次评估。若主要只有一维重要，网格只试到该维 <span class="math-inline">\(m\)</span> 个取值。相同总预算的随机搜索通常在这一维尝试更多不同值，前提是搜索分布为合理的候选区间分配了足够概率质量。对跨数量级的正则强度，常在对数坐标中采样。</p>
+<h2 id="高斯过程的后验"><a href="#高斯过程的后验" class="headerlink" title="高斯过程的后验"></a>高斯过程的后验</h2><p>贝叶斯优化用代理模型组织已有观察。取高斯过程先验 <span class="math-inline">\(F\sim\mathcal{GP}(m,k)\)</span>，观察 <span class="math-inline">\(y_i=F(\lambda_i)+\epsilon_i\)</span>，噪声独立且方差为 <span class="math-inline">\(\sigma_n^2\)</span>。令 <span class="math-inline">\(K_{ij}=k(\lambda_i,\lambda_j)\)</span>，<span class="math-inline">\(k_\star=(k(\lambda_i,\lambda_\star))_i\)</span>。由联合高斯的条件分布，</p>
+<div class="math-display">\[\begin{aligned}
+\mu_\star &amp;=m(\lambda_\star)+k_\star^\top(K+\sigma_n^2I)^{-1}(y-m_\Lambda),\\
+s_\star^2 &amp;=k(\lambda_\star,\lambda_\star)-k_\star^\top(K+\sigma_n^2I)^{-1}k_\star .
+\end{aligned}\]</div>
+<p>第二式是潜在函数值的后验方差，若预测下一次带噪测量还要加 <span class="math-inline">\(\sigma_n^2\)</span>。公式可由减去线性预测项证明。令 <span class="math-inline">\(r=F(\lambda_\star)-m(\lambda_\star)-k_\star^\top(K+\sigma_n^2I)^{-1}(y-m_\Lambda)\)</span>，则 <span class="math-inline">\(r\)</span> 与 <span class="math-inline">\(y\)</span> 的协方差为零。联合高斯意味着独立，<span class="math-inline">\(r\)</span> 的方差就是第二式。</p>
+<p>对最小化，设当前参考最好值为 <span class="math-inline">\(b\)</span>。Expected Improvement 选择使 <span class="math-inline">\(\mathbb E[(b-F(\lambda))_+]\)</span> 最大的位置。将 <span class="math-inline">\(F=\mu+sZ\)</span>、<span class="math-inline">\(Z\sim N(0,1)\)</span> 代入，在 <span class="math-inline">\(Z&lt;(b-\mu)/s\)</span> 上积分，得到</p>
+<div class="math-display">\[\operatorname{EI}=(b-\mu)\Phi(z)+s\phi(z),\qquad z=(b-\mu)/s.\]</div>
+<p>均值低或方差大都可能使候选获得较大 EI。噪声显著时可用后验估计设参考值，避免把一次偶然极低的观测当成真实最优。</p>
+<h2 id="反向穿过训练过程"><a href="#反向穿过训练过程" class="headerlink" title="反向穿过训练过程"></a>反向穿过训练过程</h2><p>若 <span class="math-inline">\(\eta\)</span> 为内层学习率，<span class="math-inline">\(w_{t+1}=w_t-\eta\nabla L_{\rm train}(w_t)\)</span>，并且初始化与 <span class="math-inline">\(\eta\)</span> 无关，令 <span class="math-inline">\(u_t=\partial w_t/\partial\eta\)</span>。链式法则给出</p>
+<div class="math-display">\[u_0=0,\qquad
+u_{t+1}=(I-\eta H_t)u_t-\nabla L_{\rm train}(w_t),\]</div>
+<p>其中 <span class="math-inline">\(H_t=\nabla^2L_{\rm train}(w_t)\)</span>。若验证损失不显式依赖 <span class="math-inline">\(\eta\)</span>，外层导数就是 <span class="math-inline">\(\nabla L_{\rm val}(w_T)^\top u_T\)</span>。只需 Hessian–向量积，无须显式构造 Hessian。对许多超参数，反向模式更合适，但通常需要保留或重算中间训练状态。优化有限步训练的外层目标会偏好能在指定步数内快速改善的配置。</p>
+<h2 id="Successive-Halving-的预算"><a href="#Successive-Halving-的预算" class="headerlink" title="Successive Halving 的预算"></a>Successive Halving 的预算</h2><p>从 <span class="math-inline">\(n\)</span> 个配置出发，各给 <span class="math-inline">\(r\)</span> 单位资源。按当前指标保留约 <span class="math-inline">\(1/\eta_{\rm sh}\)</span>，将每个幸存者的累计资源提高到 <span class="math-inline">\(\eta_{\rm sh}r\)</span>，逐轮重复。以 16 个配置、淘汰因子 2、首轮 1 个 epoch 为例，各轮的累计目标资源是</p>
+<div class="math-display">\[(16\times1),\quad(8\times2),\quad(4\times4),\quad(2\times8),\quad(1\times16).\]</div>
+<p>若从检查点继续，各轮增量分别为 16、8、8、8、8，总计 48 个 epoch。若每轮重新训练，对应总量为 80 个 epoch。节约来自用低保真结果筛选大部分配置。学习曲线交叉时，晚起步配置可能被提前淘汰。Hyperband 在不同起始资源和初始配置数之间分配预算，覆盖多种淘汰强度。</p>
+<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>对 <span class="math-inline">\(L_{\rm train}(w)=w^2/2\)</span>、<span class="math-inline">\(w_0=1\)</span>，两步后 <span class="math-inline">\(w_2=(1-\eta)^2\)</span>。递推给 <span class="math-inline">\(u_1=-1\)</span>、<span class="math-inline">\(u_2=-2(1-\eta)\)</span>，与直接对闭式解求导一致。</p>
+<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》往年课件第 13 讲。延伸阅读：<a target="_blank" rel="noopener" href="https://gaussianprocess.org/gpml/chapters/">Rasmussen 与 Williams 的高斯过程教材</a>，<a target="_blank" rel="noopener" href="https://www.jmlr.org/papers/v18/16-558.html">Li 等人的 Hyperband 论文</a>。</p>
+<p><a href="/notes/ml/12/">← 第 12 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/14/">第 14 讲 →</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/13/" data-id="cuid30XU_XQ5-f9M4savrHXJ3" data-title="机器学习 13｜超参数优化与预算分配" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>Share</span></button>
+      
+      
+      
+  <ul class="article-tag-list" itemprop="keywords"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Bayesian-Optimization/" rel="tag">Bayesian Optimization</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Hyperparameter-Optimization/" rel="tag">Hyperparameter Optimization</a></li><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/Lecture-Notes/" rel="tag">Lecture Notes</a></li></ul>
+
+    </footer>
+  </div>
+  
+    
+<nav id="article-nav">
+  
+    <a href="/notes/ml/14/" id="article-nav-newer" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Newer</strong>
+      <div class="article-nav-title">
+        
+          机器学习 14｜模型解释、积分梯度与 Shapley 值
+        
+      </div>
+    </a>
+  
+  
+    <a href="/notes/ml/12/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">机器学习 12｜鲁棒学习与随机平滑证书</div>
+    </a>
+  
+</nav>
+
+  
+</article>
+
+
+
+
+<section id="comments" class="giscus-comments">
+  <div class="comments-heading">
+    <span>Discussion</span>
+    <h2>Comments</h2>
+    <p>Sign in with GitHub to join the conversation.</p>
+  </div>
+  
+    <script src="https://giscus.app/client.js"
+      data-repo="Mars-Dingdang/Mars-Dingdang.github.io"
+      data-repo-id="R_kgDOTJkbMw"
+      data-category="Announcements"
+      data-category-id="DIC_kwDOTJkbM84DAxF_"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="preferred_color_scheme"
+      data-lang="en"
+      data-loading="lazy"
+      crossorigin="anonymous"
+      async>
+    </script>
+  
+</section>
+
+</div>
+          </div>
+          <footer id="footer">
+  
+  <div class="outer footer-outer">
+    <div class="footer-card">
+      <div id="footer-info" class="inner">
+        
+        <span>&copy; 2026 Mars Dingdang</span>
+        <span>Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span>
+      </div>
+      <nav class="footer-nav" aria-label="Footer navigation">
+        
+          <a href="/">Home</a>
+        
+          <a href="/notes/">Notes</a>
+        
+          <a href="/research/">Research</a>
+        
+          <a href="/projects/">Projects</a>
+        
+          <a href="/archives/">Archives</a>
+        
+          <a href="/tags/">Tags</a>
+        
+          <a href="/categories/">Categories</a>
+        
+          <a href="/friends/">Friends</a>
+        
+          <a href="/about/">About</a>
+        
+      </nav>
+    </div>
+  </div>
+</footer>
+
+        </main>
+      </div>
+    </div>
+    <nav id="mobile-nav">
+  
+    <a href="/" class="mobile-nav-link">Home</a>
+  
+    <a href="/notes/" class="mobile-nav-link">Notes</a>
+  
+    <a href="/research/" class="mobile-nav-link">Research</a>
+  
+    <a href="/projects/" class="mobile-nav-link">Projects</a>
+  
+    <a href="/archives/" class="mobile-nav-link">Archives</a>
+  
+    <a href="/tags/" class="mobile-nav-link">Tags</a>
+  
+    <a href="/categories/" class="mobile-nav-link">Categories</a>
+  
+    <a href="/friends/" class="mobile-nav-link">Friends</a>
+  
+    <a href="/about/" class="mobile-nav-link">About</a>
+  
+</nav>
+    
+
+
+<script src="/js/jquery-3.6.4.min.js"></script>
+
+
+
+  
+<script src="/fancybox/jquery.fancybox.min.js"></script>
+
+
+
+
+<script src="/js/script.js"></script>
+
+
+
+
+
+  </div>
+</body>
+</html>
