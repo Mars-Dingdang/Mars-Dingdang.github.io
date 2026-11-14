@@ -4,19 +4,19 @@
   <meta charset="utf-8">
   
   
-  <title>「ACG 07」光线追踪 I：求交、加速结构与渲染方程 | Mars Dingdang</title>
+  <title>ACG 07: Ray Intersection, Acceleration, and Light Transport | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="光线追踪把画图拆成两类问题。几何查询回答一条射线先碰到哪里，光传输计算回答交点沿某个方向送出多少光。最近交点、阴影、反射与折射都依赖同一个射线查询，只是参数区间与返回值不同。">
+  <meta name="description" content="Ray tracing separates two questions. An intersection query finds the first surface hit along a ray. A transport calculation determines the radiance that surface sends toward the camera. Primary visibi">
 <meta property="og:type" content="article">
-<meta property="og:title" content="「ACG 07」光线追踪 I：求交、加速结构与渲染方程">
+<meta property="og:title" content="ACG 07: Ray Intersection, Acceleration, and Light Transport">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/acg/07/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="光线追踪把画图拆成两类问题。几何查询回答一条射线先碰到哪里，光传输计算回答交点沿某个方向送出多少光。最近交点、阴影、反射与折射都依赖同一个射线查询，只是参数区间与返回值不同。">
-<meta property="og:locale" content="zh_CN">
+<meta property="og:description" content="Ray tracing separates two questions. An intersection query finds the first surface hit along a ray. A transport calculation determines the radiance that surface sends toward the camera. Primary visibi">
+<meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/acg-07-ray-tracing/thumbnail.png">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/acg-07-ray-tracing/directions.png">
 <meta property="article:published_time" content="2026-11-13T16:07:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T17:51:02.843Z">
+<meta property="article:modified_time" content="2026-11-14T02:24:49.865Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="ACG">
 <meta property="article:tag" content="Lecture Notes">
@@ -86,7 +86,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -180,9 +182,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -212,92 +213,118 @@
   <div class="article-inner">
     
     
-      <header class="article-header" lang="zh-CN">
+      <header class="article-header" lang="en">
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      「ACG 07」光线追踪 I：求交、加速结构与渲染方程
+      ACG 07: Ray Intersection, Acceleration, and Light Transport
     </h1>
   
 
       </header>
     
-    <div class="e-content article-entry" itemprop="articleBody" lang="zh-CN">
+    <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>光线追踪把画图拆成两类问题。几何查询回答一条射线先碰到哪里，光传输计算回答交点沿某个方向送出多少光。最近交点、阴影、反射与折射都依赖同一个射线查询，只是参数区间与返回值不同。</p>
+        <p>Ray tracing separates two questions. An intersection query finds the first surface hit along a ray. A transport calculation determines the radiance that surface sends toward the camera. Primary visibility, shadows, and mirror reflections use the same intersection machinery with different directions and parameter intervals.</p>
 <span id="more"></span>
 
-<h2 id="从主射线到递归光线"><a href="#从主射线到递归光线" class="headerlink" title="从主射线到递归光线"></a>从主射线到递归光线</h2><p>针孔相机从中心 <span class="math-inline">\(o\)</span> 经像素样本发出 <span class="math-inline">\(r(t)=o+td\)</span>。在允许的区间内找最小的 <span class="math-inline">\(t\)</span>，得到该样本看见的表面。若方向 <span class="math-inline">\(d\)</span> 为单位向量，<span class="math-inline">\(t\)</span> 也就是从起点到交点的距离。若从交点向位置为 <span class="math-inline">\(\ell\)</span> 的点光源发阴影射线，取方向 <span class="math-inline">\(\ell-x\)</span> 时，光源在 <span class="math-inline">\(t=1\)</span>，只需检查 <span class="math-inline">\(0&lt;t&lt;1\)</span> 是否存在遮挡。</p>
-<p>Whitted 递归在局部直接光之外，沿理想镜面反射和折射方向继续追踪。若单位入射方向 <span class="math-inline">\(d\)</span> 指向表面、<span class="math-inline">\(n\)</span> 指向介质外侧，把 <span class="math-inline">\(d\)</span> 拆成切向分量和法向分量，反射保持前者、翻转后者，得到 <span class="math-inline">\(d_r=d-2(d\cdot n)n\)</span>。折射方向由 Snell 定律决定，发生全反射时没有折射分支。有限递归深度控制开销，也会截断较长的镜面路径。漫反射间接光则涉及整个方向半球的积分。</p>
-<h2 id="球、平面和三角形求交"><a href="#球、平面和三角形求交" class="headerlink" title="球、平面和三角形求交"></a>球、平面和三角形求交</h2><p>球的中心为 <span class="math-inline">\(c\)</span>、半径为 <span class="math-inline">\(R\)</span>。将 <span class="math-inline">\(o+td\)</span> 代入 <span class="math-inline">\(\|r(t)-c\|^2=R^2\)</span>。写 <span class="math-inline">\(m=o-c\)</span>，按 <span class="math-inline">\(t\)</span> 的次数展开</p>
+<h2 id="Primary-and-secondary-rays"><a href="#Primary-and-secondary-rays" class="headerlink" title="Primary and secondary rays"></a>Primary and secondary rays</h2><p>A ray is <span class="math-inline">\(r(t)=o+td\)</span>, evaluated on a permitted interval. With unit direction <span class="math-inline">\(d\)</span>, <span class="math-inline">\(t\)</span> is distance. For a shadow query from <span class="math-inline">\(x\)</span> to a point light at <span class="math-inline">\(\ell\)</span>, choose direction <span class="math-inline">\(\ell-x\)</span> and check for an occluder strictly between <span class="math-inline">\(t=0\)</span> and <span class="math-inline">\(t=1\)</span>. A closest-hit query returns the smallest permitted intersection, while an any-hit query can stop after finding an occluder.</p>
+<p>Whitted-style recursion adds mirror reflections and refractions to direct lighting. For a unit incident direction <span class="math-inline">\(d\)</span> pointing toward a surface with unit normal <span class="math-inline">\(n\)</span>, reflecting flips its normal component and keeps the tangent component, yielding <span class="math-inline">\(d_r=d-2(d\cdot n)n\)</span>. Snell’s law gives the transmitted direction when refraction is possible. Recursion depth bounds the workload and truncates longer paths. Diffuse interreflection involves many incident directions rather than a single secondary ray.</p>
+<h2 id="Sphere-plane-and-triangle-intersections"><a href="#Sphere-plane-and-triangle-intersections" class="headerlink" title="Sphere, plane, and triangle intersections"></a>Sphere, plane, and triangle intersections</h2><p>For a sphere centered at <span class="math-inline">\(c\)</span> with radius <span class="math-inline">\(R\)</span>, substitute <span class="math-inline">\(o+td\)</span> into <span class="math-inline">\(\|r(t)-c\|^2=R^2\)</span> and put <span class="math-inline">\(m=o-c\)</span>:</p>
 <div class="math-display">\[(d\cdot d)t^2+2(m\cdot d)t+(m\cdot m-R^2)=0.\]</div>
-<p>判别式小于零时没有实根，等于零时相切。应选参数区间里的最小实根。若起点在球内，两根一负一正，正根给出出射点。对一般隐式表面 <span class="math-inline">\(F(x)=0\)</span>，求交同样变为一维求根 <span class="math-inline">\(F(o+td)=0\)</span>，但未必有显式解。</p>
-<p>对过 <span class="math-inline">\(A\)</span>、法向为 <span class="math-inline">\(n\)</span> 的平面，代入 <span class="math-inline">\(n\cdot(r(t)-A)=0\)</span> 得 <span class="math-inline">\(t=n\cdot(A-o)/(n\cdot d)\)</span>。分母为零对应射线与平面平行，需要结合分子区分共面。三角形可以先求所在平面的交点，再测它是否在边界内。Möller–Trumbore 则把二者合并。令 <span class="math-inline">\(e_1=B-A,e_2=C-A\)</span>，直接联立</p>
-<div class="math-display">\[[-d\ \ e_1\ \ e_2]
-\begin{pmatrix}t\\u\\v\end{pmatrix}=o-A .\]</div>
-<p>把右边记为 <span class="math-inline">\(s\)</span>，令 <span class="math-inline">\(p=d\times e_2\)</span>、<span class="math-inline">\(q=s\times e_1\)</span>，行列式为 <span class="math-inline">\(D=e_1\cdot p\)</span>。对这个线性系统应用 Cramer 法则，可写成 <span class="math-inline">\(u=(s\cdot p)/D\)</span>、<span class="math-inline">\(v=(d\cdot q)/D\)</span>、<span class="math-inline">\(t=(e_2\cdot q)/D\)</span>。当 <span class="math-inline">\(D\ne0\)</span>、<span class="math-inline">\(u,v\ge0\)</span> 且 <span class="math-inline">\(u+v\le1\)</span> 时，平面交点在三角形内，最后再检查 <span class="math-inline">\(t\)</span> 是否落在射线区间。</p>
-<h2 id="Slab-法与空间加速"><a href="#Slab-法与空间加速" class="headerlink" title="Slab 法与空间加速"></a>Slab 法与空间加速</h2><p>轴对齐包围盒（AABB）是三个轴向区间的交集。对第 <span class="math-inline">\(i\)</span> 轴，解 <span class="math-inline">\(b_i^-\le o_i+td_i\le b_i^+\)</span>。当 <span class="math-inline">\(d_i\ne0\)</span>，用两个端点各自算出 <span class="math-inline">\(t\)</span>，按大小排序得到 <span class="math-inline">\([t_i^-,t_i^+]\)</span>。射线位于盒内意味着同时通过三轴测试，因此</p>
-<div class="math-display">\[t_{\mathrm{enter}}=\max_i t_i^-,\qquad
-t_{\mathrm{exit}}=\min_i t_i^+.\]</div>
-<p>把结果与射线自身区间相交，非空才保留。如果某轴方向为零，原点在该轴区间内就不约束 <span class="math-inline">\(t\)</span>，在区间外则必不相交。允许 <span class="math-inline">\(t_{\mathrm{enter}}=t_{\mathrm{exit}}\)</span> 可以保留擦边和零厚度包围盒的候选。</p>
-<p><img src="/images/posts/acg-07-ray-tracing/thumbnail.png" alt="射线穿过 BVH 根包围盒和下方的子节点盒，跳过与射线无交集的上方子节点盒"></p>
-<ul>
-<li><strong>规则网格</strong>把场景切成等尺寸单元。DDA 跟踪每轴下一次跨过网格面的时间，取最小者前进一步。沿一轴每次跨越的参数增量是网格边长除以该方向分量的绝对值。</li>
-<li><strong>KD-tree</strong>递归用轴对齐平面分割空间。遍历时根据分割平面的参数裁分当前区间，优先处理先进入的一侧。跨平面的图元可关联到两侧。</li>
-<li><strong>BVH</strong>递归对图元分组，为每个组存包围盒。两个子盒可重叠；一个节点盒不相交时即可跳过整个子树。已有最近交点后，用其 <span class="math-inline">\(t\)</span> 缩小区间，避免测试更远的子节点。<a target="_blank" rel="noopener" href="https://pbr-book.org/4ed/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies">PBRT · Bounding Volume Hierarchies</a></li>
-</ul>
-<h2 id="辐射量与余弦因子"><a href="#辐射量与余弦因子" class="headerlink" title="辐射量与余弦因子"></a>辐射量与余弦因子</h2><table>
+<p>The discriminant tests for real roots. Pick the smallest root in the allowed interval, which may be the larger quadratic root when the origin is inside the sphere. For a general implicit surface <span class="math-inline">\(F(x)=0\)</span>, substitution similarly reduces the search to the scalar equation <span class="math-inline">\(F(o+td)=0\)</span>.</p>
+<p>For a plane through <span class="math-inline">\(A\)</span> with normal <span class="math-inline">\(n\)</span>, solve <span class="math-inline">\(n\cdot(o+td-A)=0\)</span> to obtain <span class="math-inline">\(t=n\cdot(A-o)/(n\cdot d)\)</span>. A zero denominator indicates a parallel ray. The numerator then determines whether the ray lies in the plane.</p>
+<p>Möller–Trumbore combines triangle plane intersection and barycentric tests. For <span class="math-inline">\(e_1=B-A\)</span> and <span class="math-inline">\(e_2=C-A\)</span>, solve</p>
+<div class="math-display">\[[-d\quad e_1\quad e_2]
+\begin{pmatrix}t\\u\\v\end{pmatrix}=o-A.\]</div>
+<p>Set <span class="math-inline">\(s=o-A\)</span>, <span class="math-inline">\(p=d\times e_2\)</span>, <span class="math-inline">\(q=s\times e_1\)</span>, and <span class="math-inline">\(D=e_1\cdot p\)</span>. Cramer’s rule gives <span class="math-inline">\(u=(s\cdot p)/D\)</span>, <span class="math-inline">\(v=(d\cdot q)/D\)</span>, and <span class="math-inline">\(t=(e_2\cdot q)/D\)</span>. For a nonsingular system, accept only <span class="math-inline">\(u,v\ge0\)</span>, <span class="math-inline">\(u+v\le1\)</span>, and a parameter <span class="math-inline">\(t\)</span> within the ray interval.</p>
+<h2 id="Acceleration-structures"><a href="#Acceleration-structures" class="headerlink" title="Acceleration structures"></a>Acceleration structures</h2><p>To intersect an axis-aligned bounding box, solve <span class="math-inline">\(b_i^-\le o_i+t d_i\le b_i^+\)</span> for each axis with <span class="math-inline">\(d_i\ne0\)</span>. The two crossing parameters have to be sorted when the direction is negative. Intersect the resulting intervals with the ray interval:</p>
+<div class="math-display">\[t_{\mathrm{enter}}=\max_i t_i^-,
+\qquad t_{\mathrm{exit}}=\min_i t_i^+.\]</div>
+<p>When <span class="math-inline">\(d_i=0\)</span>, the ray’s fixed coordinate either excludes the whole ray or imposes no additional limit. Allow a singleton interval to retain tangential intersections and zero-thickness bounds.</p>
+<p><img src="/images/posts/acg-07-ray-tracing/thumbnail.png" alt="The ray enters the root bounds and the lower child box, letting the traversal skip the upper child."></p>
+<p>A uniform grid stores primitive references in cells. Its DDA traversal advances to the next crossing by comparing the candidate times for each axis, updating a crossed axis by its cell width divided by the absolute direction component. A kd-tree partitions space recursively and clips the ray interval at each split. A primitive may overlap both halves. A BVH partitions primitives instead. Its child bounding boxes may overlap, but the primitive groups in a basic BVH are disjoint. <a target="_blank" rel="noopener" href="https://pbr-book.org/4ed/Primitives_and_Intersection_Acceleration/Bounding_Volume_Hierarchies">PBRT, “Bounding Volume Hierarchies”</a></p>
+<h3 id="Implement-near-first-BVH-traversal"><a href="#Implement-near-first-BVH-traversal" class="headerlink" title="Implement near-first BVH traversal"></a>Implement near-first BVH traversal</h3><p>A stack stores candidate nodes and their box-entry parameters. The current best hit provides a shrinking far bound.</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">closest = no hit</span><br><span class="line">far = ray.t_max</span><br><span class="line">push root if its box intersects [ray.t_min, far]</span><br><span class="line">while the stack is not empty:</span><br><span class="line">    pop node, entry</span><br><span class="line">    if entry &gt; far:</span><br><span class="line">        continue</span><br><span class="line">    if node is a leaf:</span><br><span class="line">        test its primitives against [ray.t_min, far]</span><br><span class="line">        update closest and far for each closer hit</span><br><span class="line">    else:</span><br><span class="line">        intersect each child box with [ray.t_min, far]</span><br><span class="line">        push valid children in descending entry order</span><br><span class="line">return closest</span><br></pre></td></tr></table></figure>
+
+<p>The first child popped has the nearest box entry, so its hits can prune farther boxes early. Box entry is only a lower bound. Returning immediately from the first hit leaf can be wrong when boxes overlap. For a shadow query that needs any opaque hit, an immediate return is valid.</p>
+<h2 id="Radiometry"><a href="#Radiometry" class="headerlink" title="Radiometry"></a>Radiometry</h2><table>
 <thead>
 <tr>
-<th>量</th>
-<th>定义</th>
-<th>单位</th>
+<th>Quantity</th>
+<th>Definition</th>
+<th>Unit</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>辐射通量 <span class="math-inline">\(\Phi\)</span></td>
-<td>单位时间传输的能量</td>
+<td>Radiant flux <span class="math-inline">\(\Phi\)</span></td>
+<td>Energy per unit time</td>
 <td>W</td>
 </tr>
 <tr>
-<td>辐射强度 <span class="math-inline">\(I\)</span></td>
-<td>点源单位立体角的通量</td>
+<td>Radiant intensity <span class="math-inline">\(I\)</span></td>
+<td>Flux per unit solid angle</td>
 <td>W&#x2F;sr</td>
 </tr>
 <tr>
-<td>辐照度 <span class="math-inline">\(E\)</span></td>
-<td>表面单位实际面积接收的通量</td>
+<td>Irradiance <span class="math-inline">\(E\)</span></td>
+<td>Incoming flux per unit surface area</td>
 <td>W&#x2F;m²</td>
 </tr>
 <tr>
-<td>辐亮度 <span class="math-inline">\(L\)</span></td>
-<td>单位投影面积、单位立体角的通量</td>
+<td>Radiance <span class="math-inline">\(L\)</span></td>
+<td>Flux per projected area and unit solid angle</td>
 <td>W&#x2F;(m²·sr)</td>
 </tr>
 </tbody></table>
-<p><img src="/images/posts/acg-07-ray-tracing/directions.png" alt="表面法向 n 和从表面指向外部的入射方向与出射方向。入射角从法向量起算"></p>
-<p>距离点源 <span class="math-inline">\(r\)</span> 处，正对光源的小面积 <span class="math-inline">\(dA\)</span> 张成的立体角为 <span class="math-inline">\(dA/r^2\)</span>，倾斜 <span class="math-inline">\(\theta\)</span> 时要乘投影因子 <span class="math-inline">\(\cos\theta\)</span>。所以点光源在方向 <span class="math-inline">\(\omega\)</span> 发出的强度 <span class="math-inline">\(I(\omega)\)</span> 对表面的辐照度为 <span class="math-inline">\(I(\omega)\cos\theta/r^2\)</span>。平方反比来自同一立体角对应的面积随 <span class="math-inline">\(r^2\)</span> 扩张。对一般入射辐亮度，表面小块对每个方向的投影面积不同，从而有</p>
-<div class="math-display">\[E(x)=\int_{\Omega^+(n)}L_i(x,\omega)\,(n\cdot\omega)\,d\omega.\]</div>
-<p>若 <span class="math-inline">\(L_i=L\)</span> 为常量，在球坐标下 <span class="math-inline">\(d\omega=\sin\theta\,d\theta\,d\phi\)</span>，半球的余弦积分为 <span class="math-inline">\(2\pi\int_0^{\pi/2}\cos\theta\sin\theta\,d\theta=\pi\)</span>，因而 <span class="math-inline">\(E=\pi L\)</span>。<a target="_blank" rel="noopener" href="https://pbr-book.org/4ed/Radiometry,_Spectra,_and_Color/Radiometry">PBRT · Radiometry</a></p>
-<h2 id="从-BRDF-到渲染方程"><a href="#从-BRDF-到渲染方程" class="headerlink" title="从 BRDF 到渲染方程"></a>从 BRDF 到渲染方程</h2><p>BRDF 定义为给定入射方向产生的微分出射辐亮度与微分入射辐照度之比。若固定 <span class="math-inline">\(\omega_i\)</span>，将反射通量对所有出射方向积分，能量守恒要求</p>
-<div class="math-display">\[\int_{\Omega^+(n)}
-f_r(x,\omega_i,\omega_o)(n\cdot\omega_o)\,d\omega_o\le1.\]</div>
-<p>由此也能检验 Lambert BRDF。若 <span class="math-inline">\(f_r=\rho/\pi\)</span>，积分恰好为 <span class="math-inline">\(\rho\)</span>。对固定观察方向 <span class="math-inline">\(\omega_o\)</span>，把每个入射方向的反射贡献相加，再加自发光，就得到只考虑不透明表面反射的渲染方程</p>
+<p><img src="/images/posts/acg-07-ray-tracing/directions.png" alt="Incoming and outgoing directions point outward from the surface by convention. Measure the incident angle from the normal."></p>
+<p>A patch at distance <span class="math-inline">\(r\)</span> with area <span class="math-inline">\(dA\)</span> and normal angle <span class="math-inline">\(\theta\)</span> subtends <span class="math-inline">\(dA\cos\theta/r^2\)</span> at a point source facing its front. This gives irradiance <span class="math-inline">\(I\cos\theta/r^2\)</span>. Integrating general incoming radiance gives</p>
+<div class="math-display">\[E(x)=\int_{\Omega^+(n)} L_i(x,\omega)(n\cdot\omega)\,d\omega.\]</div>
+<p>For uniform incident radiance <span class="math-inline">\(L\)</span>, write <span class="math-inline">\(d\omega=\sin\theta\,d\theta\,d\phi\)</span>. The hemisphere integral of the cosine is <span class="math-inline">\(\pi\)</span>, so the irradiance is <span class="math-inline">\(\pi L\)</span>. <a target="_blank" rel="noopener" href="https://pbr-book.org/4ed/Radiometry,_Spectra,_and_Color/Radiometry">PBRT, “Radiometry”</a></p>
+<h2 id="The-rendering-equation"><a href="#The-rendering-equation" class="headerlink" title="The rendering equation"></a>The rendering equation</h2><p>A BRDF <span class="math-inline">\(f_r\)</span> relates outgoing radiance to irradiance from one incoming direction. Conservation of energy bounds the directional reflected fraction,</p>
+<div class="math-display">\[\int_{\Omega^+(n)} f_r(x,\omega_i,\omega_o)
+(n\cdot\omega_o)\,d\omega_o\le1 .\]</div>
+<p>The Lambertian function <span class="math-inline">\(\rho/\pi\)</span> integrates to <span class="math-inline">\(\rho\)</span>. For an opaque reflective surface, adding emission and summing reflected contributions gives the rendering equation,</p>
 <div class="math-display">\[L_o(x,\omega_o)=L_e(x,\omega_o)+
-\int_{\Omega^+(n)} f_r(x,\omega_i,\omega_o)
+\int_{\Omega^+(n)}f_r(x,\omega_i,\omega_o)
 L_i(x,\omega_i)(n\cdot\omega_i)\,d\omega_i .\]</div>
-<p>方向都按从表面指向外部定义。若光线从 <span class="math-inline">\(x\)</span> 沿 <span class="math-inline">\(\omega_i\)</span> 首先到达 <span class="math-inline">\(y\)</span>，且两点之间没有参与介质，那么 <span class="math-inline">\(L_i(x,\omega_i)=L_o(y,-\omega_i)\)</span>。每个表面点的未知出射值都依赖其他表面点的未知出射值。路径追踪正是对这条递归光传输关系做蒙特卡洛估计。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li>弋力，《Advanced Computer Graphics》，Lecture 7: Ray Tracing I，2026 年 11 月 4 日，课件第 10–39 页（射线与求交）、第 40–100 页（加速）、第 101–136 页（辐射度与光传输）。</li>
-</ul>
+<p>Under the outward direction convention, if the ray along <span class="math-inline">\(\omega_i\)</span> reaches <span class="math-inline">\(y\)</span> first through vacuum, then <span class="math-inline">\(L_i(x,\omega_i)=L_o(y,-\omega_i)\)</span>. This couples outgoing radiance at different surfaces. Path tracing estimates the integral by sampling directions. Given a sample density <span class="math-inline">\(p(\omega)\)</span> in solid-angle units, each sample contributes its integrand divided by <span class="math-inline">\(p(\omega)\)</span>, assuming the density is positive wherever the integrand is nonzero.</p>
+<h2 id="Exercises"><a href="#Exercises" class="headerlink" title="Exercises"></a>Exercises</h2><ol>
+<li><strong>Prune a BVH without discarding the nearest hit.</strong> Child boxes intersect the ray over <span class="math-inline">\([2,8]\)</span> and <span class="math-inline">\([4,6]\)</span>. The first child reports a primitive hit at <span class="math-inline">\(t=7\)</span>. Can the traversal skip the second child? What if the first hit were at <span class="math-inline">\(t=3\)</span>?</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>With a hit at <span class="math-inline">\(7\)</span>, the second box begins at <span class="math-inline">\(4\)</span> and may contain a closer surface. With a hit at <span class="math-inline">\(3\)</span>, its lower bound <span class="math-inline">\(4\)</span> is already farther away, so the second child can be skipped.</p>
+</details>
+
+<ol start="2">
+<li><strong>Keep the exit root.</strong> A ray starts at <span class="math-inline">\((0,0,1)\)</span> with direction <span class="math-inline">\((0,0,2)\)</span> inside a sphere of radius <span class="math-inline">\(3\)</span> at the origin. Find the valid hit and its world-space distance.</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>Solve <span class="math-inline">\((1+2t)^2=9\)</span>, giving <span class="math-inline">\(t=1,-2\)</span>. The forward hit is at <span class="math-inline">\((0,0,3)\)</span>, two world units from the ray origin. The direction is nonunit, so the valid parameter <span class="math-inline">\(1\)</span> is not the distance.</p>
+</details>
+
+<ol start="3">
+<li><strong>Choose a sampling measure.</strong> For a Lambertian patch with constant incoming radiance <span class="math-inline">\(L\)</span>, compare one-sample estimates from cosine-weighted hemisphere sampling and uniform hemisphere sampling.</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>With <span class="math-inline">\(f_r=\rho/\pi\)</span> and <span class="math-inline">\(p(\omega)=\cos\theta/\pi\)</span>, the factor of cosine cancels and every sample gives <span class="math-inline">\(\rho L\)</span>. Uniform hemisphere sampling uses <span class="math-inline">\(p=1/(2\pi)\)</span> and yields <span class="math-inline">\(2\rho L\cos\theta\)</span>. Since a uniform hemisphere draw has <span class="math-inline">\(\cos\theta\)</span> uniform on <span class="math-inline">\([0,1]\)</span>, the latter has mean <span class="math-inline">\(\rho L\)</span> and variance <span class="math-inline">\((\rho L)^2/3\)</span>.</p>
+</details>
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>Li Yi, <em>Advanced Computer Graphics</em>, Lecture 7, “Ray Tracing I,” November 4, 2026, slides 10–39 for rays and intersections, 40–100 for acceleration, and 101–136 for radiometry and transport.</p>
 <hr>
-<p><a href="/notes/acg/06/">上一讲</a> · <a href="/notes/">课程笔记</a></p>
+<p><a href="/notes/acg/06/">Previous lecture</a> · <a href="/notes/#acg">Course notes</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/acg/07/" data-id="cuidkt150TFTTPp9pNo1mpjMI" data-title="「ACG 07」光线追踪 I：求交、加速结构与渲染方程" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-<span>分享</span></button>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/acg/07/" data-id="cuidd52DV9YgRhb0FODHEy9FT" data-title="ACG 07: Ray Intersection, Acceleration, and Light Transport" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>Share</span></button>
       
       
       
@@ -310,18 +337,18 @@ L_i(x,\omega_i)(n\cdot\omega_i)\,d\omega_i .\]</div>
 <nav id="article-nav">
   
     <a href="/notes/ml/08/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
+      <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          机器学习 08｜决策树、随机森林与 Boosting
+          ML 08: Decision Trees, Random Forests, and Boosting
         
       </div>
     </a>
   
   
     <a href="/notes/ml/07/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">机器学习 07｜支持向量机、对偶与核</div>
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">ML 07: Support Vector Machines and Kernels</div>
     </a>
   
 </nav>

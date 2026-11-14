@@ -78,7 +78,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -172,9 +174,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -182,7 +183,13 @@
         </aside>
         <main class="site-main">
           <div class="outer">
-            <div id="main">
+            <div id="main"><form class="post-search-form" action="/search/" role="search">
+  <input type="search" name="q" placeholder="Search articles, tags, and topics" aria-label="Search posts" required>
+  <button type="submit"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
+<span>Search</span></button>
+</form>
+
+
 <header class="page-hero compact archive-page-hero">
   <p class="home-kicker">Monthly Archive</p>
   <h1>2026 / 11</h1>
@@ -204,7 +211,7 @@
     
     
 <article class="recent-item post-row archive-type-post">
-  <a class="recent-cover" href="/notes/acg/06/" aria-label="「ACG 06」着色：局部光照、纹理过滤与阴影映射">
+  <a class="recent-cover" href="/notes/acg/06/" aria-label="ACG 06: Shading, Texture Filtering, and Shadows">
     <img src="/images/posts/acg-06-shading/thumbnail.png" alt="" loading="lazy" decoding="async">
   </a>
   <div class="recent-copy">
@@ -229,12 +236,12 @@
         </span>
       
     </div>
-    <a class="recent-title" href="/notes/acg/06/">「ACG 06」着色：局部光照、纹理过滤与阴影映射</a>
+    <a class="recent-title" href="/notes/acg/06/">ACG 06: Shading, Texture Filtering, and Shadows</a>
     
-      <div class="recent-excerpt">光栅化给出了可见样本，着色器要为样本算出颜色。顶点属性怎样传到像素、像素在纹理上覆盖多大区域、光源到样本的路径是否被挡住，都会改变这个颜色。</div>
+      <div class="recent-excerpt">Shading computes the appearance of a visible sample. Its result depends on the local surface orientation, the attributes interpolated across the proje</div>
     
   </div>
-  <a class="recent-jump" href="/notes/acg/06/" aria-label="Open 「ACG 06」着色：局部光照、纹理过滤与阴影映射">
+  <a class="recent-jump" href="/notes/acg/06/" aria-label="Open ACG 06: Shading, Texture Filtering, and Shadows">
     <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
   </a>
@@ -246,7 +253,7 @@
     
     
 <article class="recent-item post-row archive-type-post">
-  <a class="recent-cover" href="/notes/ml/06/" aria-label="机器学习 06｜线性模型、稀疏性与压缩感知">
+  <a class="recent-cover" href="/notes/ml/06/" aria-label="ML 06: Linear Models, Sparsity, and Compressed Sensing">
     <img src="/images/posts/ml-06/figure.png" alt="" loading="lazy" decoding="async">
   </a>
   <div class="recent-copy">
@@ -273,12 +280,12 @@
         </span>
       
     </div>
-    <a class="recent-title" href="/notes/ml/06/">机器学习 06｜线性模型、稀疏性与压缩感知</a>
+    <a class="recent-title" href="/notes/ml/06/">ML 06: Linear Models, Sparsity, and Compressed Sensing</a>
     
-      <div class="recent-excerpt">从最小二乘和感知机出发，推导 Logistic 回归、Ridge 与 LASSO，并说明少量线性测量何时能恢复稀疏向量。</div>
+      <div class="recent-excerpt">Derive least squares, perceptron convergence, logistic curvature, and soft thresholding, then prove when sparse signals can be recovered.</div>
     
   </div>
-  <a class="recent-jump" href="/notes/ml/06/" aria-label="Open 机器学习 06｜线性模型、稀疏性与压缩感知">
+  <a class="recent-jump" href="/notes/ml/06/" aria-label="Open ML 06: Linear Models, Sparsity, and Compressed Sensing">
     <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
   </a>
@@ -290,7 +297,7 @@
     
     
 <article class="recent-item post-row archive-type-post">
-  <a class="recent-cover" href="/notes/acg/05/" aria-label="「ACG 05」光栅化：覆盖率、采样与深度测试">
+  <a class="recent-cover" href="/notes/acg/05/" aria-label="ACG 05: Rasterization, Sampling, and Visibility">
     <img src="/images/posts/acg-05-rasterization/thumbnail.png" alt="" loading="lazy" decoding="async">
   </a>
   <div class="recent-copy">
@@ -315,12 +322,12 @@
         </span>
       
     </div>
-    <a class="recent-title" href="/notes/acg/05/">「ACG 05」光栅化：覆盖率、采样与深度测试</a>
+    <a class="recent-title" href="/notes/acg/05/">ACG 05: Rasterization, Sampling, and Visibility</a>
     
-      <div class="recent-excerpt">投影后的三角形仍然是连续的几何对象，帧缓冲区却只有离散样本。光栅化用边函数决定哪些样本被覆盖，用过滤控制离散采样造成的锯齿，再用深度测试解决多个片元的可见性。</div>
+      <div class="recent-excerpt">Rasterization converts projected geometry into samples on a finite grid. Triangle edge tests decide which samples are covered, filtering limits aliasi</div>
     
   </div>
-  <a class="recent-jump" href="/notes/acg/05/" aria-label="Open 「ACG 05」光栅化：覆盖率、采样与深度测试">
+  <a class="recent-jump" href="/notes/acg/05/" aria-label="Open ACG 05: Rasterization, Sampling, and Visibility">
     <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
   </a>
@@ -332,7 +339,7 @@
     
     
 <article class="recent-item post-row archive-type-post">
-  <a class="recent-cover" href="/notes/ml/05/" aria-label="机器学习 05｜PAC 学习与 VC 维">
+  <a class="recent-cover" href="/notes/ml/05/" aria-label="ML 05: PAC Learning and VC Dimension">
     <img src="/images/posts/ml-05/figure.png" alt="" loading="lazy" decoding="async">
   </a>
   <div class="recent-copy">
@@ -357,12 +364,12 @@
         </span>
       
     </div>
-    <a class="recent-title" href="/notes/ml/05/">机器学习 05｜PAC 学习与 VC 维</a>
+    <a class="recent-title" href="/notes/ml/05/">ML 05: PAC Learning and VC Dimension</a>
     
-      <div class="recent-excerpt">从有限类的样本复杂度出发，用 shattering 和增长函数解释为什么某些无限假设类仍然可以学习。</div>
+      <div class="recent-excerpt">Prove finite-class sample bounds and compute VC dimension by combining explicit realizations with impossible labelings.</div>
     
   </div>
-  <a class="recent-jump" href="/notes/ml/05/" aria-label="Open 机器学习 05｜PAC 学习与 VC 维">
+  <a class="recent-jump" href="/notes/ml/05/" aria-label="Open ML 05: PAC Learning and VC Dimension">
     <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
   </a>
@@ -374,7 +381,7 @@
     
     
 <article class="recent-item post-row archive-type-post">
-  <a class="recent-cover" href="/notes/acg/04/" aria-label="「ACG 04」投影与三维学习：从相机视锥到点云">
+  <a class="recent-cover" href="/notes/acg/04/" aria-label="ACG 04: Projection and Learning on 3D Geometry">
     <img src="/images/posts/acg-04-learning-geometry/thumbnail.png" alt="" loading="lazy" decoding="async">
   </a>
   <div class="recent-copy">
@@ -399,12 +406,12 @@
         </span>
       
     </div>
-    <a class="recent-title" href="/notes/acg/04/">「ACG 04」投影与三维学习：从相机视锥到点云</a>
+    <a class="recent-title" href="/notes/acg/04/">ACG 04: Projection and Learning on 3D Geometry</a>
     
-      <div class="recent-excerpt">相机投影把一个三维位置压缩成屏幕坐标，单视图重建试图从这些不完整观测恢复形状。投影矩阵解释了信息在哪里丢失，三维学习则利用数据中的形状先验补充约束。</div>
+      <div class="recent-excerpt">Perspective projection maps three-dimensional positions to two-dimensional image coordinates. Single-view reconstruction asks what can be recovered af</div>
     
   </div>
-  <a class="recent-jump" href="/notes/acg/04/" aria-label="Open 「ACG 04」投影与三维学习：从相机视锥到点云">
+  <a class="recent-jump" href="/notes/acg/04/" aria-label="Open ACG 04: Projection and Learning on 3D Geometry">
     <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
   </a>
@@ -416,7 +423,7 @@
     
     
 <article class="recent-item post-row archive-type-post">
-  <a class="recent-cover" href="/notes/ml/04/" aria-label="机器学习 04｜矩阵补全、核范数与鞍点">
+  <a class="recent-cover" href="/notes/ml/04/" aria-label="ML 04: Matrix Completion and Nonconvex Geometry">
     <img src="/images/posts/ml-04/figure.png" alt="" loading="lazy" decoding="async">
   </a>
   <div class="recent-copy">
@@ -441,12 +448,12 @@
         </span>
       
     </div>
-    <a class="recent-title" href="/notes/ml/04/">机器学习 04｜矩阵补全、核范数与鞍点</a>
+    <a class="recent-title" href="/notes/ml/04/">ML 04: Matrix Completion and Nonconvex Geometry</a>
     
-      <div class="recent-excerpt">从只观察部分矩阵元素的模型出发，推导核范数的低秩分解公式与交替最小二乘，辨认低秩恢复需要的可辨识条件。</div>
+      <div class="recent-excerpt">Derive the nuclear norm factorization, alternating least squares, and a strict-saddle example, then identify the information required for completion.</div>
     
   </div>
-  <a class="recent-jump" href="/notes/ml/04/" aria-label="Open 机器学习 04｜矩阵补全、核范数与鞍点">
+  <a class="recent-jump" href="/notes/ml/04/" aria-label="Open ML 04: Matrix Completion and Nonconvex Geometry">
     <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
   </a>
@@ -458,7 +465,7 @@
     
     
 <article class="recent-item post-row archive-type-post">
-  <a class="recent-cover" href="/notes/acg/03/" aria-label="「ACG 03」空间变换：齐次坐标、旋转与相机">
+  <a class="recent-cover" href="/notes/acg/03/" aria-label="ACG 03: Transformations, Rotations, and Camera Frames">
     <img src="/images/posts/acg-03-transformation/thumbnail.png" alt="" loading="lazy" decoding="async">
   </a>
   <div class="recent-copy">
@@ -483,12 +490,12 @@
         </span>
       
     </div>
-    <a class="recent-title" href="/notes/acg/03/">「ACG 03」空间变换：齐次坐标、旋转与相机</a>
+    <a class="recent-title" href="/notes/acg/03/">ACG 03: Transformations, Rotations, and Camera Frames</a>
     
-      <div class="recent-excerpt">移动一个物体、换一套坐标系和转动一台相机，常常写成相似的矩阵。判断矩阵是否写对，先明确输入和输出属于哪个坐标系，再用原点、基向量和已知方向检验。</div>
+      <div class="recent-excerpt">A transformation can move a point in one coordinate system or express the same point in another. In either case, name the source and destination frame</div>
     
   </div>
-  <a class="recent-jump" href="/notes/acg/03/" aria-label="Open 「ACG 03」空间变换：齐次坐标、旋转与相机">
+  <a class="recent-jump" href="/notes/acg/03/" aria-label="Open ACG 03: Transformations, Rotations, and Camera Frames">
     <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
   </a>
@@ -500,7 +507,7 @@
     
     
 <article class="recent-item post-row archive-type-post">
-  <a class="recent-cover" href="/notes/ml/03/" aria-label="机器学习 03｜SGD、SVRG 与镜像下降">
+  <a class="recent-cover" href="/notes/ml/03/" aria-label="ML 03: SGD, SVRG, and Mirror Descent">
     <img src="/images/posts/ml-03/figure.png" alt="" loading="lazy" decoding="async">
   </a>
   <div class="recent-copy">
@@ -527,12 +534,12 @@
         </span>
       
     </div>
-    <a class="recent-title" href="/notes/ml/03/">机器学习 03｜SGD、SVRG 与镜像下降</a>
+    <a class="recent-title" href="/notes/ml/03/">ML 03: SGD, SVRG, and Mirror Descent</a>
     
-      <div class="recent-excerpt">把随机梯度的噪声写入收敛证明，再用控制变量降低方差，并把下降几何推广到概率单纯形。</div>
+      <div class="recent-excerpt">Prove a convergence bound for averaged SGD, derive SVRG’s epoch contraction, and extend descent to the geometry of a probability simplex.</div>
     
   </div>
-  <a class="recent-jump" href="/notes/ml/03/" aria-label="Open 机器学习 03｜SGD、SVRG 与镜像下降">
+  <a class="recent-jump" href="/notes/ml/03/" aria-label="Open ML 03: SGD, SVRG, and Mirror Descent">
     <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
   </a>
@@ -544,7 +551,7 @@
     
     
 <article class="recent-item post-row archive-type-post">
-  <a class="recent-cover" href="/notes/acg/02/" aria-label="「ACG 02」几何表示：Bézier、网格与隐式曲面">
+  <a class="recent-cover" href="/notes/acg/02/" aria-label="ACG 02: Curves, Meshes, and Implicit Surfaces">
     <img src="/images/posts/acg-02-geometry/thumbnail.png" alt="" loading="lazy" decoding="async">
   </a>
   <div class="recent-copy">
@@ -569,12 +576,12 @@
         </span>
       
     </div>
-    <a class="recent-title" href="/notes/acg/02/">「ACG 02」几何表示：Bézier、网格与隐式曲面</a>
+    <a class="recent-title" href="/notes/acg/02/">ACG 02: Curves, Meshes, and Implicit Surfaces</a>
     
-      <div class="recent-excerpt">圆可以写成点的轨迹，也可以写成方程的零点集合。前者给定参数就能生成点，后者给定空间点就能判断内外。沿着这两个基本操作比较各种表示，就能理解曲线、网格和距离场为什么常在一个图形系统里共存。</div>
+      <div class="recent-excerpt">A parametric surface answers “where is the point at these coordinates?” An implicit field answers “what is the value at this position?” A triangle mes</div>
     
   </div>
-  <a class="recent-jump" href="/notes/acg/02/" aria-label="Open 「ACG 02」几何表示：Bézier、网格与隐式曲面">
+  <a class="recent-jump" href="/notes/acg/02/" aria-label="Open ACG 02: Curves, Meshes, and Implicit Surfaces">
     <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
   </a>
@@ -586,7 +593,7 @@
     
     
 <article class="recent-item post-row archive-type-post">
-  <a class="recent-cover" href="/notes/ml/02/" aria-label="机器学习 02｜梯度下降的下降量与收敛率">
+  <a class="recent-cover" href="/notes/ml/02/" aria-label="ML 02: Gradient Descent and Convergence">
     <img src="/images/posts/ml-02/figure.png" alt="" loading="lazy" decoding="async">
   </a>
   <div class="recent-copy">
@@ -611,12 +618,12 @@
         </span>
       
     </div>
-    <a class="recent-title" href="/notes/ml/02/">机器学习 02｜梯度下降的下降量与收敛率</a>
+    <a class="recent-title" href="/notes/ml/02/">ML 02: Gradient Descent and Convergence</a>
     
-      <div class="recent-excerpt">用光滑性推导梯度下降的学习率，再从同一个下降不等式推出凸、强凸和非凸目标的不同保证。</div>
+      <div class="recent-excerpt">Derive gradient descent from the smoothness bound and prove its rates for convex, strongly convex, and nonconvex objectives.</div>
     
   </div>
-  <a class="recent-jump" href="/notes/ml/02/" aria-label="Open 机器学习 02｜梯度下降的下降量与收敛率">
+  <a class="recent-jump" href="/notes/ml/02/" aria-label="Open ML 02: Gradient Descent and Convergence">
     <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
   </a>
@@ -633,6 +640,7 @@
     
     <a class="extend prev" rel="prev" href="/archives/2026/11/">&laquo; Prev</a><a class="page-number" href="/archives/2026/11/">1</a><span class="page-number current">2</span><a class="page-number" href="/archives/2026/11/page/3/">3</a><a class="extend next" rel="next" href="/archives/2026/11/page/3/">Next &raquo;</a>
   </nav>
+
 
 </div>
           </div>

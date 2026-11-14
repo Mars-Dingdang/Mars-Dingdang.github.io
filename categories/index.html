@@ -80,7 +80,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -174,9 +176,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -215,9 +216,9 @@
             <a class="taxonomy-post-card" href="/notes/acg/07/">
               <span class="taxonomy-post-cover" style="background-image:url('/images/posts/acg-07-ray-tracing/thumbnail.png')"></span>
               <span class="taxonomy-post-copy">
-                <strong>「ACG 07」光线追踪 I：求交、加速结构与渲染方程</strong>
+                <strong>ACG 07: Ray Intersection, Acceleration, and Light Transport</strong>
                 <small>2026-11-14</small>
-                <em>光线追踪把画图拆成两类问题。几何查询回答一条射线先碰到哪里，光传输计算回答交点沿某个方向送出多少光。最近交点、阴影、反射与折射都依赖同一个射线查询，只是参数区间与返回值不同。</em>
+                <em>Ray tracing separates two questions. An intersection query finds the first surface hit along a ray. A transpor</em>
               </span>
             </a>
           
@@ -225,9 +226,9 @@
             <a class="taxonomy-post-card" href="/notes/acg/06/">
               <span class="taxonomy-post-cover" style="background-image:url('/images/posts/acg-06-shading/thumbnail.png')"></span>
               <span class="taxonomy-post-copy">
-                <strong>「ACG 06」着色：局部光照、纹理过滤与阴影映射</strong>
+                <strong>ACG 06: Shading, Texture Filtering, and Shadows</strong>
                 <small>2026-11-14</small>
-                <em>光栅化给出了可见样本，着色器要为样本算出颜色。顶点属性怎样传到像素、像素在纹理上覆盖多大区域、光源到样本的路径是否被挡住，都会改变这个颜色。</em>
+                <em>Shading computes the appearance of a visible sample. Its result depends on the local surface orientation, the </em>
               </span>
             </a>
           
@@ -235,9 +236,9 @@
             <a class="taxonomy-post-card" href="/notes/acg/05/">
               <span class="taxonomy-post-cover" style="background-image:url('/images/posts/acg-05-rasterization/thumbnail.png')"></span>
               <span class="taxonomy-post-copy">
-                <strong>「ACG 05」光栅化：覆盖率、采样与深度测试</strong>
+                <strong>ACG 05: Rasterization, Sampling, and Visibility</strong>
                 <small>2026-11-14</small>
-                <em>投影后的三角形仍然是连续的几何对象，帧缓冲区却只有离散样本。光栅化用边函数决定哪些样本被覆盖，用过滤控制离散采样造成的锯齿，再用深度测试解决多个片元的可见性。</em>
+                <em>Rasterization converts projected geometry into samples on a finite grid. Triangle edge tests decide which samp</em>
               </span>
             </a>
           
@@ -320,9 +321,9 @@
             <a class="taxonomy-post-card" href="/notes/ml/14/">
               <span class="taxonomy-post-cover" style="background-image:url('/images/posts/ml-14/figure.png')"></span>
               <span class="taxonomy-post-copy">
-                <strong>机器学习 14｜模型解释、积分梯度与 Shapley 值</strong>
+                <strong>ML 14: Model Interpretability and Feature Attribution</strong>
                 <small>2026-11-14</small>
-                <em>从局部代理模型走到相对基线的特征归因，证明积分梯度的完备性和 Shapley 值的效率性。</em>
+                <em>Derive the weighted fit in LIME and prove completeness for Integrated Gradients and efficiency for Shapley val</em>
               </span>
             </a>
           
@@ -330,9 +331,9 @@
             <a class="taxonomy-post-card" href="/notes/ml/13/">
               <span class="taxonomy-post-cover" style="background-image:url('/images/posts/ml-13/figure.png')"></span>
               <span class="taxonomy-post-copy">
-                <strong>机器学习 13｜超参数优化与预算分配</strong>
+                <strong>ML 13: Hyperparameter Optimization and Resource Allocation</strong>
                 <small>2026-11-14</small>
-                <em>用双层优化区分训练和模型选择，推导高斯过程后验与超梯度，并分析 Successive Halving 的预算分配。</em>
+                <em>Derive Gaussian-process posteriors, Expected Improvement, and hypergradients, then compare resource allocation</em>
               </span>
             </a>
           
@@ -340,9 +341,9 @@
             <a class="taxonomy-post-card" href="/notes/ml/12/">
               <span class="taxonomy-post-cover" style="background-image:url('/images/posts/ml-12/figure.png')"></span>
               <span class="taxonomy-post-copy">
-                <strong>机器学习 12｜鲁棒学习与随机平滑证书</strong>
+                <strong>ML 12: Robust Learning and Randomized Smoothing</strong>
                 <small>2026-11-14</small>
-                <em>用有界输入扰动刻画鲁棒风险，推导线性分类器的精确鲁棒间隔，并说明 Gaussian 随机平滑如何给出可证明的半径。</em>
+                <em>Derive exact robust margins for linear classifiers and prove a Gaussian-smoothing certificate for bounded inpu</em>
               </span>
             </a>
           
@@ -367,7 +368,7 @@
               <span class="taxonomy-post-copy">
                 <strong>Dimension Free Theorems in Geometry</strong>
                 <small>2026-11-14</small>
-                <em>Mars-Dingdang · Original notes dated April 13, 2026 在传统几何中，许多定理的陈述依赖空间维数。例如，Carathéodory 定理保证 LANDSCAPE_MATH_T</em>
+                <em>Mars-Dingdang · Original notes dated April 13, 2026 Many geometric bounds depend on the ambient dimension. For</em>
               </span>
             </a>
           

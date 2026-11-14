@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>机器学习 13｜超参数优化与预算分配 | Mars Dingdang</title>
+  <title>ML 13: Hyperparameter Optimization and Resource Allocation | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="用双层优化区分训练和模型选择，推导高斯过程后验与超梯度，并分析 Successive Halving 的预算分配。">
+  <meta name="description" content="Derive Gaussian-process posteriors, Expected Improvement, and hypergradients, then compare resource allocation under successive halving.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="机器学习 13｜超参数优化与预算分配">
+<meta property="og:title" content="ML 13: Hyperparameter Optimization and Resource Allocation">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/13/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="用双层优化区分训练和模型选择，推导高斯过程后验与超梯度，并分析 Successive Halving 的预算分配。">
+<meta property="og:description" content="Derive Gaussian-process posteriors, Expected Improvement, and hypergradients, then compare resource allocation under successive halving.">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-13/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:13:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T18:10:55.532Z">
+<meta property="article:modified_time" content="2026-11-14T02:30:26.107Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Bayesian Optimization">
 <meta property="article:tag" content="Hyperparameter Optimization">
@@ -85,7 +85,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -179,9 +181,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -215,7 +216,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      机器学习 13｜超参数优化与预算分配
+      ML 13: Hyperparameter Optimization and Resource Allocation
     </h1>
   
 
@@ -223,39 +224,50 @@
     
     <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>用双层优化区分训练和模型选择，推导高斯过程后验与超梯度，并分析 Successive Halving 的预算分配。</p>
+        <p>Derive Gaussian-process posteriors, Expected Improvement, and hypergradients, then compare resource allocation under successive halving.</p>
 <span id="more"></span>
 
-<p><img src="/images/posts/ml-13/figure.png" alt="高斯过程回归的后验均值、置信带、观测点和下一处候选"></p>
-<p><em>曲线与阴影给出一个合成验证目标的高斯过程后验均值和两倍后验标准差。候选位置由 Expected Improvement 取得最大值。</em></p>
-<h2 id="为什么有两个目标"><a href="#为什么有两个目标" class="headerlink" title="为什么有两个目标"></a>为什么有两个目标</h2><p>令 <span class="math-inline">\(\lambda\)</span> 为学习率、正则强度或网络宽度等配置。训练流程得到 <span class="math-inline">\(w_T(\lambda)\)</span>，外层选择使独立验证损失最小的 <span class="math-inline">\(\lambda\)</span>。</p>
-<div class="math-display">\[\min_\lambda F(\lambda),\qquad F(\lambda)=L_{\rm val}(w_T(\lambda),\lambda).\]</div>
-<p>不同配置可能消耗不同时间。比较一次完整运行的验证表现、固定时间预算下的表现、训练早期的表现，会得到不同目标。随机种子使单次观测含噪，必要时用多个种子估计均值或比较不确定性。最终测试集留到配置选定后使用。</p>
-<p>在 <span class="math-inline">\(d\)</span> 维空间做每维 <span class="math-inline">\(m\)</span> 取值的网格需要 <span class="math-inline">\(m^d\)</span> 次评估。若主要只有一维重要，网格只试到该维 <span class="math-inline">\(m\)</span> 个取值。相同总预算的随机搜索通常在这一维尝试更多不同值，前提是搜索分布为合理的候选区间分配了足够概率质量。对跨数量级的正则强度，常在对数坐标中采样。</p>
-<h2 id="高斯过程的后验"><a href="#高斯过程的后验" class="headerlink" title="高斯过程的后验"></a>高斯过程的后验</h2><p>贝叶斯优化用代理模型组织已有观察。取高斯过程先验 <span class="math-inline">\(F\sim\mathcal{GP}(m,k)\)</span>，观察 <span class="math-inline">\(y_i=F(\lambda_i)+\epsilon_i\)</span>，噪声独立且方差为 <span class="math-inline">\(\sigma_n^2\)</span>。令 <span class="math-inline">\(K_{ij}=k(\lambda_i,\lambda_j)\)</span>，<span class="math-inline">\(k_\star=(k(\lambda_i,\lambda_\star))_i\)</span>。由联合高斯的条件分布，</p>
-<div class="math-display">\[\begin{aligned}
-\mu_\star &amp;=m(\lambda_\star)+k_\star^\top(K+\sigma_n^2I)^{-1}(y-m_\Lambda),\\
-s_\star^2 &amp;=k(\lambda_\star,\lambda_\star)-k_\star^\top(K+\sigma_n^2I)^{-1}k_\star .
-\end{aligned}\]</div>
-<p>第二式是潜在函数值的后验方差，若预测下一次带噪测量还要加 <span class="math-inline">\(\sigma_n^2\)</span>。公式可由减去线性预测项证明。令 <span class="math-inline">\(r=F(\lambda_\star)-m(\lambda_\star)-k_\star^\top(K+\sigma_n^2I)^{-1}(y-m_\Lambda)\)</span>，则 <span class="math-inline">\(r\)</span> 与 <span class="math-inline">\(y\)</span> 的协方差为零。联合高斯意味着独立，<span class="math-inline">\(r\)</span> 的方差就是第二式。</p>
-<p>对最小化，设当前参考最好值为 <span class="math-inline">\(b\)</span>。Expected Improvement 选择使 <span class="math-inline">\(\mathbb E[(b-F(\lambda))_+]\)</span> 最大的位置。将 <span class="math-inline">\(F=\mu+sZ\)</span>、<span class="math-inline">\(Z\sim N(0,1)\)</span> 代入，在 <span class="math-inline">\(Z&lt;(b-\mu)/s\)</span> 上积分，得到</p>
-<div class="math-display">\[\operatorname{EI}=(b-\mu)\Phi(z)+s\phi(z),\qquad z=(b-\mu)/s.\]</div>
-<p>均值低或方差大都可能使候选获得较大 EI。噪声显著时可用后验估计设参考值，避免把一次偶然极低的观测当成真实最优。</p>
-<h2 id="反向穿过训练过程"><a href="#反向穿过训练过程" class="headerlink" title="反向穿过训练过程"></a>反向穿过训练过程</h2><p>若 <span class="math-inline">\(\eta\)</span> 为内层学习率，<span class="math-inline">\(w_{t+1}=w_t-\eta\nabla L_{\rm train}(w_t)\)</span>，并且初始化与 <span class="math-inline">\(\eta\)</span> 无关，令 <span class="math-inline">\(u_t=\partial w_t/\partial\eta\)</span>。链式法则给出</p>
-<div class="math-display">\[u_0=0,\qquad
-u_{t+1}=(I-\eta H_t)u_t-\nabla L_{\rm train}(w_t),\]</div>
-<p>其中 <span class="math-inline">\(H_t=\nabla^2L_{\rm train}(w_t)\)</span>。若验证损失不显式依赖 <span class="math-inline">\(\eta\)</span>，外层导数就是 <span class="math-inline">\(\nabla L_{\rm val}(w_T)^\top u_T\)</span>。只需 Hessian–向量积，无须显式构造 Hessian。对许多超参数，反向模式更合适，但通常需要保留或重算中间训练状态。优化有限步训练的外层目标会偏好能在指定步数内快速改善的配置。</p>
-<h2 id="Successive-Halving-的预算"><a href="#Successive-Halving-的预算" class="headerlink" title="Successive Halving 的预算"></a>Successive Halving 的预算</h2><p>从 <span class="math-inline">\(n\)</span> 个配置出发，各给 <span class="math-inline">\(r\)</span> 单位资源。按当前指标保留约 <span class="math-inline">\(1/\eta_{\rm sh}\)</span>，将每个幸存者的累计资源提高到 <span class="math-inline">\(\eta_{\rm sh}r\)</span>，逐轮重复。以 16 个配置、淘汰因子 2、首轮 1 个 epoch 为例，各轮的累计目标资源是</p>
-<div class="math-display">\[(16\times1),\quad(8\times2),\quad(4\times4),\quad(2\times8),\quad(1\times16).\]</div>
-<p>若从检查点继续，各轮增量分别为 16、8、8、8、8，总计 48 个 epoch。若每轮重新训练，对应总量为 80 个 epoch。节约来自用低保真结果筛选大部分配置。学习曲线交叉时，晚起步配置可能被提前淘汰。Hyperband 在不同起始资源和初始配置数之间分配预算，覆盖多种淘汰强度。</p>
-<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>对 <span class="math-inline">\(L_{\rm train}(w)=w^2/2\)</span>、<span class="math-inline">\(w_0=1\)</span>，两步后 <span class="math-inline">\(w_2=(1-\eta)^2\)</span>。递推给 <span class="math-inline">\(u_1=-1\)</span>、<span class="math-inline">\(u_2=-2(1-\eta)\)</span>，与直接对闭式解求导一致。</p>
-<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》往年课件第 13 讲。延伸阅读：<a target="_blank" rel="noopener" href="https://gaussianprocess.org/gpml/chapters/">Rasmussen 与 Williams 的高斯过程教材</a>，<a target="_blank" rel="noopener" href="https://www.jmlr.org/papers/v18/16-558.html">Li 等人的 Hyperband 论文</a>。</p>
-<p><a href="/notes/ml/12/">← 第 12 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/14/">第 14 讲 →</a></p>
+<p><img src="/images/posts/ml-13/figure.png" alt="Gaussian-process posterior mean, uncertainty band, observations, and next candidate"></p>
+<p><em>The synthetic example picks the unobserved location that maximizes Expected Improvement for a minimization problem.</em></p>
+<h2 id="Training-and-model-selection"><a href="#Training-and-model-selection" class="headerlink" title="Training and model selection"></a>Training and model selection</h2><p>The inner procedure produces weights <span class="math-inline">\(w_T(\lambda)\)</span> for hyperparameters <span class="math-inline">\(\lambda\)</span>. The outer optimization minimizes <span class="math-inline">\(F(\lambda)=L_{\rm val}(w_T(\lambda),\lambda)\)</span>. Fixed training time and full convergence can rank configurations differently. Random seeds make single runs noisy, so comparisons can use common seeds or repeated runs. Keep the final test set separate from the choice of hyperparameters.</p>
+<p>A grid with <span class="math-inline">\(m\)</span> values per dimension uses <span class="math-inline">\(m^d\)</span> evaluations. If one coordinate dominates, it tests just <span class="math-inline">\(m\)</span> distinct values for that coordinate. Sampling <span class="math-inline">\(m^d\)</span> configurations from a continuous distribution generally tests a different value each time along that coordinate. Distributions on positive scales that span orders of magnitude are often defined in log space.</p>
+<h2 id="Gaussian-process-prediction"><a href="#Gaussian-process-prediction" class="headerlink" title="Gaussian-process prediction"></a>Gaussian-process prediction</h2><p>Let <span class="math-inline">\(F\sim\mathcal{GP}(m,k)\)</span> and observe <span class="math-inline">\(y_j=F(\lambda_j)+e_j\)</span>, where independent <span class="math-inline">\(e_j\sim N(0,\sigma_n^2)\)</span>. Define <span class="math-inline">\(K_{ij}=k(\lambda_i,\lambda_j)\)</span>, <span class="math-inline">\(\Sigma=K+\sigma_n^2I\)</span>, and <span class="math-inline">\(k_\star=(k(\lambda_i,\lambda_\star))_i\)</span>. Consider the residual</p>
+<div class="math-display">\[r=F(\lambda_\star)-m(\lambda_\star)-k_\star^\top\Sigma^{-1}(y-m_\Lambda).\]</div>
+<p>Its covariance with <span class="math-inline">\(y\)</span> is zero. Joint Gaussianity then makes it independent of <span class="math-inline">\(y\)</span>. Its variance is obtained by expanding the squared residual. This proves the conditional mean and variance</p>
+<div class="math-display">\[\mu_\star=m(\lambda_\star)+k_\star^\top\Sigma^{-1}(y-m_\Lambda),\qquad
+s_\star^2=k(\lambda_\star,\lambda_\star)-k_\star^\top\Sigma^{-1}k_\star.\]</div>
+<p>To predict a future noisy observation, add <span class="math-inline">\(\sigma_n^2\)</span> to the latent variance.</p>
+<h2 id="Expected-Improvement"><a href="#Expected-Improvement" class="headerlink" title="Expected Improvement"></a>Expected Improvement</h2><p>For a reference value <span class="math-inline">\(b\)</span> to beat in minimization, define <span class="math-inline">\(\mathrm{EI}=\mathbb E[(b-F)_+]\)</span>. Write <span class="math-inline">\(F=\mu+s Z\)</span> for standard normal <span class="math-inline">\(Z\)</span>, and set <span class="math-inline">\(z=(b-\mu)/s\)</span>. The integral is</p>
+<div class="math-display">\[\mathrm{EI}=\int_{-\infty}^z(b-\mu-su)\phi(u)\,du
+=(b-\mu)\Phi(z)+s\phi(z),\]</div>
+<p>because <span class="math-inline">\(\phi'(u)=-u\phi(u)\)</span>. When <span class="math-inline">\(s=0\)</span>, the limit is <span class="math-inline">\((b-\mu)_+\)</span>. Low mean and high uncertainty can both make a point worth evaluating. Noisy evaluations may favor basing <span class="math-inline">\(b\)</span> on predicted latent values.</p>
+<h2 id="Differentiating-through-the-training-trajectory"><a href="#Differentiating-through-the-training-trajectory" class="headerlink" title="Differentiating through the training trajectory"></a>Differentiating through the training trajectory</h2><p>For learning rate <span class="math-inline">\(\eta\)</span> and <span class="math-inline">\(w_{t+1}=w_t-\eta\nabla L_{\rm train}(w_t)\)</span>, assume <span class="math-inline">\(w_0\)</span> is independent of <span class="math-inline">\(\eta\)</span>. Differentiating both the multiplication by <span class="math-inline">\(\eta\)</span> and the gradient’s input gives</p>
+<div class="math-display">\[u_{t+1}=(I-\eta H_t)u_t-\nabla L_{\rm train}(w_t),\qquad
+u_t=\partial_\eta w_t,\quad H_t=\nabla^2 L_{\rm train}(w_t),\quad u_0=0.\]</div>
+<p>The outer derivative is <span class="math-inline">\(\nabla_wL_{\rm val}(w_T,\eta)^\top u_T+\partial_\eta L_{\rm val}(w_T,\eta)\)</span>. A momentum state can be included in the update map and differentiated as another part of the state. With many hyperparameters, reverse-mode differentiation propagates adjoints through the transposed update Jacobians, requiring intermediate states or recomputation. Hessian-vector products suffice.</p>
+<h2 id="Successive-halving-and-Hyperband"><a href="#Successive-halving-and-Hyperband" class="headerlink" title="Successive halving and Hyperband"></a>Successive halving and Hyperband</h2><p>Start <span class="math-inline">\(n\)</span> candidates with <span class="math-inline">\(r\)</span> units of resource. Rank their scores, retain roughly a fraction <span class="math-inline">\(1/\eta_{\mathrm{sh}}\)</span>, and multiply the resource per survivor by <span class="math-inline">\(\eta_{\mathrm{sh}}\)</span>. With 16 candidates, resource 1, and elimination factor 2, the round totals from scratch are <span class="math-inline">\(16,16,16,16,16\)</span> epochs. Continuing from checkpoints makes the increments <span class="math-inline">\(16,8,8,8,8\)</span>, totaling 48 epochs. The saving assumes earlier training can be reused. Learning curves that cross can eliminate a slow-starting eventual winner. Hyperband distributes its budget among brackets with different initial candidate counts and starting budgets.</p>
+<p>In a stationary best-arm model, each configuration <span class="math-inline">\(i\)</span> has reward mean <span class="math-inline">\(\mu_i\)</span>. If every arm is sampled <span class="math-inline">\(m\)</span> times with independent rewards in <span class="math-inline">\([0,1]\)</span> and the unique best mean exceeds the others by at least <span class="math-inline">\(\Delta\)</span>, Hoeffding bounds the chance of any empirical mean deviating by at least <span class="math-inline">\(\Delta/2\)</span> by <span class="math-inline">\(2n e^{-m\Delta^2/2}\)</span>. On the complementary event the empirical best is the genuine best. Early-training scores generally evolve with the allocation, so this stationary guarantee does not transfer automatically.</p>
+<h2 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h2><p>Let the inner objective be <span class="math-inline">\(L_{\rm train}(w,\lambda)=\tfrac12(w-a)^2+\tfrac{\lambda}{2}w^2\)</span> and the outer objective <span class="math-inline">\(\tfrac12(w^\star(\lambda)-b)^2\)</span>, with <span class="math-inline">\(a&gt;b&gt;0\)</span> and <span class="math-inline">\(\lambda\ge0\)</span>. Derive the exact minimizing regularization and verify the derivative by implicit differentiation.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>Stationarity is <span class="math-inline">\((1+\lambda)w^\star=a\)</span>, so <span class="math-inline">\(w^\star=a/(1+\lambda)\)</span>. It decreases from <span class="math-inline">\(a\)</span> to 0, so the squared loss is minimized when <span class="math-inline">\(w^\star=b\)</span>, at <span class="math-inline">\(\lambda=a/b-1\)</span>. Implicit differentiation of stationarity gives <span class="math-inline">\((1+\lambda)\partial_\lambda w^\star+w^\star=0\)</span>. The hypergradient is <span class="math-inline">\(-(w^\star-b)w^\star/(1+\lambda)\)</span>, negative below the optimum and positive above it.</p>
+</details>
+
+<p><strong>Second challenge.</strong> Show that Expected Improvement is nondecreasing in predictive standard deviation when the mean and current best are fixed.</p>
+<details>
+<summary>Show solution to the second challenge</summary>
+
+<p>Write <span class="math-inline">\(a\)</span> for the incumbent minus the mean in minimization, <span class="math-inline">\(z=a/s\)</span>, and <span class="math-inline">\(\mathrm{EI}(s)=a\Phi(z)+s\phi(z)\)</span>. Differentiate for <span class="math-inline">\(s&gt;0\)</span>. The derivatives through <span class="math-inline">\(z\)</span> cancel because <span class="math-inline">\(\phi'(z)=-z\phi(z)\)</span> and <span class="math-inline">\(a=sz\)</span>. Hence <span class="math-inline">\(\mathrm{EI}'(s)=\phi(z)&gt;0\)</span>. Continuity at <span class="math-inline">\(s=0\)</span> gives <span class="math-inline">\(\max(a,0)\)</span>, so uncertainty increases this acquisition value even at fixed predicted mean.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 13 from the archived slides. <a target="_blank" rel="noopener" href="https://gaussianprocess.org/gpml/chapters/">Rasmussen and Williams, Gaussian Processes for Machine Learning</a>. <a target="_blank" rel="noopener" href="https://www.jmlr.org/papers/v18/16-558.html">Li et al., Hyperband</a>.</p>
+<p><a href="/notes/ml/12/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/14/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/13/" data-id="cuidX7eK8fqhWjELo7wCvYvJv" data-title="机器学习 13｜超参数优化与预算分配" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/13/" data-id="cuidJpy6LpCWAN5oQGnCaScWo" data-title="ML 13: Hyperparameter Optimization and Resource Allocation" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -272,7 +284,7 @@ u_{t+1}=(I-\eta H_t)u_t-\nabla L_{\rm train}(w_t),\]</div>
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          机器学习 14｜模型解释、积分梯度与 Shapley 值
+          ML 14: Model Interpretability and Feature Attribution
         
       </div>
     </a>
@@ -280,7 +292,7 @@ u_{t+1}=(I-\eta H_t)u_t-\nabla L_{\rm train}(w_t),\]</div>
   
     <a href="/notes/ml/12/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">机器学习 12｜鲁棒学习与随机平滑证书</div>
+      <div class="article-nav-title">ML 12: Robust Learning and Randomized Smoothing</div>
     </a>
   
 </nav>

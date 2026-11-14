@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>「ACG 01」图形学导论：从场景到像素 | Mars Dingdang</title>
+  <title>ACG 01: Introduction to Computer Graphics | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="一张渲染图是一次计算的结果。几何描述物体的形状，材质和光源决定颜色与明暗，相机决定观察位置，像素则记录有限分辨率下的测量结果。把这些输入分开，才能追问图像里的某种现象究竟由什么引起。">
+  <meta name="description" content="A rendered image is the result of a computation. Geometry specifies what is in the scene. Materials and light determine surface appearance, the camera selects a viewpoint, and the display reproduces t">
 <meta property="og:type" content="article">
-<meta property="og:title" content="「ACG 01」图形学导论：从场景到像素">
+<meta property="og:title" content="ACG 01: Introduction to Computer Graphics">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/acg/01/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="一张渲染图是一次计算的结果。几何描述物体的形状，材质和光源决定颜色与明暗，相机决定观察位置，像素则记录有限分辨率下的测量结果。把这些输入分开，才能追问图像里的某种现象究竟由什么引起。">
-<meta property="og:locale" content="zh_CN">
+<meta property="og:description" content="A rendered image is the result of a computation. Geometry specifies what is in the scene. Materials and light determine surface appearance, the camera selects a viewpoint, and the display reproduces t">
+<meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/acg-01-introduction/thumbnail.png">
 <meta property="article:published_time" content="2026-11-13T16:01:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T17:42:21.869Z">
+<meta property="article:modified_time" content="2026-11-14T02:21:31.140Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="ACG">
 <meta property="article:tag" content="Lecture Notes">
@@ -85,7 +85,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -179,9 +181,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -211,45 +212,73 @@
   <div class="article-inner">
     
     
-      <header class="article-header" lang="zh-CN">
+      <header class="article-header" lang="en">
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      「ACG 01」图形学导论：从场景到像素
+      ACG 01: Introduction to Computer Graphics
     </h1>
   
 
       </header>
     
-    <div class="e-content article-entry" itemprop="articleBody" lang="zh-CN">
+    <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>一张渲染图是一次计算的结果。几何描述物体的形状，材质和光源决定颜色与明暗，相机决定观察位置，像素则记录有限分辨率下的测量结果。把这些输入分开，才能追问图像里的某种现象究竟由什么引起。</p>
+        <p>A rendered image is the result of a computation. Geometry specifies what is in the scene. Materials and light determine surface appearance, the camera selects a viewpoint, and the display reproduces the resulting samples. Separating these inputs makes it possible to explain a visual effect and test its cause.</p>
 <span id="more"></span>
 
-<h2 id="图形学的正向问题与视觉的逆向问题"><a href="#图形学的正向问题与视觉的逆向问题" class="headerlink" title="图形学的正向问题与视觉的逆向问题"></a>图形学的正向问题与视觉的逆向问题</h2><p>把一个场景写成 <span class="math-inline">\(\mathcal S=(G,M,L,C)\)</span>，分别表示几何、材质、照明和相机。渲染器计算图像 <span class="math-inline">\(I=\mathcal R(\mathcal S)\)</span>。在场景固定时改变 <span class="math-inline">\(C\)</span>，我们可以观察透视如何变化。在相机固定时改变 <span class="math-inline">\(M\)</span> 或 <span class="math-inline">\(L\)</span>，则可以比较材质响应和光照。</p>
-<p>三维视觉常面对相反的问题：给定 <span class="math-inline">\(I\)</span>，希望推断 <span class="math-inline">\(\mathcal S\)</span> 的一部分。下面从针孔相机推导一个最小例子。相机看向正 <span class="math-inline">\(Z\)</span> 轴，虚拟成像平面在 <span class="math-inline">\(Z=f\)</span>。空间点 <span class="math-inline">\(P=(X,Y,Z)\)</span> 与针孔的连线在平面上的交点为 <span class="math-inline">\((x,y,f)\)</span>。同一直线上的坐标成比例，所以</p>
-<div class="math-display">\[(x,y)=\left(f\frac{X}{Z},\, f\frac{Y}{Z}\right).\]</div>
-<p><img src="/images/posts/acg-01-introduction/thumbnail.png" alt="针孔相机的侧视图。距离不同的两个点位于从针孔出发的同一条射线上，投影到成像平面的同一点"></p>
-<p>把 <span class="math-inline">\(P\)</span> 换成 <span class="math-inline">\(\lambda P\)</span>（<span class="math-inline">\(\lambda&gt;0\)</span>），两个坐标中的 <span class="math-inline">\(\lambda\)</span> 都会约掉。单张图像上的一个像点只确定方向，不能单独确定深度。若两台相机的位置和朝向已知，从不同视点找到同一空间点的像点，就能用两条射线约束其位置。纹理重复、遮挡或相机基线过小仍会让估计变难。</p>
-<h2 id="几何、动画与显示"><a href="#几何、动画与显示" class="headerlink" title="几何、动画与显示"></a>几何、动画与显示</h2><p><strong>建模</strong>包含形状表示和属性定义。一张角色网格可以存储顶点、三角形连接、法向和纹理坐标。另一种选择是用函数 <span class="math-inline">\(F(x,y,z)=0\)</span> 定义表面。例如球面可写成 <span class="math-inline">\(x^2+y^2+z^2-r^2=0\)</span>，并通过函数的正负判断一个点在球内还是球外。两种表示的运算成本不同，后续会分别遇到曲面采样、网格编辑和射线求交。</p>
-<p><strong>动画</strong>给场景加上时间。一种常见做法是在时刻 <span class="math-inline">\(t_0,t_1\)</span> 记录同一物体的位置 <span class="math-inline">\(p_0,p_1\)</span>，中间用线性插值得到</p>
+<h2 id="From-a-3D-scene-to-a-2D-image"><a href="#From-a-3D-scene-to-a-2D-image" class="headerlink" title="From a 3D scene to a 2D image"></a>From a 3D scene to a 2D image</h2><p>Write a scene as <span class="math-inline">\(\mathcal S=(G,M,L,C)\)</span>, with geometry, materials, lights, and a camera. Rendering computes <span class="math-inline">\(I=\mathcal R(\mathcal S)\)</span>. Changing only <span class="math-inline">\(C\)</span> isolates the effects of perspective and visibility. Changing only <span class="math-inline">\(M\)</span> or <span class="math-inline">\(L\)</span> exposes how reflectance and illumination interact. Computer vision often reverses part of this computation by estimating scene properties from images.</p>
+<p>For a pinhole camera looking along positive <span class="math-inline">\(Z\)</span>, put the virtual image plane at <span class="math-inline">\(Z=f\)</span>. The ray through a point <span class="math-inline">\(P=(X,Y,Z)\)</span> meets the image plane at <span class="math-inline">\((fX/Z,fY/Z,f)\)</span>. Both coordinates follow from scaling the vector <span class="math-inline">\(P\)</span> by <span class="math-inline">\(f/Z\)</span>.</p>
+<div class="math-display">\[(x,y)=\left(f\frac{X}{Z},f\frac{Y}{Z}\right).\]</div>
+<p><img src="/images/posts/acg-01-introduction/thumbnail.png" alt="A pinhole camera viewed from the side. Two points at different depths sit on one camera ray and project to the same pixel."></p>
+<p>Multiplying all coordinates by any positive <span class="math-inline">\(\lambda\)</span> leaves the image point unchanged. One view constrains a point to a ray. Given a second calibrated camera and a corresponding image point, intersecting two rays adds a depth constraint. Closely spaced cameras yield nearly parallel rays for distant objects, so small observation errors can still produce large depth errors.</p>
+<h2 id="Modeling-motion-and-display"><a href="#Modeling-motion-and-display" class="headerlink" title="Modeling, motion, and display"></a>Modeling, motion, and display</h2><p>A triangle mesh stores positions and the connections between them. It can attach surface normals, texture coordinates, and materials to its vertices or faces. An implicit model defines a surface through a zero set, such as <span class="math-inline">\(F(x)=\|x-c\|^2-r^2=0\)</span> for a sphere. This sphere function makes containment a sign test. A mesh makes it straightforward to enumerate and transform the triangles of a surface. The rendering and modeling operations determine which representation is useful.</p>
+<p>Animation adds time. When an animator specifies two positions at times <span class="math-inline">\(t_0,t_1\)</span>, linear interpolation gives</p>
 <div class="math-display">\[p(t)=(1-s)p_0+sp_1,\qquad s=\frac{t-t_0}{t_1-t_0}.\]</div>
-<p>代入两个端点分别得到 <span class="math-inline">\(p_0,p_1\)</span>，对 <span class="math-inline">\(t\)</span> 求导得到恒定速度 <span class="math-inline">\((p_1-p_0)/(t_1-t_0)\)</span>。连续两段的速度可能不同，所以位置连续的运动在关键帧处仍可能突然改变方向。骨骼动画用父子关节构成变换层次，再让蒙皮顶点跟随一个或多个关节。物理模拟则根据力和约束演化状态，例如弹簧布料的一条边可以用 <span class="math-inline">\(E=\tfrac12 k(\ell-\ell_0)^2\)</span> 近似它偏离原长所需的能量，其沿伸长方向的广义力为 <span class="math-inline">\(-\partial E/\partial \ell=-k(\ell-\ell_0)\)</span>。</p>
-<p><strong>显示</strong>把图像变成设备上的可见光。渲染器通常先写入帧缓冲区，再做颜色映射和显示编码。着色时的线性能量与存入图像的非线性 RGB 值有不同含义。例如两个相等面积区域在线性空间的亮度平均是 <span class="math-inline">\((L_1+L_2)/2\)</span>，应该先在线性空间计算再编码。</p>
-<h2 id="两条渲染路线"><a href="#两条渲染路线" class="headerlink" title="两条渲染路线"></a>两条渲染路线</h2><p>光栅化先把三角形投影到屏幕，再枚举它覆盖的像素样本。多个不透明片元覆盖同一位置时，深度测试保留最近的片元。它适合将顶点变换、覆盖测试和片元着色组织成流水线。</p>
-<p>光线追踪从相机通过像素发出射线，寻找射线上最近的物体。找到交点后，可以向光源发出阴影射线，或继续追踪反射、折射和漫反射路径。它把相机可见性与光照可见性统一成射线查询。两条路线都要回答「看到哪里」和「看到多亮」，也可以在同一个实时系统中协同工作。</p>
-<h2 id="课程路线"><a href="#课程路线" class="headerlink" title="课程路线"></a>课程路线</h2><p><a href="/notes/acg/02/">第 02 讲</a> 从曲线、曲面和网格开始，<a href="/notes/acg/03/">第 03 讲</a> 讨论空间变换和相机，<a href="/notes/acg/04/">第 04 讲</a> 推导投影并引入三维学习。<a href="/notes/acg/05/">第 05 讲</a> 将三角形转换为像素样本，<a href="/notes/acg/06/">第 06 讲</a> 给样本计算颜色和阴影，<a href="/notes/acg/07/">第 07 讲</a> 从射线求交走到渲染方程。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li>弋力，《Advanced Computer Graphics》，Lecture 1: Introduction，2026 年 9 月 16 日。</li>
-</ul>
+<p>The derivative is <span class="math-inline">\((p_1-p_0)/(t_1-t_0)\)</span> throughout the interval. Matching the endpoints of consecutive segments creates continuous positions while still allowing an abrupt velocity change. Skeletal animation propagates joint transformations down a hierarchy and uses them to move skin vertices. Physical simulation advances positions and velocities using forces and constraints. A spring with rest length <span class="math-inline">\(\ell_0\)</span> stores <span class="math-inline">\(\tfrac12 k(\ell-\ell_0)^2\)</span> of potential energy and exerts the restoring force <span class="math-inline">\(-k(\ell-\ell_0)\)</span> along its extension coordinate.</p>
+<p>A framebuffer holds discrete image samples before display encoding. Let <span class="math-inline">\(g\)</span> map a linear intensity to a display code. Equal-area averaging belongs in linear space, so the encoded average of intensities <span class="math-inline">\(a,b\)</span> is <span class="math-inline">\(g((a+b)/2)\)</span>. For a nonlinear <span class="math-inline">\(g\)</span>, this generally differs from <span class="math-inline">\((g(a)+g(b))/2\)</span>. The same distinction matters in texture filtering and alpha compositing.</p>
+<h2 id="Two-rendering-algorithms"><a href="#Two-rendering-algorithms" class="headerlink" title="Two rendering algorithms"></a>Two rendering algorithms</h2><p>Rasterization projects primitives and enumerates the samples they cover. At an opaque pixel, a depth test keeps the nearest submitted fragment. Triangle projection, coverage, and shading can therefore be divided into pipeline stages.</p>
+<p>Ray casting starts at the camera and queries the scene for the first hit along each sample ray. A second ray toward a point light tests whether the surface receives direct light. Recursive or sampled rays can estimate mirror reflections, refractions, and indirect light. Both rasterization and ray tracing compute visibility, but their loop orders differ: rasterization starts with primitives, while ray casting starts with samples.</p>
+<h3 id="Implement-a-minimal-pinhole-renderer"><a href="#Implement-a-minimal-pinhole-renderer" class="headerlink" title="Implement a minimal pinhole renderer"></a>Implement a minimal pinhole renderer</h3><p>Use a horizontal and vertical pixel scale <span class="math-inline">\(f_x,f_y\)</span> and zero-based coordinates referenced to the image’s upper-left corner. The image center is <span class="math-inline">\((c_x,c_y)\)</span>. The following sketch assumes an orthonormal camera basis and ray depth increasing forward.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">camera_ray</span>(<span class="params">i, j, camera</span>):</span><br><span class="line">    x = (i + <span class="number">0.5</span> - camera.cx) / camera.fx</span><br><span class="line">    y = (camera.cy - j - <span class="number">0.5</span>) / camera.fy</span><br><span class="line">    direction = normalize(camera.right*x + camera.up*y + camera.forward)</span><br><span class="line">    <span class="keyword">return</span> Ray(camera.center, direction)</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">render_pixel</span>(<span class="params">i, j, camera, scene</span>):</span><br><span class="line">    ray = camera_ray(i, j, camera)</span><br><span class="line">    hit = scene.closest_hit(ray, t_min=<span class="number">0</span>)</span><br><span class="line">    <span class="keyword">if</span> hit <span class="keyword">is</span> <span class="literal">None</span>:</span><br><span class="line">        <span class="keyword">return</span> scene.background(ray.direction)</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0.5</span> * (hit.normal + Vec3(<span class="number">1</span>, <span class="number">1</span>, <span class="number">1</span>))</span><br></pre></td></tr></table></figure>
+
+<p>This version visualizes normal orientation, making it easy to check geometry and camera conventions before adding shading. A plane with unit normal <span class="math-inline">\((0,1,0)\)</span> should give the same color <span class="math-inline">\((0.5,1,0.5)\)</span> wherever it appears. An object translated directly along the optical axis stays centered but changes size. For a surface patch parallel to the image plane and doubled in depth, its apparent linear extent halves.</p>
+<h2 id="Exercises"><a href="#Exercises" class="headerlink" title="Exercises"></a>Exercises</h2><ol>
+<li><strong>Stereo conditioning.</strong> Two identical rectified cameras share one image plane orientation. The right camera is displaced by <span class="math-inline">\(b\)</span> along <span class="math-inline">\(X\)</span>. Derive depth from the measured disparity and quantify the first-order error when the disparity changes by <span class="math-inline">\(\delta d\)</span>.</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>With the same focal length <span class="math-inline">\(f\)</span>, the projected coordinates are <span class="math-inline">\(x_L=fX/Z\)</span> and <span class="math-inline">\(x_R=f(X-b)/Z\)</span>. Thus <span class="math-inline">\(d=x_L-x_R=fb/Z\)</span>, so <span class="math-inline">\(Z=fb/d\)</span> and <span class="math-inline">\(\delta Z\approx-fb\,\delta d/d^2\)</span>. At fixed baseline and focal length, the absolute depth error grows quadratically with distance for constant disparity error.</p>
+</details>
+
+<ol start="2">
+<li><strong>Repair a velocity discontinuity.</strong> An object must go from <span class="math-inline">\(0\)</span> to <span class="math-inline">\(1\)</span> in one second, with zero velocity at each endpoint. Find the cubic of lowest possible degree that satisfies the constraints, and calculate its peak velocity.</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>The conditions at zero give <span class="math-inline">\(p(t)=at^3+bt^2\)</span>. At one, <span class="math-inline">\(a+b=1\)</span> and <span class="math-inline">\(3a+2b=0\)</span>, so <span class="math-inline">\(p(t)=3t^2-2t^3\)</span>. Its derivative <span class="math-inline">\(6t(1-t)\)</span> reaches <span class="math-inline">\(1.5\)</span> at <span class="math-inline">\(t=1/2\)</span>. A quadratic with derivative zero at two distinct points would have a derivative identically zero, so the cubic is minimal.</p>
+</details>
+
+<ol start="3">
+<li><strong>Diagnose incorrect compositing.</strong> With display encoding <span class="math-inline">\(g(L)=\sqrt L\)</span>, a pixel straddles equal areas of white and black. Compare the displayed linear intensity from averaging codes with the physically correct result.</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>Averaging codes gives <span class="math-inline">\((g(0)+g(1))/2=0.5\)</span>. The display decodes that to <span class="math-inline">\(L=0.25\)</span>. Equal illuminated areas average to <span class="math-inline">\(L=0.5\)</span>, which should be encoded as <span class="math-inline">\(1/\sqrt 2\)</span>. Code-space averaging makes this edge too dark.</p>
+</details>
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>Li Yi, <em>Advanced Computer Graphics</em>, Lecture 1, “Introduction,” September 16, 2026. The pinhole derivation and diagnostic renderer develop the lecture’s image-formation examples.</p>
 <hr>
-<p><a href="/notes/">课程笔记</a> · <a href="/notes/acg/02/">下一讲</a></p>
+<p><a href="/notes/#acg">Course notes</a> · <a href="/notes/acg/02/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/acg/01/" data-id="cuidUY3tfUHbd9EVytpEcSx4F" data-title="「ACG 01」图形学导论：从场景到像素" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-<span>分享</span></button>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/acg/01/" data-id="cuidPpe2oDyW6BJ7Exa6tkKMu" data-title="ACG 01: Introduction to Computer Graphics" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>Share</span></button>
       
       
       
@@ -262,18 +291,18 @@
 <nav id="article-nav">
   
     <a href="/notes/ml/02/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
+      <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          机器学习 02｜梯度下降的下降量与收敛率
+          ML 02: Gradient Descent and Convergence
         
       </div>
     </a>
   
   
     <a href="/notes/ml/01/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">机器学习 01｜监督学习、风险与数据</div>
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">ML 01: Supervised Learning, Risk, and Data</div>
     </a>
   
 </nav>

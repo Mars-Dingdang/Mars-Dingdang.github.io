@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>机器学习 08｜决策树、随机森林与 Boosting | Mars Dingdang</title>
+  <title>ML 08: Decision Trees, Random Forests, and Boosting | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="从一次分裂的基尼不纯度出发，推导 AdaBoost 的权重和训练误差界，再用函数空间梯度解释梯度提升。">
+  <meta name="description" content="Compute a greedy tree split, derive AdaBoost’s training and margin bounds, and connect gradient boosting to functional descent.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="机器学习 08｜决策树、随机森林与 Boosting">
+<meta property="og:title" content="ML 08: Decision Trees, Random Forests, and Boosting">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/08/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="从一次分裂的基尼不纯度出发，推导 AdaBoost 的权重和训练误差界，再用函数空间梯度解释梯度提升。">
+<meta property="og:description" content="Compute a greedy tree split, derive AdaBoost’s training and margin bounds, and connect gradient boosting to functional descent.">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-08/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:08:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T18:10:55.528Z">
+<meta property="article:modified_time" content="2026-11-14T02:30:24.811Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Decision Trees">
 <meta property="article:tag" content="Ensemble Learning">
@@ -85,7 +85,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -179,9 +181,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -215,7 +216,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      机器学习 08｜决策树、随机森林与 Boosting
+      ML 08: Decision Trees, Random Forests, and Boosting
     </h1>
   
 
@@ -223,40 +224,51 @@
     
     <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>从一次分裂的基尼不纯度出发，推导 AdaBoost 的权重和训练误差界，再用函数空间梯度解释梯度提升。</p>
+        <p>Compute a greedy tree split, derive AdaBoost’s training and margin bounds, and connect gradient boosting to functional descent.</p>
 <span id="more"></span>
 
-<p><img src="/images/posts/ml-08/figure.png" alt="一个决策树分裂前后的各类计数与基尼不纯度"></p>
-<p><em>根节点含 6 个蓝色和 4 个橙色样本。左子节点含 5 蓝 1 橙，右子节点含 1 蓝 3 橙。子节点的不纯度必须按样本数加权。</em></p>
-<h2 id="一棵树如何选择分裂"><a href="#一棵树如何选择分裂" class="headerlink" title="一棵树如何选择分裂"></a>一棵树如何选择分裂</h2><p>若一个节点内的类别比例为 <span class="math-inline">\(p_1,\dots,p_K\)</span>，Gini 不纯度为 <span class="math-inline">\(I(p)=1-\sum_c p_c^2\)</span>。从该分布独立抽两次，类别不同的概率恰好为 <span class="math-inline">\(I(p)\)</span>。将节点 <span class="math-inline">\(S\)</span> 切成 <span class="math-inline">\(S_L,S_R\)</span>，贪心规则最大化</p>
-<div class="math-display">\[I(S)-\frac{|S_L|}{|S|}I(S_L)-\frac{|S_R|}{|S|}I(S_R).\]</div>
-<p>图中的根节点不纯度是 <span class="math-inline">\(0.48\)</span>。左节点为 <span class="math-inline">\(5/18\)</span>，右节点为 <span class="math-inline">\(3/8\)</span>，加权后为 <span class="math-inline">\(19/60\approx0.317\)</span>，减少约 <span class="math-inline">\(0.163\)</span>。权重防止算法为了让极小的子节点纯净而忽略大部分数据。用熵 <span class="math-inline">\(-\sum_c p_c\log p_c\)</span> 替代 Gini 时，对应的是信息增益。</p>
-<p>树的递归可以在单个样本的叶节点处达到零训练误差。最大深度、最小叶节点大小和剪枝均限制容量。一次贪心分裂只优化当前层，不能保证最终树全局最优。</p>
-<h2 id="随机森林为何关心树之间的相关性"><a href="#随机森林为何关心树之间的相关性" class="headerlink" title="随机森林为何关心树之间的相关性"></a>随机森林为何关心树之间的相关性</h2><p>Bagging 为每棵树有放回地抽取 <span class="math-inline">\(n\)</span> 个训练样本，再对分类投票或对回归平均。标准随机森林还在每个节点随机抽一部分特征作为分裂候选。一个样本不出现在某个 bootstrap 集中的概率为 <span class="math-inline">\((1-1/n)^n\approx e^{-1}\)</span>。因此可以用未见过该样本的树作袋外估计。</p>
-<p>把每棵树在一个固定输入上的回归预测看作方差均为 <span class="math-inline">\(\sigma^2\)</span>、两两相关系数均为 <span class="math-inline">\(\rho\)</span> 的随机变量。展开 <span class="math-inline">\(B\)</span> 棵树均值的方差得</p>
-<div class="math-display">\[\operatorname{Var}(\bar Z)=\sigma^2\left(\rho+\frac{1-\rho}{B}\right).\]</div>
-<p>有限树数的项会随 <span class="math-inline">\(B\)</span> 消失，相关性项留下。特征子采样通过减少树对同一强特征的依赖降低相关性，同时也可能让个别树更弱。这个方差模型说明为什么树数和随机化程度承担不同作用。</p>
-<h2 id="AdaBoost-是分阶段的指数损失最小化"><a href="#AdaBoost-是分阶段的指数损失最小化" class="headerlink" title="AdaBoost 是分阶段的指数损失最小化"></a>AdaBoost 是分阶段的指数损失最小化</h2><p>给定 <span class="math-inline">\(y_i,h_t(x_i)\in\{-1,1\}\)</span>，令 <span class="math-inline">\(F_t=F_{t-1}+\alpha_t h_t\)</span>。最小化指数损失 <span class="math-inline">\(\frac1n\sum_i e^{-y_iF_t(x_i)}\)</span>。固定当前分类器，把前一轮每个样本的指数损失归一化成 <span class="math-inline">\(D_t(i)\)</span>，并记加权错误率 <span class="math-inline">\(\epsilon_t=\sum_{i:y_i\ne h_t(x_i)}D_t(i)\)</span>。这一轮只需最小化</p>
+<p><img src="/images/posts/ml-08/figure.png" alt="Parent and child class counts and Gini impurities for a decision-tree split"></p>
+<p><em>The weighted post-split impurity is about 0.317, below the parent impurity of 0.480.</em></p>
+<h2 id="Greedy-splits-and-bagging"><a href="#Greedy-splits-and-bagging" class="headerlink" title="Greedy splits and bagging"></a>Greedy splits and bagging</h2><p>For class proportions <span class="math-inline">\(p_c\)</span>, Gini impurity is <span class="math-inline">\(I(p)=1-\sum_c p_c^2\)</span>, the chance of different labels in two independent draws. A split maximizes parent impurity minus the sample-count weighted impurity of its children. The illustrated root has 6 blue and 4 orange examples. Its left child has 5 blue and 1 orange, giving <span class="math-inline">\(5/18\)</span>, and its right child has 1 blue and 3 orange, giving <span class="math-inline">\(3/8\)</span>. The weighted child value is <span class="math-inline">\((6/10)(5/18)+(4/10)(3/8)=19/60\)</span>. Each node optimizes one split. Depth limits, minimum leaf counts, and pruning control the eventual tree size. Replacing Gini by entropy gives information gain.</p>
+<p>A bootstrap sample draws <span class="math-inline">\(n\)</span> times with replacement from <span class="math-inline">\(n\)</span> cases. A specific case is absent with probability <span class="math-inline">\((1-1/n)^n\to e^{-1}\)</span>, so the trees that leave it out can supply its out-of-bag prediction. A random forest also samples feature candidates at each split. For conditional prediction variance <span class="math-inline">\(\sigma^2\)</span> and pairwise correlation <span class="math-inline">\(\rho\)</span> in an ensemble model, expanding the variance of the mean over <span class="math-inline">\(B\)</span> trees gives <span class="math-inline">\(\sigma^2(\rho+(1-\rho)/B)\)</span>. The correlation term survives as the number of trees increases.</p>
+<h2 id="AdaBoost-from-exponential-loss"><a href="#AdaBoost-from-exponential-loss" class="headerlink" title="AdaBoost from exponential loss"></a>AdaBoost from exponential loss</h2><p>For labels and weak predictions in <span class="math-inline">\(\{-1,1\}\)</span>, write <span class="math-inline">\(F_t=F_{t-1}+\alpha_t h_t\)</span>. At round <span class="math-inline">\(t\)</span>, set <span class="math-inline">\(D_t(i)\propto e^{-y_iF_{t-1}(x_i)}\)</span> and let <span class="math-inline">\(\epsilon_t\)</span> be the error of <span class="math-inline">\(h_t\)</span> under <span class="math-inline">\(D_t\)</span>. For fixed <span class="math-inline">\(h_t\)</span>, adding the new learner multiplies the empirical exponential loss by</p>
 <div class="math-display">\[Z_t(\alpha)=(1-\epsilon_t)e^{-\alpha}+\epsilon_t e^\alpha.\]</div>
-<p>导数等于零时，</p>
-<div class="math-display">\[\alpha_t=\tfrac12\log\frac{1-\epsilon_t}{\epsilon_t},
-\qquad Z_t=2\sqrt{\epsilon_t(1-\epsilon_t)}.\]</div>
-<p>因此 <span class="math-inline">\(D_{t+1}(i)=D_t(i)e^{-\alpha_t y_i h_t(x_i)}/Z_t\)</span>。错分样本相对权重上升。公式假设 <span class="math-inline">\(0&lt;\epsilon_t&lt;1/2\)</span>，完美分类器对应可停止的情形，<span class="math-inline">\(\epsilon_t=1/2\)</span> 时权重为零。</p>
-<p>初始 <span class="math-inline">\(F_0=0\)</span>，指数损失每轮乘 <span class="math-inline">\(Z_t\)</span>。只要误分就有 <span class="math-inline">\(y_iF_T(x_i)\le0\)</span>（包括视为错误的平分），其指数损失至少为 1。若 <span class="math-inline">\(\epsilon_t=1/2-\gamma_t\)</span>，</p>
-<div class="math-display">\[\widehat R(\operatorname{sign}F_T)\le\prod_t Z_t
-=\prod_t\sqrt{1-4\gamma_t^2}\le e^{-2\sum_t\gamma_t^2}.\]</div>
-<p>这是训练误差界。泛化分析还关心归一化分类间隔 <span class="math-inline">\(yF_T(x)/\sum_t\alpha_t\)</span>，同样的训练正确率可以对应很不同的间隔分布。</p>
-<h2 id="梯度提升拟合的是伪残差"><a href="#梯度提升拟合的是伪残差" class="headerlink" title="梯度提升拟合的是伪残差"></a>梯度提升拟合的是伪残差</h2><p>以模型在训练点的预测向量为变量。平方损失 <span class="math-inline">\(\sum_i(y_i-F(x_i))^2/2\)</span> 的负梯度就是残差 <span class="math-inline">\(y_i-F(x_i)\)</span>。每轮用一棵回归树拟合残差，构成可表达的下降方向，再将新树乘步长加到 <span class="math-inline">\(F\)</span>。一般可微损失的伪残差为</p>
+<p>Differentiation gives the minimum at <span class="math-inline">\(\alpha_t=\tfrac12\log((1-\epsilon_t)/\epsilon_t)\)</span> when <span class="math-inline">\(0&lt;\epsilon_t&lt;1/2\)</span>. Substituting gives <span class="math-inline">\(Z_t=2\sqrt{\epsilon_t(1-\epsilon_t)}\)</span>. The new sample weight is <span class="math-inline">\(D_{t+1}(i)=D_t(i)e^{-\alpha_t y_i h_t(x_i)}/Z_t\)</span>. A perfect weak rule can terminate boosting, and error <span class="math-inline">\(1/2\)</span> gives zero coefficient.</p>
+<p>With <span class="math-inline">\(F_0=0\)</span>, the empirical exponential loss after <span class="math-inline">\(T\)</span> rounds is <span class="math-inline">\(\prod_t Z_t\)</span>. Misclassification implies <span class="math-inline">\(y_iF_T(x_i)\le0\)</span>, and then its exponential term is at least 1. Writing <span class="math-inline">\(\epsilon_t=1/2-\gamma_t\)</span> gives</p>
+<div class="math-display">\[\widehat R(\operatorname{sign}F_T)\le\prod_t\sqrt{1-4\gamma_t^2}\le e^{-2\sum_t\gamma_t^2}.\]</div>
+<p>Moreover, for the normalized margin <span class="math-inline">\(m_i=y_iF_T(x_i)/\sum_t\alpha_t\)</span>, a threshold <span class="math-inline">\(\theta\)</span> gives</p>
+<div class="math-display">\[\widehat P(m_i\le\theta)
+\le e^{\theta\sum_t\alpha_t}\prod_t Z_t
+=\prod_t 2\,\epsilon_t^{(1-\theta)/2}(1-\epsilon_t)^{(1+\theta)/2}.\]</div>
+<p>The first inequality is the same exponential comparison at a positive margin threshold. For a finite base class, the reason a positive margin helps generalization can be seen by sampling weak rules independently from the normalized vote weights. At any example with margin above <span class="math-inline">\(\theta\)</span>, an <span class="math-inline">\(N\)</span>-rule sampled vote has error at most <span class="math-inline">\(e^{-N\theta^2/2}\)</span> by Hoeffding. Likewise a point with nonpositive margin has probability at least <span class="math-inline">\(1-e^{-N\theta^2/8}\)</span> that its sampled vote has margin at most <span class="math-inline">\(\theta/2\)</span>. Apply a union bound to the at most <span class="math-inline">\(|\mathcal H|^N\)</span> sampled votes at this fixed threshold, then average over the vote sampling. Choosing <span class="math-inline">\(N\)</span> proportional to <span class="math-inline">\(\log n/\theta^2\)</span> gives a generalization gap of order <span class="math-inline">\(\sqrt{(\log|\mathcal H|\log n/\theta^2+\log(1/\delta))/n}\)</span>, with universal constants.</p>
+<h2 id="Functional-gradient-boosting"><a href="#Functional-gradient-boosting" class="headerlink" title="Functional gradient boosting"></a>Functional gradient boosting</h2><p>Treat the predictions <span class="math-inline">\(F(x_i)\)</span> as coordinates. With squared loss, the negative gradient is the observed residual <span class="math-inline">\(y_i-F(x_i)\)</span>. With a general differentiable loss, set</p>
 <div class="math-display">\[r_i=-\left.\frac{\partial\ell(y_i,u)}{\partial u}\right|_{u=F(x_i)}.\]</div>
-<p>可以沿拟合方向做线搜索，再用收缩系数控制每轮改变。训练顺序反映依赖关系，下一棵树的目标由上一轮的预测决定。</p>
-<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>AdaBoost 某轮的加权错误率为 <span class="math-inline">\(1/4\)</span>。则 <span class="math-inline">\(\alpha=\frac12\log3\)</span>，且重新归一化后错分组的总权重恰为 <span class="math-inline">\(1/2\)</span>。把两组分别代入更新式就能直接验证。</p>
-<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》往年课件第 8 讲。延伸阅读：<a target="_blank" rel="noopener" href="https://doi.org/10.1023/a%3A1010933404324">Breiman 的随机森林论文</a>，<a target="_blank" rel="noopener" href="https://www.cse.iitb.ac.in/~soumen/readings/papers/Friedman1999GreedyFuncApprox.pdf">Friedman 的梯度提升论文</a>。</p>
-<p><a href="/notes/ml/07/">← 第 7 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/09/">第 9 讲 →</a></p>
+<p>Fit a weak regressor to <span class="math-inline">\((x_i,r_i)\)</span>, line-search its coefficient, and update the predictions. A tree fits an allowable approximation to the descent direction. If the fitted tree predicts constants on fixed leaves, the squared-loss line search can also be performed independently per leaf.</p>
+<h3 id="A-uniform-margin-bound-with-constants"><a href="#A-uniform-margin-bound-with-constants" class="headerlink" title="A uniform margin bound, with constants"></a>A uniform margin bound, with constants</h3><p>Fix a margin threshold <span class="math-inline">\(0&lt;\theta\le1\)</span>. For a normalized vote <span class="math-inline">\(f\)</span>, draw <span class="math-inline">\(N\)</span> independent base hypotheses from its weights, and write <span class="math-inline">\(g\)</span> for their average. When <span class="math-inline">\(yf(x)\le0\)</span>, Hoeffding gives <span class="math-inline">\(\Pr_g(yg(x)&gt;\theta/2)\le a=e^{-N\theta^2/8}\)</span>. When <span class="math-inline">\(yf(x)&gt;\theta\)</span>, it gives <span class="math-inline">\(\Pr_g(yg(x)\le\theta/2)\le a\)</span>. Therefore</p>
+<div class="math-display">\[P(yf\le0)\le \mathbb E_g P(yg\le\theta/2)+a,\qquad
+\mathbb E_g P_S(yg\le\theta/2)\le P_S(yf\le\theta)+a.\]</div>
+<p>For every one of the at most <span class="math-inline">\(|\mathcal H|^N\)</span> possible ordered sampled votes, apply the one-sided Hoeffding bound to its binary thresholded loss over <span class="math-inline">\(n\)</span> independent training examples. A union bound gives, with probability at least <span class="math-inline">\(1-\delta\)</span>, <span class="math-inline">\(P(yg\le\theta/2)\le P_S(yg\le\theta/2)+b\)</span> simultaneously, where <span class="math-inline">\(b=\sqrt{(N\log|\mathcal H|+\log(1/\delta))/(2n)}\)</span>. The event does not depend on the vote weights. Combining the two displays yields the uniform gap <span class="math-inline">\(2a+b\)</span>. For <span class="math-inline">\(n\ge2\)</span>, choose <span class="math-inline">\(N=\lceil4\log n/\theta^2\rceil\)</span> so <span class="math-inline">\(a\le1/\sqrt n\)</span>. This establishes the stated order for a fixed threshold. A finite grid of thresholds can be covered by allocating part of <span class="math-inline">\(\delta\)</span> to each threshold.</p>
+<h2 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h2><p>Show that for finite base class, the first AdaBoost round is a greedy coordinate minimization of exponential loss, and give the exact objective improvement when the selected rule has weighted error <span class="math-inline">\(\epsilon\)</span>. What changes if the class contains each sign-flipped rule?</p>
+<details>
+<summary>Show solution</summary>
+
+<p>For coordinate <span class="math-inline">\(h\)</span>, the minimized multiplicative ratio is <span class="math-inline">\(2\sqrt{\epsilon(1-\epsilon)}\)</span> when the new coefficient is unconstrained. If coefficients may only increase, its optimum is at zero whenever <span class="math-inline">\(\epsilon\ge1/2\)</span>. On <span class="math-inline">\([0,1/2]\)</span> the ratio increases with <span class="math-inline">\(\epsilon\)</span>, so the best permitted coordinate is the lowest-error rule. The decrease is current loss times <span class="math-inline">\(1-2\sqrt{\epsilon(1-\epsilon)}\)</span>. With a closed-under-sign-flip class, a negative coefficient on <span class="math-inline">\(h\)</span> has the same effect as a positive coefficient on <span class="math-inline">\(-h\)</span>, whose weighted error is <span class="math-inline">\(1-\epsilon\)</span>.</p>
+</details>
+
+<p><strong>Second challenge.</strong> Derive the optimal second-order score for a new tree split when leaf weights have an <span class="math-inline">\(\ell_2\)</span> penalty.</p>
+<details>
+<summary>Show solution to the second challenge</summary>
+
+<p>For a leaf let <span class="math-inline">\(G\)</span> and <span class="math-inline">\(H\)</span> be the sums of sample gradients and Hessians at the current predictions. Its quadratic term is <span class="math-inline">\(Gw+\tfrac12(H+\lambda)w^2\)</span>. If <span class="math-inline">\(H+\lambda&gt;0\)</span>, the minimizer is <span class="math-inline">\(-G/(H+\lambda)\)</span> and the fitted contribution is <span class="math-inline">\(-G^2/(2(H+\lambda))\)</span>. Thus split gain is half the sum of the two new <span class="math-inline">\(G^2/(H+\lambda)\)</span> scores minus half the old score and minus the extra leaf penalty. A large Newton weight alone gives no guarantee of a large gain.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 8 from the archived slides. <a target="_blank" rel="noopener" href="https://doi.org/10.1023/a%3A1010933404324">Breiman, Random Forests</a>. <a target="_blank" rel="noopener" href="https://www.cse.iitb.ac.in/~soumen/readings/papers/Friedman1999GreedyFuncApprox.pdf">Friedman, Greedy Function Approximation</a>.</p>
+<p><a href="/notes/ml/07/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/09/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/08/" data-id="cuidGEPiKO_r05EbjlkjZa_hu" data-title="机器学习 08｜决策树、随机森林与 Boosting" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/08/" data-id="cuidKtvxsJxOOBGudrLBhAEJu" data-title="ML 08: Decision Trees, Random Forests, and Boosting" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -273,7 +285,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          机器学习 09｜PCA、近邻搜索与度量学习
+          ML 09: PCA, Nearest Neighbors, and Metric Learning
         
       </div>
     </a>
@@ -281,7 +293,7 @@
   
     <a href="/notes/acg/07/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">「ACG 07」光线追踪 I：求交、加速结构与渲染方程</div>
+      <div class="article-nav-title">ACG 07: Ray Intersection, Acceleration, and Light Transport</div>
     </a>
   
 </nav>

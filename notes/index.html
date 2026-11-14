@@ -80,7 +80,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -174,9 +176,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -187,7 +188,7 @@
             <div id="main"><div class="portfolio portfolio-inner">
   <header class="portfolio-hero portfolio-hero-compact">
     <h1>Course notes</h1>
-    <p class="portfolio-intro" lang="zh-CN">按讲次整理的中文笔记，包含核心概念、公式推导与例题。</p>
+    <p class="portfolio-intro">Lecture-by-lecture notes with derivations, worked examples, and practice problems.</p>
   </header>
   
     
@@ -202,7 +203,7 @@ Advanced Computer Graphics</h2>
           <li>
             <a href="/notes/acg/01/">
               <span class="course-number">01</span>
-              <span lang="zh-CN">图形学导论：从场景到像素</span>
+              <span>Introduction to Computer Graphics</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -211,7 +212,7 @@ Advanced Computer Graphics</h2>
           <li>
             <a href="/notes/acg/02/">
               <span class="course-number">02</span>
-              <span lang="zh-CN">几何表示：Bézier、网格与隐式曲面</span>
+              <span>Curves, Meshes, and Implicit Surfaces</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -220,7 +221,7 @@ Advanced Computer Graphics</h2>
           <li>
             <a href="/notes/acg/03/">
               <span class="course-number">03</span>
-              <span lang="zh-CN">空间变换：齐次坐标、旋转与相机</span>
+              <span>Transformations, Rotations, and Camera Frames</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -229,7 +230,7 @@ Advanced Computer Graphics</h2>
           <li>
             <a href="/notes/acg/04/">
               <span class="course-number">04</span>
-              <span lang="zh-CN">投影与三维学习：从相机视锥到点云</span>
+              <span>Projection and Learning on 3D Geometry</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -238,7 +239,7 @@ Advanced Computer Graphics</h2>
           <li>
             <a href="/notes/acg/05/">
               <span class="course-number">05</span>
-              <span lang="zh-CN">光栅化：覆盖率、采样与深度测试</span>
+              <span>Rasterization, Sampling, and Visibility</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -247,7 +248,7 @@ Advanced Computer Graphics</h2>
           <li>
             <a href="/notes/acg/06/">
               <span class="course-number">06</span>
-              <span lang="zh-CN">着色：局部光照、纹理过滤与阴影映射</span>
+              <span>Shading, Texture Filtering, and Shadows</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -256,7 +257,7 @@ Advanced Computer Graphics</h2>
           <li>
             <a href="/notes/acg/07/">
               <span class="course-number">07</span>
-              <span lang="zh-CN">光线追踪 I：求交、加速结构与渲染方程</span>
+              <span>Ray Intersection, Acceleration, and Light Transport</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -277,7 +278,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/01/">
               <span class="course-number">01</span>
-              <span lang="zh-CN">监督学习、风险与数据</span>
+              <span>Supervised Learning, Risk, and Data</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -286,7 +287,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/02/">
               <span class="course-number">02</span>
-              <span lang="zh-CN">梯度下降的下降量与收敛率</span>
+              <span>Gradient Descent and Convergence</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -295,7 +296,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/03/">
               <span class="course-number">03</span>
-              <span lang="zh-CN">SGD、SVRG 与镜像下降</span>
+              <span>SGD, SVRG, and Mirror Descent</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -304,7 +305,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/04/">
               <span class="course-number">04</span>
-              <span lang="zh-CN">矩阵补全、核范数与鞍点</span>
+              <span>Matrix Completion and Nonconvex Geometry</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -313,7 +314,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/05/">
               <span class="course-number">05</span>
-              <span lang="zh-CN">PAC 学习与 VC 维</span>
+              <span>PAC Learning and VC Dimension</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -322,7 +323,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/06/">
               <span class="course-number">06</span>
-              <span lang="zh-CN">线性模型、稀疏性与压缩感知</span>
+              <span>Linear Models, Sparsity, and Compressed Sensing</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -331,7 +332,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/07/">
               <span class="course-number">07</span>
-              <span lang="zh-CN">支持向量机、对偶与核</span>
+              <span>Support Vector Machines and Kernels</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -340,7 +341,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/08/">
               <span class="course-number">08</span>
-              <span lang="zh-CN">决策树、随机森林与 Boosting</span>
+              <span>Decision Trees, Random Forests, and Boosting</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -349,7 +350,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/09/">
               <span class="course-number">09</span>
-              <span lang="zh-CN">PCA、近邻搜索与度量学习</span>
+              <span>PCA, Nearest Neighbors, and Metric Learning</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -358,7 +359,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/10/">
               <span class="course-number">10</span>
-              <span lang="zh-CN">K-means 与谱聚类</span>
+              <span>K-means and Spectral Clustering</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -367,7 +368,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/11/">
               <span class="course-number">11</span>
-              <span lang="zh-CN">SimCLR、t-SNE 与 RoPE</span>
+              <span>SimCLR, t-SNE, and Rotary Position Embeddings</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -376,7 +377,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/12/">
               <span class="course-number">12</span>
-              <span lang="zh-CN">鲁棒学习与随机平滑证书</span>
+              <span>Robust Learning and Randomized Smoothing</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -385,7 +386,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/13/">
               <span class="course-number">13</span>
-              <span lang="zh-CN">超参数优化与预算分配</span>
+              <span>Hyperparameter Optimization and Resource Allocation</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>
@@ -394,7 +395,7 @@ Machine Learning</h2>
           <li>
             <a href="/notes/ml/14/">
               <span class="course-number">14</span>
-              <span lang="zh-CN">模型解释、积分梯度与 Shapley 值</span>
+              <span>Model Interpretability and Feature Attribution</span>
               <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
 
             </a>

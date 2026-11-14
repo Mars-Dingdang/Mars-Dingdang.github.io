@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>机器学习 04｜矩阵补全、核范数与鞍点 | Mars Dingdang</title>
+  <title>ML 04: Matrix Completion and Nonconvex Geometry | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="从只观察部分矩阵元素的模型出发，推导核范数的低秩分解公式与交替最小二乘，辨认低秩恢复需要的可辨识条件。">
+  <meta name="description" content="Derive the nuclear norm factorization, alternating least squares, and a strict-saddle example, then identify the information required for completion.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="机器学习 04｜矩阵补全、核范数与鞍点">
+<meta property="og:title" content="ML 04: Matrix Completion and Nonconvex Geometry">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/04/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="从只观察部分矩阵元素的模型出发，推导核范数的低秩分解公式与交替最小二乘，辨认低秩恢复需要的可辨识条件。">
+<meta property="og:description" content="Derive the nuclear norm factorization, alternating least squares, and a strict-saddle example, then identify the information required for completion.">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-04/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:04:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T18:10:55.525Z">
+<meta property="article:modified_time" content="2026-11-14T02:31:24.035Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Lecture Notes">
 <meta property="article:tag" content="Matrix Completion">
@@ -85,7 +85,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -179,9 +181,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -215,7 +216,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      机器学习 04｜矩阵补全、核范数与鞍点
+      ML 04: Matrix Completion and Nonconvex Geometry
     </h1>
   
 
@@ -223,47 +224,57 @@
     
     <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>从只观察部分矩阵元素的模型出发，推导核范数的低秩分解公式与交替最小二乘，辨认低秩恢复需要的可辨识条件。</p>
+        <p>Derive the nuclear norm factorization, alternating least squares, and a strict-saddle example, then identify the information required for completion.</p>
 <span id="more"></span>
 
-<p><img src="/images/posts/ml-04/figure.png" alt="低秩矩阵的完整数值、观测掩码和拟合结果并排显示"></p>
-<p><em>合成秩一矩阵的一部分条目被遮住。交替最小二乘利用行列因子的共享结构，在这个观测模式下恢复缺失条目。</em></p>
-<h2 id="低秩从何而来"><a href="#低秩从何而来" class="headerlink" title="低秩从何而来"></a>低秩从何而来</h2><p>评分矩阵 <span class="math-inline">\(M\in\mathbb R^{m\times n}\)</span> 的行对应用户、列对应物品。若偏好和属性可由 <span class="math-inline">\(r\)</span> 维向量表示，可写成 <span class="math-inline">\(M_{ij}=u_i^\top v_j\)</span>，所以 <span class="math-inline">\(\operatorname{rank}(M)\le r\)</span>。只观测索引集 <span class="math-inline">\(\Omega\)</span> 上的数值时，用 <span class="math-inline">\(P_\Omega\)</span> 表示保留这些条目、其余位置填零的线性算子。准确恢复的基本模型是</p>
-<div class="math-display">\[\min_X \operatorname{rank}(X)\quad\text{s.t.}\quad P_\Omega(X)=P_\Omega(M).\]</div>
-<p>训练损失只应计算已观察条目。缺失评分编码为零后直接做普通 SVD，相当于额外加入了零评分约束，会改变目标。</p>
-<h2 id="为什么低秩还不够"><a href="#为什么低秩还不够" class="headerlink" title="为什么低秩还不够"></a>为什么低秩还不够</h2><p>若 <span class="math-inline">\(\Omega\)</span> 漏掉一整行，在秩一模型 <span class="math-inline">\(M=uv^\top\)</span> 中该行对应的 <span class="math-inline">\(u_i\)</span> 完全自由。若 <span class="math-inline">\(M=e_ie_j^\top\)</span>，唯一非零项刚好未观察，那么所有比例倍数都与零观测一致。后一种困难来自奇异向量太集中。</p>
-<p>对薄 SVD <span class="math-inline">\(M=U\Sigma V^\top\)</span>，常以</p>
-<div class="math-display">\[\max_i\|U^\top e_i\|^2\le\frac{\mu r}{m},
-\qquad
-\max_j\|V^\top e_j\|^2\le\frac{\mu r}{n}\]</div>
-<p>描述行、列空间的 incoherence。左式的量是标准基投影到列空间的平方长度，也称 leverage score，和所选基无关。对所有行求和等于 <span class="math-inline">\(r\)</span>，所以 <span class="math-inline">\(\mu\ge1\)</span>。秩一时均匀向量达到 <span class="math-inline">\(\mu=1\)</span>，只在单个坐标非零的向量则需 <span class="math-inline">\(\mu=m\)</span>。可恢复性还要对采样分布和观察数量作假设。观测来自用户主动选择时，随机均匀采样通常只是分析模型。</p>
-<h2 id="核范数与因子范数"><a href="#核范数与因子范数" class="headerlink" title="核范数与因子范数"></a>核范数与因子范数</h2><p>核范数 <span class="math-inline">\(\|X\|_*=\sum_i\sigma_i(X)\)</span> 将奇异值个数替换为奇异值之和。它是谱范数的对偶，因为 von Neumann 迹不等式给出 <span class="math-inline">\(\langle Z,X\rangle\le\|Z\|_{\rm op}\|X\|_*\)</span>，而薄 SVD 的 <span class="math-inline">\(Z=UV^\top\)</span> 可以取等号。由此还有一个常用公式</p>
-<div class="math-display">\[\|X\|_*=\min_{AB^\top=X}\frac{\|A\|_F^2+\|B\|_F^2}{2},\]</div>
-<p>其中因子宽度至少为 <span class="math-inline">\(\operatorname{rank}(X)\)</span>。证明上界时取 <span class="math-inline">\(A=U\Sigma^{1/2}\)</span>、<span class="math-inline">\(B=V\Sigma^{1/2}\)</span>。证明下界时，对任意分解和 <span class="math-inline">\(\|Z\|_{\rm op}\le1\)</span>，</p>
-<div class="math-display">\[\langle Z,AB^\top\rangle
-=\langle Z^\top A,B\rangle
-\le\|A\|_F\|B\|_F
-\le\tfrac12(\|A\|_F^2+\|B\|_F^2).\]</div>
-<p>对 <span class="math-inline">\(Z\)</span> 取最大值得下界。这个恒等式解释了带 Frobenius 正则的低秩因子目标和核范数凸目标的联系。固定较小因子宽度时，还显式限制了可行秩。</p>
-<h2 id="交替最小二乘与鞍点"><a href="#交替最小二乘与鞍点" class="headerlink" title="交替最小二乘与鞍点"></a>交替最小二乘与鞍点</h2><p>令</p>
-<div class="math-display">\[F(A,B)=\frac12\sum_{(i,j)\in\Omega}(a_i^\top b_j-M_{ij})^2+
-\frac\lambda2(\|A\|_F^2+\|B\|_F^2).\]</div>
-<p>固定 <span class="math-inline">\(B\)</span> 后，<span class="math-inline">\(A\)</span> 的各行独立。对第 <span class="math-inline">\(i\)</span> 行求梯度为零，得到</p>
+<p><img src="/images/posts/ml-04/figure.png" alt="Full rank-one matrix, observed entries, and rank-one fit"></p>
+<p><em>A rank-one fit recovers the hidden values in this connected synthetic observation pattern.</em></p>
+<h2 id="The-observation-operator"><a href="#The-observation-operator" class="headerlink" title="The observation operator"></a>The observation operator</h2><p>A rating matrix <span class="math-inline">\(M\in\mathbb R^{m\times n}\)</span> may have entries <span class="math-inline">\(u_i^\top v_j\)</span>, where user and item vectors have dimension <span class="math-inline">\(r\)</span>. This implies rank at most <span class="math-inline">\(r\)</span>. The operator <span class="math-inline">\(P_\Omega\)</span> preserves observed entries and sets other entries to zero. Exact low-rank completion asks for <span class="math-inline">\(\min_X\operatorname{rank}(X)\)</span> subject to <span class="math-inline">\(P_\Omega X=P_\Omega M\)</span>. Unobserved values are free variables. Fitting ordinary low-rank approximation to a zero-filled matrix includes artificial zero ratings in its objective.</p>
+<h2 id="Low-rank-and-identifiability"><a href="#Low-rank-and-identifiability" class="headerlink" title="Low rank and identifiability"></a>Low rank and identifiability</h2><p>For an unobserved row of a rank-one matrix <span class="math-inline">\(uv^\top\)</span>, the corresponding coordinate of <span class="math-inline">\(u\)</span> is undetermined. For <span class="math-inline">\(M=e_ie_j^\top\)</span>, missing just entry <span class="math-inline">\((i,j)\)</span> leaves its scale undetermined. A recovery assumption should address both insufficient sampling and concentration of singular vectors.</p>
+<p>For a thin SVD <span class="math-inline">\(M=U\Sigma V^\top\)</span>, typical incoherence conditions are</p>
+<div class="math-display">\[\max_i\|U^\top e_i\|^2\le\mu r/m,\qquad
+\max_j\|V^\top e_j\|^2\le\mu r/n .\]</div>
+<p>The first quantities are diagonal entries of the orthogonal projector <span class="math-inline">\(UU^\top\)</span>. They sum to <span class="math-inline">\(\operatorname{tr}(UU^\top)=r\)</span>, so <span class="math-inline">\(\mu\ge1\)</span>. A uniform unit singular vector attains <span class="math-inline">\(\mu=1\)</span>, whereas a coordinate vector in <span class="math-inline">\(\mathbb R^m\)</span> needs <span class="math-inline">\(\mu=m\)</span>. For a full-column-rank basis <span class="math-inline">\(B\)</span>, calculate the same scores from <span class="math-inline">\(\operatorname{diag}(B(B^\top B)^{-1}B^\top)\)</span>. Recovery results additionally depend on the sample size and selection process.</p>
+<h2 id="From-singular-values-to-a-convex-objective"><a href="#From-singular-values-to-a-convex-objective" class="headerlink" title="From singular values to a convex objective"></a>From singular values to a convex objective</h2><p>The nuclear norm <span class="math-inline">\(\|X\|_\ast=\sum_i\sigma_i(X)\)</span> is the dual of the spectral norm: writing <span class="math-inline">\(X=\sum_i\sigma_i u_iv_i^\top\)</span> gives <span class="math-inline">\(\langle Z,X\rangle\le\|Z\|_{\rm op}\sum_i\sigma_i\)</span>. Equality is achieved at <span class="math-inline">\(Z=UV^\top\)</span> with <span class="math-inline">\(\|Z\|_{\rm op}=1\)</span> for nonzero <span class="math-inline">\(X\)</span>. As a supremum of linear functions it is convex. Moreover, for factor widths at least <span class="math-inline">\(\operatorname{rank}(X)\)</span>,</p>
+<div class="math-display">\[\|X\|_\ast=\min_{AB^\top=X}\tfrac12(\|A\|_F^2+\|B\|_F^2).\]</div>
+<p>To attain the bound take <span class="math-inline">\(A=U\Sigma^{1/2}\)</span> and <span class="math-inline">\(B=V\Sigma^{1/2}\)</span>. For the other direction, any <span class="math-inline">\(\|Z\|_{\rm op}\le1\)</span> satisfies <span class="math-inline">\(\langle Z,AB^\top\rangle=\langle Z^\top A,B\rangle\le\|A\|_F\|B\|_F\le(\|A\|_F^2+\|B\|_F^2)/2\)</span>. Maximize over <span class="math-inline">\(Z\)</span>. The identity connects convex nuclear-norm penalization to Frobenius-regularized factor fitting, where fixing a narrower factor width imposes an additional rank constraint.</p>
+<h2 id="Alternating-minimization-and-strict-saddles"><a href="#Alternating-minimization-and-strict-saddles" class="headerlink" title="Alternating minimization and strict saddles"></a>Alternating minimization and strict saddles</h2><p>For</p>
+<div class="math-display">\[F(A,B)=\tfrac12\sum_{(i,j)\in\Omega}(a_i^\top b_j-M_{ij})^2
++\tfrac\lambda2(\|A\|_F^2+\|B\|_F^2),\]</div>
+<p>holding <span class="math-inline">\(B\)</span> fixed gives independent row subproblems, with normal equation</p>
 <div class="math-display">\[\left(\sum_{j:(i,j)\in\Omega}b_jb_j^\top+\lambda I\right)a_i
 =\sum_{j:(i,j)\in\Omega}M_{ij}b_j.\]</div>
-<p>固定 <span class="math-inline">\(A\)</span> 更新 <span class="math-inline">\(B\)</span> 同理。交替精确解子问题使目标单调不增，联合目标仍是非凸的。因子变换 <span class="math-inline">\((A,B)\mapsto(AR,BR^{-\top})\)</span> 保持乘积，解释了因子表示的不唯一性。正则项一般只保留共同正交变换的不变性。</p>
-<p>单条目无正则例子 <span class="math-inline">\(F(a,b)=(ab-1)^2/2\)</span> 的梯度在原点为零，Hessian 为</p>
-<div class="math-display">\[\nabla^2F(0,0)=
-\begin{pmatrix}0&amp;-1\\-1&amp;0\end{pmatrix}.\]</div>
-<p>两个特征值为 <span class="math-inline">\(\pm1\)</span>，所以原点是严格鞍点。沿 <span class="math-inline">\((1,1)\)</span> 方向的小扰动会下降，沿 <span class="math-inline">\((1,-1)\)</span> 则上升。梯度下降在原点精确初始化会停住。以扰动帮助离开严格鞍点的结论需要定量光滑性、负曲率和扰动条件，单凭观测误差低无法推出恢复正确。</p>
-<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>设秩一矩阵的所有观测值均非零，观测索引构成用户与物品间的二部图。若图连通，任选一个因子坐标固定尺度后，可以沿观测边逐个求出其余坐标。若图有两个连通块，各块尺度可以独立改变并保持已有观测，跨块缺失条目便无法确定。</p>
-<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》2026 年第 4 讲，低秩矩阵补全、incoherence 和严格鞍点。</p>
-<p><a href="/notes/ml/03/">← 第 3 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/05/">第 5 讲 →</a></p>
+<p>The update for <span class="math-inline">\(B\)</span> interchanges the roles. Exact subproblem solutions never increase <span class="math-inline">\(F\)</span>. For the product alone, <span class="math-inline">\((A,B)\mapsto(AR,BR^{-\top})\)</span> preserves every prediction for invertible <span class="math-inline">\(R\)</span>. The Frobenius regularizer preserves this symmetry for orthogonal <span class="math-inline">\(R\)</span>.</p>
+<p>For <span class="math-inline">\(F(a,b)=\tfrac12(ab-1)^2\)</span>, the gradient vanishes at <span class="math-inline">\((0,0)\)</span>. The Hessian there is</p>
+<div class="math-display">\[\begin{pmatrix}0&amp;-1\\-1&amp;0\end{pmatrix},\]</div>
+<p>with eigenvalues <span class="math-inline">\(\pm1\)</span>. Taylor expansion along <span class="math-inline">\((1,1)\)</span> gives local decrease and expansion along <span class="math-inline">\((1,-1)\)</span> gives local increase. The functions <span class="math-inline">\(t^4,-t^4,t^3\)</span> all have first and second derivatives zero at the origin, yet give a local minimum, a local maximum, and neither. Negative curvature supplies information that flat second-order stationarity lacks.</p>
+<h3 id="The-three-regions-in-a-strict-saddle-analysis"><a href="#The-three-regions-in-a-strict-saddle-analysis" class="headerlink" title="The three regions in a strict-saddle analysis"></a>The three regions in a strict-saddle analysis</h3><p>With an unbiased perturbation <span class="math-inline">\(\xi\)</span> of conditional second moment at most <span class="math-inline">\(\sigma^2\)</span>, the <span class="math-inline">\(L\)</span>-smooth update <span class="math-inline">\(w^+=w-\eta(\nabla f(w)+\xi)\)</span> gives</p>
+<div class="math-display">\[\mathbb E[f(w^+)-f(w)\mid w]\le
+-\eta(1-L\eta/2)\|\nabla f(w)\|^2+\tfrac{L\eta^2}{2}\sigma^2.\]</div>
+<p>This follows by expanding the upper quadratic bound and dropping the cross term in expectation. A sufficiently large gradient produces a quantitative decrease.</p>
+<p>In the negative-curvature region, suppose <span class="math-inline">\(H=\nabla^2 f(w)\)</span> has a unit eigenvector <span class="math-inline">\(v\)</span> of eigenvalue <span class="math-inline">\(-\gamma&lt;0\)</span>. In the quadratic model about <span class="math-inline">\(w\)</span>, iteration has linear part <span class="math-inline">\(I-\eta H\)</span> and amplifies a displacement along <span class="math-inline">\(v\)</span> by <span class="math-inline">\(1+\eta\gamma\)</span>. A perturbation with enough mass along <span class="math-inline">\(v\)</span> can seed this displacement. For an <span class="math-inline">\(M\)</span>-Lipschitz Hessian, subtracting the linear gradient expansion leaves a remainder bounded by <span class="math-inline">\(M\|z\|^2/2\)</span> at displacement <span class="math-inline">\(z\)</span>, by integrating the Hessian difference along the segment. This controls the approximation over a small neighborhood. In particular, a direct signed step of radius <span class="math-inline">\(r\)</span> along <span class="math-inline">\(v\)</span>, choosing the sign for a nonpositive linear term, gives <span class="math-inline">\(f(w\pm rv)-f(w)\le-\gamma r^2/2+Mr^3/6\)</span>.</p>
+<p>Near a local minimum, favorable curvature and sufficiently small steps and perturbations help keep iterates inside its basin. If the conditional probability of exiting in a step is bounded by <span class="math-inline">\(p\)</span> while still inside, the chance of any exit within <span class="math-inline">\(T\)</span> steps is at most <span class="math-inline">\(Tp\)</span> by a union bound on the first exit. The course’s informal strict-saddle guarantee combines these three regions: outside the basin there must be quantitative decrease over one or more steps, and a lower bound on the objective limits the number of such stages. Recovery additionally depends on identifiability. A global minimizer of the observed objective can still fail to recover <span class="math-inline">\(M\)</span>.</p>
+<h2 id="Challenges"><a href="#Challenges" class="headerlink" title="Challenges"></a>Challenges</h2><h3 id="Problem-1"><a href="#Problem-1" class="headerlink" title="Problem 1"></a>Problem 1</h3><p>Suppose every observed value of a nonzero rank-one matrix is nonzero. Give necessary and sufficient graph conditions for unique rank-one completion among real matrices, including vertices with no observed edges.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>View rows and columns as vertices of a bipartite graph with observed entries as edges. If the graph is connected, fix one nonzero factor coordinate as a gauge and propagate each adjacent factor by dividing the edge value by the known coordinate. Existence of the given completion ensures consistency around cycles. All factors are then determined up to one global rescaling and every product is fixed. If an isolated row or column is present, its factor can vary while preserving the observations and changing at least one unobserved product. If two components contain edges, independently rescale the row factors in one by <span class="math-inline">\(c\)</span> and the column factors there by <span class="math-inline">\(1/c\)</span>. Cross-component entries change. In the no-observation case a real rank-one completion is plainly nonunique.</p>
+</details>
+
+<h3 id="Problem-2"><a href="#Problem-2" class="headerlink" title="Problem 2"></a>Problem 2</h3><p>A <span class="math-inline">\(4\times4\)</span> matrix has its first two rows equal to <span class="math-inline">\((9,0,1,0)\)</span> and the other two equal to <span class="math-inline">\((2,2,2,2)\)</span>. Compute its smallest joint incoherence constant without an SVD.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>The column projector has constant diagonal <span class="math-inline">\(1/2\)</span>. For the row projector, form <span class="math-inline">\(B\)</span> from the distinct rows and use <span class="math-inline">\(B^\top(BB^\top)^{-1}B\)</span>. The inner inverse is <span class="math-inline">\(\frac1{912}\bigl(\begin{smallmatrix}16&amp;-20\\-20&amp;82\end{smallmatrix}\bigr)\)</span>. The four column quadratic forms give the diagonal <span class="math-inline">\((113,41,33,41)/114\)</span>. The rank is 2, so the joint constant is <span class="math-inline">\((4/2)\max\{1/2,113/114\}=113/57\)</span>.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning (2026), Lecture 4 and Problem Set 3. The chapter’s course supplements discuss matrix completion, incoherence, and escaping saddle points.</p>
+<p><a href="/notes/ml/03/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/05/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/04/" data-id="cuidQo9y65tSJQ9RgBQT4hf0j" data-title="机器学习 04｜矩阵补全、核范数与鞍点" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/04/" data-id="cuiddf1MQJteFt9ml0SZoga9e" data-title="ML 04: Matrix Completion and Nonconvex Geometry" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -280,7 +291,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          「ACG 04」投影与三维学习：从相机视锥到点云
+          ACG 04: Projection and Learning on 3D Geometry
         
       </div>
     </a>
@@ -288,7 +299,7 @@
   
     <a href="/notes/acg/03/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">「ACG 03」空间变换：齐次坐标、旋转与相机</div>
+      <div class="article-nav-title">ACG 03: Transformations, Rotations, and Camera Frames</div>
     </a>
   
 </nav>

@@ -80,7 +80,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -174,9 +176,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -200,188 +201,14 @@
     <header class="portfolio-section-heading"><h2 id="reading-list">RSI reading list</h2></header>
     <div class="paper-list">
       
-        <article class="paper-row paper-row-illustrated" id="rsigym">
-  
-    <img class="paper-figure" src="/images/showcase/rsigym.webp" alt="" loading="lazy" decoding="async">
-  
-  <div class="paper-copy">
-    <h3>RSIGym: A Flexible Environment for Recursive Self-Improvement</h3>
-    <p class="paper-authors">Fanqing Meng, Lingxiao Du, Haocheng Lu, Qiguang Chen, Ziqi Zhao, Zijian Wu, Jiayuan Zhuo, Mengkang Hu, Michael Qizhe Shieh</p>
-    <p class="paper-venue">arXiv, 2026</p>
-    
-  <ul class="showcase-links">
-    
-      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.10310">
-        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-arXiv
-      </a></li>
-    
-      <li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2610.10310">
-        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-PDF
-      </a></li>
-    
-  </ul>
-
-
-    <p class="paper-summary">RSIGym exposes training, inference, rollout, evaluation, and sandboxes as services so a research agent can carry accepted changes into later rounds. The benchmark studies data changes, harness changes, and joint changes.</p>
-  </div>
-</article>
-
-      
-        <article class="paper-row paper-row-illustrated" id="agent-lightning">
-  
-    <img class="paper-figure" src="/images/showcase/agent-lightning.webp" alt="" loading="lazy" decoding="async">
-  
-  <div class="paper-copy">
-    <h3>Agent Lightning v1.0: Towards Harnessed Agentic RL</h3>
-    <p class="paper-authors">Zhiyuan He, Siwei Zhang, Zhiwen Zhou, Yuqing Yang, Yu Kang, Yuge Zhang, Luna K. Qiu, Tin Yan Tsui, Jiahang Xu, Chong Luo</p>
-    <p class="paper-venue">arXiv, 2026</p>
-    
-  <ul class="showcase-links">
-    
-      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.17528">
-        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-arXiv
-      </a></li>
-    
-      <li><a target="_blank" rel="noopener" href="https://github.com/microsoft/agent-lightning">
-        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
-Code
-      </a></li>
-    
-      <li><a target="_blank" rel="noopener" href="https://microsoft.github.io/agent-lightning/">
-        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-Docs
-      </a></li>
-    
-  </ul>
-
-
-    <p class="paper-summary">A model API gateway captures interactions from an existing agent harness for reinforcement learning. The report examines how to reconstruct training samples, assign credit, normalize losses, and schedule training with asynchronous rollout.</p>
-  </div>
-</article>
-
-      
-        <article class="paper-row paper-row-illustrated" id="deltabox">
-  
-    <img class="paper-figure" src="/images/showcase/deltabox.webp" alt="" loading="lazy" decoding="async">
-  
-  <div class="paper-copy">
-    <h3>DeltaBox: Scaling Stateful AI Agents with Millisecond-Level Sandbox Checkpoint/Rollback</h3>
-    <p class="paper-authors">Yunpeng Dong, Jingkai He, Shiqi Liu, Yuze Hou, Dong Du, Zhonghu Xu, Si Yu, Baochuan Yang, Yubin Xia, Haibo Chen</p>
-    <p class="paper-venue">arXiv, 2026</p>
-    
-  <ul class="showcase-links">
-    
-      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2605.22781">
-        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-arXiv
-      </a></li>
-    
-      <li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2605.22781">
-        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-PDF
-      </a></li>
-    
-  </ul>
-
-
-    <p class="paper-summary">DeltaBox checkpoints both filesystem and process state. Copy-on-write layers capture file changes, while incremental dumps and frozen process templates reduce the cost of branching from an intermediate sandbox state.</p>
-  </div>
-</article>
-
-      
-        <article class="paper-row paper-row-illustrated" id="crab">
-  
-    <img class="paper-figure" src="/images/showcase/crab.webp" alt="" loading="lazy" decoding="async">
-  
-  <div class="paper-copy">
-    <h3>Crab: A Semantics-Aware Checkpoint/Restore Runtime for Agent Sandboxes</h3>
-    <p class="paper-authors">Tianyuan Wu, Chaokun Chang, Lunxi Cao, Wei Gao, Wei Wang</p>
-    <p class="paper-venue">arXiv, 2026</p>
-    
-  <ul class="showcase-links">
-    
-      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2604.28138">
-        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-arXiv
-      </a></li>
-    
-      <li><a target="_blank" rel="noopener" href="https://github.com/open-agent-infra/crab">
-        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
-Code
-      </a></li>
-    
-  </ul>
-
-
-    <p class="paper-summary">Crab observes the operating-system effects of each agent turn to choose a checkpoint strategy. It overlaps checkpoint work with model wait time and coordinates checkpoint traffic when multiple sandboxes share a host.</p>
-  </div>
-</article>
-
-      
-        <article class="paper-row paper-row-illustrated" id="branching-policy-optimization">
-  
-    <img class="paper-figure" src="/images/showcase/branching-policy-optimization.webp" alt="" loading="lazy" decoding="async">
-  
-  <div class="paper-copy">
-    <h3>Branching Policy Optimization: Sandbox-Native Language Agent Reinforcement Learning</h3>
-    <p class="paper-authors">Bowei He, Yankai Chen, Xiaokun Zhang, Xue Liu</p>
-    <p class="paper-venue">WAIC Academic, 2026</p>
-    
-  <ul class="showcase-links">
-    
-      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.14171">
-        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-arXiv
-      </a></li>
-    
-      <li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2607.14171">
-        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-PDF
-      </a></li>
-    
-  </ul>
-
-
-    <p class="paper-summary">Branching Policy Optimization forks rollouts from saved intermediate sandbox states and compares returns within sibling branches. Its rollout tree shares prefixes and provides a local baseline for the decision at a fork.</p>
-  </div>
-</article>
-
-      
-        <article class="paper-row paper-row-illustrated" id="areal">
-  
-    <img class="paper-figure" src="/images/showcase/areal.webp" alt="" loading="lazy" decoding="async">
-  
-  <div class="paper-copy">
-    <h3>AReaL: A Large-Scale Asynchronous Reinforcement Learning System for Language Reasoning</h3>
-    <p class="paper-authors">Wei Fu, Jiaxuan Gao, Xujie Shen, Chen Zhu, Zhiyu Mei, Chuyi He, Shusheng Xu, Guo Wei, Jun Mei, Jiashu Wang, Tongkai Yang, Binhang Yuan, Yi Wu</p>
-    <p class="paper-venue">arXiv, 2025</p>
-    
-  <ul class="showcase-links">
-    
-      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2505.24298">
-        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-arXiv
-      </a></li>
-    
-      <li><a target="_blank" rel="noopener" href="https://github.com/areal-project/AReaL">
-        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
-Code
-      </a></li>
-    
-  </ul>
-
-
-    <p class="paper-summary">AReaL decouples rollout from policy updates so generation can continue while the trainer works. Bounding policy staleness matters because higher rollout throughput can otherwise feed the trainer samples from policies that have drifted.</p>
-  </div>
-</article>
-
-      
         <article class="paper-row paper-row-illustrated" id="huxley-godel-machine">
   
-    <img class="paper-figure" src="/images/showcase/huxley-godel-machine.webp" alt="" loading="lazy" decoding="async">
+    <figure class="paper-media">
+      <a href="/images/showcase/huxley-godel-machine.webp" aria-label="View figure for Huxley-Gödel Machine: Human-Level Coding Agent Development by an Approximation of the Optimal Self-Improving Machine">
+        <img class="paper-figure" src="/images/showcase/huxley-godel-machine.webp" alt="HGM pseudocode alternates expanding the agent tree with evaluating agents on benchmark tasks." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2510.21614v3#page=17">Algorithm 1</a></figcaption>
+    </figure>
   
   <div class="paper-copy">
     <h3>Huxley-Gödel Machine: Human-Level Coding Agent Development by an Approximation of the Optimal Self-Improving Machine</h3>
@@ -410,7 +237,12 @@ Code
       
         <article class="paper-row paper-row-illustrated" id="darwin-godel-machine">
   
-    <img class="paper-figure" src="/images/showcase/darwin-godel-machine.webp" alt="" loading="lazy" decoding="async">
+    <figure class="paper-media">
+      <a href="/images/showcase/darwin-godel-machine.webp" aria-label="View figure for Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents">
+        <img class="paper-figure" src="/images/showcase/darwin-godel-machine.webp" alt="Darwin Gödel Machine loop linking a growing archive, self-modification, and benchmark evaluation." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2505.22954v3#page=2">Figure 1</a></figcaption>
+    </figure>
   
   <div class="paper-copy">
     <h3>Darwin Godel Machine: Open-Ended Evolution of Self-Improving Agents</h3>
@@ -442,9 +274,437 @@ Code
 </article>
 
       
+        <article class="paper-row paper-row-illustrated" id="aide2">
+  
+    <figure class="paper-media">
+      <a href="/images/showcase/aide2.webp" aria-label="View figure for Recursive self-improvement of AI research agents (AIDE²)">
+        <img class="paper-figure" src="/images/showcase/aide2.webp" alt="AIDE² at three scales: the outer loop evolves research agents, the inner loop searches solutions, and each solution has executable task code." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2609.26457v1#page=2">Figure 1</a></figcaption>
+    </figure>
+  
+  <div class="paper-copy">
+    <h3>Recursive self-improvement of AI research agents (AIDE²)</h3>
+    <p class="paper-authors">Dhruv Srikanth, Bingchen Zhao, Dixing Xu, Yuxiang Wu, Zhengyao Jiang</p>
+    <p class="paper-venue">arXiv, 2026</p>
+    
+  <ul class="showcase-links">
+    
+      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2609.26457">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+arXiv
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://www.weco.ai/blog/first-evidence-of-recursive-self-improvement">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+Project
+      </a></li>
+    
+  </ul>
+
+
+    <p class="paper-summary">An outer research agent edits the current inner agent. An inner search then produces code for multiple R&amp;D tasks, and private evaluation scores decide which agent version is carried forward.</p>
+  </div>
+</article>
+
+      
+        <article class="paper-row paper-row-illustrated" id="stop">
+  
+    <figure class="paper-media">
+      <a href="/images/showcase/stop.webp" aria-label="View figure for Self-Taught Optimizer (STOP): Recursively Self-Improving Code Generation">
+        <img class="paper-figure" src="/images/showcase/stop.webp" alt="STOP pipeline showing how each successive improver edits its own program under a meta-utility function." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2310.02304v3#page=3">Figure 3</a></figcaption>
+    </figure>
+  
+  <div class="paper-copy">
+    <h3>Self-Taught Optimizer (STOP): Recursively Self-Improving Code Generation</h3>
+    <p class="paper-authors">Eric Zelikman, Eliana Lorch, Lester Mackey, Adam Tauman Kalai</p>
+    <p class="paper-venue">COLM, 2024</p>
+    
+  <ul class="showcase-links">
+    
+      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2310.02304">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+arXiv
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://github.com/microsoft/STOP">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+Code
+      </a></li>
+    
+  </ul>
+
+
+    <p class="paper-summary">A language-model-powered improver edits its own optimization program. A meta-utility measures how well the resulting improver improves programs on downstream tasks, producing a sequence of revised improvers.</p>
+  </div>
+</article>
+
+      
+        <article class="paper-row paper-row-illustrated" id="mcon">
+  
+    <figure class="paper-media">
+      <a href="/images/showcase/mcon.webp" aria-label="View figure for MCon: Building an Elastic Cloud for Android Applications with Framework Consolidation">
+        <img class="paper-figure" src="/images/showcase/mcon.webp" alt="MCon architecture showing two Android app containers sharing a framework while retaining private app and virtual device views." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3830418.3843866">Figure 2</a></figcaption>
+    </figure>
+  
+  <div class="paper-copy">
+    <h3>MCon: Building an Elastic Cloud for Android Applications with Framework Consolidation</h3>
+    <p class="paper-authors">Jiaxing Qiu, Zijie Zhou, Zhenhua Li, Hongyi Wang, Zizhang Liu, Yunhao Liu, Yumeng Liang, Jie Wu, Wen Xia, Tianyin Xu</p>
+    <p class="paper-venue">SOSP, 2026</p>
+    
+  <ul class="showcase-links">
+    
+      <li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3830418.3843866">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+Paper
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://github.com/VirtualSoC/mcon-docs">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+Project
+      </a></li>
+    
+  </ul>
+
+
+    <p class="paper-summary">Android tenants share one running framework while retaining private views through IPC virtualization and per-tenant virtual device slices. New app environments avoid reinitializing the framework.</p>
+  </div>
+</article>
+
+      
+        <article class="paper-row paper-row-illustrated" id="sandhi">
+  
+    <figure class="paper-media">
+      <a href="/images/showcase/sandhi.webp" aria-label="View figure for SANDHI: Fine-Grained Merging for Memory Efficient Multi-Model Serving">
+        <img class="paper-figure" src="/images/showcase/sandhi.webp" alt="SANDHI architecture from component sensitivity profiling and noise-guided merging to runtime adaptation." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3830418.3843911">Figure 3</a></figcaption>
+    </figure>
+  
+  <div class="paper-copy">
+    <h3>SANDHI: Fine-Grained Merging for Memory Efficient Multi-Model Serving</h3>
+    <p class="paper-authors">Vima Gupta, Oytun Kuday Duran, Nandan Suresh Meda, Ikhyun An, Ganesh Ananthanarayanan, Anand Iyer</p>
+    <p class="paper-venue">SOSP, 2026</p>
+    
+  <ul class="showcase-links">
+    
+      <li><a target="_blank" rel="noopener" href="https://doi.org/10.1145/3830418.3843911">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+Paper
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://github.com/VimaGupta345/sandhi-artifact">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+Artifact
+      </a></li>
+    
+  </ul>
+
+
+    <p class="paper-summary">SANDHI measures which weights in fine-tuned models tolerate perturbation, merges selected components under accuracy constraints, and maps those components to shared GPU memory during multi-model serving.</p>
+  </div>
+</article>
+
+      
+        <article class="paper-row paper-row-illustrated" id="deltabox">
+  
+    <figure class="paper-media">
+      <a href="/images/showcase/deltabox.webp" aria-label="View figure for DeltaBox: Scaling Stateful AI Agents with Millisecond-Level Sandbox Checkpoint/Rollback">
+        <img class="paper-figure" src="/images/showcase/deltabox.webp" alt="DeltaBox layers showing search, StateManager, DeltaCR, DeltaFS, and shared storage." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2605.22781#page=4">Figure 3</a></figcaption>
+    </figure>
+  
+  <div class="paper-copy">
+    <h3>DeltaBox: Scaling Stateful AI Agents with Millisecond-Level Sandbox Checkpoint/Rollback</h3>
+    <p class="paper-authors">Yunpeng Dong, Jingkai He, Shiqi Liu, Yuze Hou, Dong Du, Zhonghu Xu, Si Yu, Baochuan Yang, Yubin Xia, Haibo Chen</p>
+    <p class="paper-venue">arXiv, 2026</p>
+    
+  <ul class="showcase-links">
+    
+      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2605.22781">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+arXiv
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2605.22781">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+PDF
+      </a></li>
+    
+  </ul>
+
+
+    <p class="paper-summary">DeltaBox checkpoints both filesystem and process state. Copy-on-write layers capture file changes, while incremental dumps and frozen process templates reduce the cost of branching from an intermediate sandbox state.</p>
+  </div>
+</article>
+
+      
+        <article class="paper-row paper-row-illustrated" id="agentix">
+  
+    <figure class="paper-media">
+      <a href="/images/showcase/agentix.webp" aria-label="View figure for Agentix: An Efficient Serving Engine for LLM Agents as General Programs">
+        <img class="paper-figure" src="/images/showcase/agentix.webp" alt="Agentix architecture with client programs, a process table, program-aware load balancing, and LLM engine schedulers." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://www2.eecs.berkeley.edu/Pubs/TechRpts/2025/Archive/EECS-2025-203.pdf#page=35">Figure 2.8 · Berkeley dissertation</a></figcaption>
+    </figure>
+  
+  <div class="paper-copy">
+    <h3>Agentix: An Efficient Serving Engine for LLM Agents as General Programs</h3>
+    <p class="paper-authors">Michael Luo, Xiaoxiang Shi, Colin Cai, Tianjun Zhang, Justin Wong, Yichuan Wang, Chi Wang, Yanping Huang, Zhifeng Chen, Joseph E. Gonzalez, Ion Stoica</p>
+    <p class="paper-venue">USENIX NSDI, 2026</p>
+    
+  <ul class="showcase-links">
+    
+      <li><a target="_blank" rel="noopener" href="https://www.usenix.org/conference/nsdi26/presentation/luo">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+Paper
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://www.usenix.org/system/files/nsdi26-luo.pdf">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+PDF
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2502.13965">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+Preprint (Autellix)
+      </a></li>
+    
+  </ul>
+
+
+    <p class="paper-summary">Agentix tracks calls as part of a program session and uses their execution history in its scheduler and load balancer. The aim is to reduce end-to-end program latency and improve KV-cache reuse across calls.</p>
+  </div>
+</article>
+
+      
+        <article class="paper-row paper-row-illustrated" id="mint">
+  
+    <figure class="paper-media">
+      <a href="/images/showcase/mint.webp" aria-label="View figure for MinT: Managed Infrastructure for Training and Serving Millions of LLMs">
+        <img class="paper-figure" src="/images/showcase/mint.webp" alt="MinT architecture showing the API, job queue, revision store, shared base deployments, and adapter lifecycle." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2605.13779v2#page=2">Figure 1</a></figcaption>
+    </figure>
+  
+  <div class="paper-copy">
+    <h3>MinT: Managed Infrastructure for Training and Serving Millions of LLMs</h3>
+    <p class="paper-authors">Mind Lab</p>
+    <p class="paper-venue">arXiv, 2026</p>
+    
+  <ul class="showcase-links">
+    
+      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2605.13779">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+arXiv
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://github.com/MindLab-Research/mindlab-toolkit">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+SDK
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://github.com/verl-project/verl-mint">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+Server
+      </a></li>
+    
+  </ul>
+
+
+    <p class="paper-summary">MinT keeps expensive base models resident and treats exported LoRA adapter revisions as the units of rollout, training, evaluation, serving, and rollback. Versioned adapters support large policy catalogs with bounded engine-local working sets.</p>
+  </div>
+</article>
+
+      
+        <article class="paper-row paper-row-illustrated" id="rsigym">
+  
+    <figure class="paper-media">
+      <a href="/images/showcase/rsigym.webp" aria-label="View figure for RSIGym: A Flexible Environment for Recursive Self-Improvement">
+        <img class="paper-figure" src="/images/showcase/rsigym.webp" alt="RSIGym research loop and callable training, inference, rollout, evaluation, and sandbox services." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2610.10310v1#page=3">Figure 1</a></figcaption>
+    </figure>
+  
+  <div class="paper-copy">
+    <h3>RSIGym: A Flexible Environment for Recursive Self-Improvement</h3>
+    <p class="paper-authors">Fanqing Meng, Lingxiao Du, Haocheng Lu, Qiguang Chen, Ziqi Zhao, Zijian Wu, Jiayuan Zhuo, Mengkang Hu, Michael Qizhe Shieh</p>
+    <p class="paper-venue">arXiv, 2026</p>
+    
+  <ul class="showcase-links">
+    
+      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2610.10310">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+arXiv
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2610.10310">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+PDF
+      </a></li>
+    
+  </ul>
+
+
+    <p class="paper-summary">RSIGym exposes training, inference, rollout, evaluation, and sandboxes as services so a research agent can carry accepted changes into later rounds. The benchmark studies data changes, harness changes, and joint changes.</p>
+  </div>
+</article>
+
+      
+        <article class="paper-row paper-row-illustrated" id="agent-lightning">
+  
+    <figure class="paper-media">
+      <a href="/images/showcase/agent-lightning.webp" aria-label="View figure for Agent Lightning v1.0: Towards Harnessed Agentic RL">
+        <img class="paper-figure" src="/images/showcase/agent-lightning.webp" alt="Agent Lightning v1.0 framework with agent harnesses, an API gateway, a rollout controller, and trainer." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2608.17528#page=1">Figure 1</a></figcaption>
+    </figure>
+  
+  <div class="paper-copy">
+    <h3>Agent Lightning v1.0: Towards Harnessed Agentic RL</h3>
+    <p class="paper-authors">Zhiyuan He, Siwei Zhang, Zhiwen Zhou, Yuqing Yang, Yu Kang, Yuge Zhang, Luna K. Qiu, Tin Yan Tsui, Jiahang Xu, Chong Luo</p>
+    <p class="paper-venue">arXiv, 2026</p>
+    
+  <ul class="showcase-links">
+    
+      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2608.17528">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+arXiv
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://github.com/microsoft/agent-lightning">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+Code
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://microsoft.github.io/agent-lightning/">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+Docs
+      </a></li>
+    
+  </ul>
+
+
+    <p class="paper-summary">A model API gateway captures interactions from an existing agent harness for reinforcement learning. The report examines how to reconstruct training samples, assign credit, normalize losses, and schedule training with asynchronous rollout.</p>
+  </div>
+</article>
+
+      
+        <article class="paper-row paper-row-illustrated" id="crab">
+  
+    <figure class="paper-media">
+      <a href="/images/showcase/crab.webp" aria-label="View figure for Crab: A Semantics-Aware Checkpoint/Restore Runtime for Agent Sandboxes">
+        <img class="paper-figure" src="/images/showcase/crab.webp" alt="Crab architecture showing the coordinator, action inspector, and checkpoint/restore engine across sandboxes." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2604.28138#page=5">Figure 5</a></figcaption>
+    </figure>
+  
+  <div class="paper-copy">
+    <h3>Crab: A Semantics-Aware Checkpoint/Restore Runtime for Agent Sandboxes</h3>
+    <p class="paper-authors">Tianyuan Wu, Chaokun Chang, Lunxi Cao, Wei Gao, Wei Wang</p>
+    <p class="paper-venue">arXiv, 2026</p>
+    
+  <ul class="showcase-links">
+    
+      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2604.28138">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+arXiv
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://github.com/open-agent-infra/crab">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+Code
+      </a></li>
+    
+  </ul>
+
+
+    <p class="paper-summary">Crab observes the operating-system effects of each agent turn to choose a checkpoint strategy. It overlaps checkpoint work with model wait time and coordinates checkpoint traffic when multiple sandboxes share a host.</p>
+  </div>
+</article>
+
+      
+        <article class="paper-row paper-row-illustrated" id="branching-policy-optimization">
+  
+    <figure class="paper-media">
+      <a href="/images/showcase/branching-policy-optimization.webp" aria-label="View figure for Branching Policy Optimization: Sandbox-Native Language Agent Reinforcement Learning">
+        <img class="paper-figure" src="/images/showcase/branching-policy-optimization.webp" alt="Branching Policy Optimization schematic comparing independent rollouts, branching from saved states, and sibling-baseline advantages." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2607.14171#page=5">Figure 1</a></figcaption>
+    </figure>
+  
+  <div class="paper-copy">
+    <h3>Branching Policy Optimization: Sandbox-Native Language Agent Reinforcement Learning</h3>
+    <p class="paper-authors">Bowei He, Yankai Chen, Xiaokun Zhang, Xue Liu</p>
+    <p class="paper-venue">WAIC Academic, 2026</p>
+    
+  <ul class="showcase-links">
+    
+      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2607.14171">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+arXiv
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2607.14171">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+PDF
+      </a></li>
+    
+  </ul>
+
+
+    <p class="paper-summary">Branching Policy Optimization forks rollouts from saved intermediate sandbox states and compares returns within sibling branches. Its rollout tree shares prefixes and provides a local baseline for the decision at a fork.</p>
+  </div>
+</article>
+
+      
+        <article class="paper-row paper-row-illustrated" id="areal">
+  
+    <figure class="paper-media">
+      <a href="/images/showcase/areal.webp" aria-label="View figure for AReaL: A Large-Scale Asynchronous Reinforcement Learning System for Language Reasoning">
+        <img class="paper-figure" src="/images/showcase/areal.webp" alt="AReaL architecture showing separate asynchronous rollout and training workers, connected by sample buffers and parameter updates." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2505.24298#page=4">Figure 2</a></figcaption>
+    </figure>
+  
+  <div class="paper-copy">
+    <h3>AReaL: A Large-Scale Asynchronous Reinforcement Learning System for Language Reasoning</h3>
+    <p class="paper-authors">Wei Fu, Jiaxuan Gao, Xujie Shen, Chen Zhu, Zhiyu Mei, Chuyi He, Shusheng Xu, Guo Wei, Jun Mei, Jiashu Wang, Tongkai Yang, Binhang Yuan, Yi Wu</p>
+    <p class="paper-venue">arXiv, 2025</p>
+    
+  <ul class="showcase-links">
+    
+      <li><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2505.24298">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+arXiv
+      </a></li>
+    
+      <li><a target="_blank" rel="noopener" href="https://github.com/areal-project/AReaL">
+        <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#github"></use></svg>
+Code
+      </a></li>
+    
+  </ul>
+
+
+    <p class="paper-summary">AReaL decouples rollout from policy updates so generation can continue while the trainer works. Bounding policy staleness matters because higher rollout throughput can otherwise feed the trainer samples from policies that have drifted.</p>
+  </div>
+</article>
+
+      
         <article class="paper-row paper-row-illustrated" id="gepa">
   
-    <img class="paper-figure" src="/images/showcase/gepa.webp" alt="" loading="lazy" decoding="async">
+    <figure class="paper-media">
+      <a href="/images/showcase/gepa.webp" aria-label="View figure for GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning">
+        <img class="paper-figure" src="/images/showcase/gepa.webp" alt="GEPA workflow showing evaluation traces and mutation or merge operations feeding candidate selection on a Pareto set." loading="lazy" decoding="async">
+      </a>
+      <figcaption><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2507.19457v2#page=5">Figure 3</a></figcaption>
+    </figure>
   
   <div class="paper-copy">
     <h3>GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning</h3>

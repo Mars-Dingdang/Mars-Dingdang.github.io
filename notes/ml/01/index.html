@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>机器学习 01｜监督学习、风险与数据 | Mars Dingdang</title>
+  <title>ML 01: Supervised Learning, Risk, and Data | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="从标签和损失出发，区分训练风险与总体风险，并推导平方损失、0–1 损失下各自的最优预测规则。">
+  <meta name="description" content="Derive the optimal predictions under squared and classification loss, then trace how training data, validation, and deployment define different risks.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="机器学习 01｜监督学习、风险与数据">
+<meta property="og:title" content="ML 01: Supervised Learning, Risk, and Data">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/01/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="从标签和损失出发，区分训练风险与总体风险，并推导平方损失、0–1 损失下各自的最优预测规则。">
+<meta property="og:description" content="Derive the optimal predictions under squared and classification loss, then trace how training data, validation, and deployment define different risks.">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-01/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:01:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T18:10:55.521Z">
+<meta property="article:modified_time" content="2026-11-14T02:31:23.063Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Generalization">
 <meta property="article:tag" content="Lecture Notes">
@@ -85,7 +85,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -179,9 +181,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -215,7 +216,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      机器学习 01｜监督学习、风险与数据
+      ML 01: Supervised Learning, Risk, and Data
     </h1>
   
 
@@ -223,40 +224,49 @@
     
     <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>从标签和损失出发，区分训练风险与总体风险，并推导平方损失、0–1 损失下各自的最优预测规则。</p>
+        <p>Derive the optimal predictions under squared and classification loss, then trace how training data, validation, and deployment define different risks.</p>
 <span id="more"></span>
 
-<p><img src="/images/posts/ml-01/figure.png" alt="多项式回归的训练损失和测试损失随次数变化"></p>
-<p><em>同一批带噪训练样本上的合成实验。测试曲线在密集的新输入上与无噪声的真实函数比较。提高多项式次数会降低训练损失，高次数模型的测试损失却可能迅速升高。</em></p>
-<h2 id="从样本到风险"><a href="#从样本到风险" class="headerlink" title="从样本到风险"></a>从样本到风险</h2><p>在回归中，标签 <span class="math-inline">\(Y\)</span> 可以是房价、温度等实数。分类标签可以是物体类别或情感方向。给定独立同分布样本 <span class="math-inline">\(S=\{(x_i,y_i)\}_{i=1}^n\)</span>、假设类 <span class="math-inline">\(\mathcal H\)</span> 和损失函数 <span class="math-inline">\(\ell\)</span>，监督学习的常见目标是经验风险最小化（ERM）。</p>
+<p><img src="/images/posts/ml-01/figure.png" alt="Training and test mean squared error by polynomial degree"></p>
+<p><em>The training samples contain noise. The test curve compares predictions on a dense grid with the noiseless function.</em></p>
+<h2 id="Empirical-and-population-risk"><a href="#Empirical-and-population-risk" class="headerlink" title="Empirical and population risk"></a>Empirical and population risk</h2><p>Given independent draws <span class="math-inline">\(S=\{(x_i,y_i)\}_{i=1}^n\)</span> from a distribution <span class="math-inline">\(P\)</span>, a loss <span class="math-inline">\(\ell\)</span>, and a hypothesis class <span class="math-inline">\(\mathcal H\)</span>, empirical risk minimization solves</p>
 <div class="math-display">\[\widehat h\in\arg\min_{h\in\mathcal H}\widehat R_S(h),
-\qquad
-\widehat R_S(h)=\frac1n\sum_{i=1}^n\ell(h(x_i),y_i).\]</div>
-<p>部署后的平均表现对应总体风险 <span class="math-inline">\(R(h)=\mathbb E_{(X,Y)\sim P}[\ell(h(X),Y)]\)</span>。固定的 <span class="math-inline">\(h\)</span> 在独立样本上的经验风险是总体风险的无偏估计。模型由同一份样本选出时，独立性消失。选择过程可以利用样本的偶然噪声，训练误差于是常呈乐观偏差。例如在 <span class="math-inline">\(Y\)</span> 独立于 <span class="math-inline">\(X\)</span> 且等概率取 0、1 的任务中，足够灵活的模型可以记住所有训练标签，但对新样本的正确率仍为 <span class="math-inline">\(1/2\)</span>。</p>
-<p>学习的三个问题可以分别写成：<span class="math-inline">\(\mathcal H\)</span> 能表示多好的函数，算法能找到多低的训练损失，样本能否支撑从训练风险向总体风险的外推。<a href="/notes/ml/02/">第 2 讲</a>讨论第二个问题，<a href="/notes/ml/05/">第 5 讲</a>讨论第三个问题。</p>
-<h2 id="损失如何定义“最佳”预测"><a href="#损失如何定义“最佳”预测" class="headerlink" title="损失如何定义“最佳”预测"></a>损失如何定义“最佳”预测</h2><p>平方损失的总体最优预测是条件均值。固定 <span class="math-inline">\(X=x\)</span>，设 <span class="math-inline">\(m(x)=\mathbb E[Y\mid X=x]\)</span>，把误差拆成 <span class="math-inline">\(Y-m(x)\)</span> 与 <span class="math-inline">\(m(x)-a\)</span>。条件均值为零使交叉项消失。</p>
-<div class="math-display">\[\mathbb E[(Y-a)^2\mid X=x]
-=\operatorname{Var}(Y\mid X=x)+(m(x)-a)^2.\]</div>
-<p>因此 <span class="math-inline">\(a=m(x)\)</span>，最优风险仍包含标签的条件方差。若把损失换为绝对误差，最优预测变为条件中位数。这个区别在偏态数据里尤其明显。</p>
-<p>二分类令 <span class="math-inline">\(\eta(x)=P(Y=1\mid X=x)\)</span>。预测 0 的条件错误率为 <span class="math-inline">\(\eta(x)\)</span>，预测 1 的条件错误率为 <span class="math-inline">\(1-\eta(x)\)</span>。逐点取两者较小者得 Bayes 分类器与 Bayes 风险。</p>
-<div class="math-display">\[h^\star(x)=\mathbf 1\{\eta(x)\ge 1/2\},
-\qquad
-R(h^\star)=\mathbb E[\min\{\eta(X),1-\eta(X)\}].\]</div>
-<p>若对假阴性与假阳性的代价分别设为 <span class="math-inline">\(c_{\rm FN}\)</span> 与 <span class="math-inline">\(c_{\rm FP}\)</span>，预测 1 的阈值由比较 <span class="math-inline">\(c_{\rm FP}(1-\eta)\)</span> 与 <span class="math-inline">\(c_{\rm FN}\eta\)</span> 得到，变为 <span class="math-inline">\(c_{\rm FP}/(c_{\rm FP}+c_{\rm FN})\)</span>。先确定损失，才知道分类阈值应当是多少。</p>
-<h2 id="训练、验证和测试分别回答什么"><a href="#训练、验证和测试分别回答什么" class="headerlink" title="训练、验证和测试分别回答什么"></a>训练、验证和测试分别回答什么</h2><p>训练集估计模型参数。验证集选择模型复杂度、正则强度、迭代次数等。测试集在这些决定冻结后估计泛化表现。若反复以排行榜反馈选方案，排行榜数据实际上承担了验证集的作用。</p>
-<p>数据少时，把训练数据划分成 <span class="math-inline">\(k\)</span> 折，每次以 <span class="math-inline">\(k-1\)</span> 折训练，在留出折评分。等大小各折的误差可直接平均。折大小不等时，按留出样本量加权对应逐样本平均。标准化、填补缺失值和特征筛选的统计量都应在每轮训练折上估计。一个患者的多次记录或同一物体的多张照片应按组切分，否则模型可能在验证集重新看到同一个实体。时序预测则按时间顺序切分。</p>
-<p>图中使用同一份含噪训练样本拟合嵌套的多项式类。次数提升时，训练损失单调不增，因为旧解在新假设类中依然可用。测试误差受表示能力和估计不确定性共同影响。正则化把这两者的权衡写进训练目标，例如</p>
-<div class="math-display">\[\min_w\ \widehat R_S(h_w)+\lambda\lVert w\rVert_2^2.\]</div>
-<h2 id="标签从哪里来"><a href="#标签从哪里来" class="headerlink" title="标签从哪里来"></a>标签从哪里来</h2><p>图像分类的一张图可能有多个合理标签，目标检测还要标框或分割。可将大任务拆成候选筛选、独立标注与复核，再明确有分歧时的判定规则。部署时会遇到的数据分布决定数据如何采样。标签的质量、类别覆盖和测量条件往往比单纯扩大样本量更先决定可学到的规律。</p>
-<p>无监督学习只观察 <span class="math-inline">\(X\)</span>，必须通过目标定义待提取的结构。聚类规定何为相似，PCA 寻找保留方差的方向，生成建模拟合分布。半监督学习增加未标注样本，其作用依赖额外结构假设。例如分类边界应穿过低密度区时，大量未标注样本可以帮助定位高密度簇。改变 <span class="math-inline">\(P(Y\mid X)\)</span> 而保持 <span class="math-inline">\(P(X)\)</span> 不变，未标注样本的分布也不变，因此仅凭更多 <span class="math-inline">\(X\)</span> 不能普遍恢复标签规则。</p>
-<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>一个二分类器输出校准的患病概率。若漏诊代价是假阳性代价的 9 倍，概率为 0.2 的样本应如何判定？将两个条件代价写出来会得到阈值 0.1，因此预测为阳性。这里的结论来自所设的代价与概率校准假设。</p>
-<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》2026 年第 1 讲，监督学习框架、数据集构建与无监督学习。</p>
-<p><a href="/notes/">课程目录</a> · <a href="/notes/ml/02/">第 2 讲 →</a></p>
+\qquad \widehat R_S(h)=n^{-1}\sum_{i=1}^n\ell(h(x_i),y_i).\]</div>
+<p>The population risk is <span class="math-inline">\(R(h)=\mathbb E_P[\ell(h(X),Y)]\)</span>. For a fixed predictor independent of <span class="math-inline">\(S\)</span>, <span class="math-inline">\(\mathbb E_S[\widehat R_S(h)]=R(h)\)</span> by linearity. The model <span class="math-inline">\(\widehat h(S)\)</span> depends on the sample. For every fixed <span class="math-inline">\(h\)</span>, <span class="math-inline">\(\mathbb E\widehat R_S(\widehat h)\le\mathbb E\widehat R_S(h)=R(h)\)</span>, while <span class="math-inline">\(\mathbb E R(\widehat h)\ge\inf_{h\in\mathcal H}R(h)\)</span>. Fitting and evaluating on the same data can therefore produce an optimistic estimate. For example, a flexible model can memorize independent fair-coin labels on distinct training inputs, while any prediction for an independent input is correct with probability <span class="math-inline">\(1/2\)</span>.</p>
+<h2 id="Optimal-prediction-depends-on-the-loss"><a href="#Optimal-prediction-depends-on-the-loss" class="headerlink" title="Optimal prediction depends on the loss"></a>Optimal prediction depends on the loss</h2><p>Write <span class="math-inline">\(m(x)=\mathbb E[Y\mid X=x]\)</span>. Expanding the squared error about <span class="math-inline">\(m(x)\)</span> kills its cross term after conditioning:</p>
+<div class="math-display">\[\mathbb E[(Y-a)^2\mid X=x]=\operatorname{Var}(Y\mid X=x)+(m(x)-a)^2.\]</div>
+<p>The conditional mean minimizes squared loss. For absolute loss, the left and right derivatives of the conditional objective are <span class="math-inline">\(2P(Y&lt;a\mid x)-1\)</span> and <span class="math-inline">\(2P(Y\le a\mid x)-1\)</span>. Their interval contains zero precisely at a conditional median.</p>
+<p>For binary classification let <span class="math-inline">\(\eta(x)=P(Y=1\mid X=x)\)</span>. Predicting 0 incurs conditional error <span class="math-inline">\(\eta(x)\)</span> and predicting 1 incurs <span class="math-inline">\(1-\eta(x)\)</span>, so</p>
+<div class="math-display">\[h^\star(x)=\mathbf1\{\eta(x)\ge\tfrac12\},\qquad
+R(h^\star)=\mathbb E\min\{\eta(X),1-\eta(X)\}.\]</div>
+<p>With false-positive cost <span class="math-inline">\(c_{\rm FP}\)</span> and false-negative cost <span class="math-inline">\(c_{\rm FN}\)</span>, compare <span class="math-inline">\(c_{\rm FP}(1-\eta)\)</span> and <span class="math-inline">\(c_{\rm FN}\eta\)</span>. The optimal positive threshold is <span class="math-inline">\(c_{\rm FP}/(c_{\rm FP}+c_{\rm FN})\)</span>.</p>
+<h2 id="Choosing-a-model-and-estimating-its-performance"><a href="#Choosing-a-model-and-estimating-its-performance" class="headerlink" title="Choosing a model and estimating its performance"></a>Choosing a model and estimating its performance</h2><p>The training set determines parameters. A validation set chooses polynomial degree, regularization strength, or training duration. Once these choices are fixed, an independent test set estimates performance. In <span class="math-inline">\(k\)</span>-fold cross-validation, fit on <span class="math-inline">\(k-1\)</span> folds and predict on the omitted fold, repeating until every example has a held-out prediction. Fit standardization and feature selection inside each training fold. Group related measurements by entity and split forecasting data by time. Otherwise the evaluation can reuse information that would be unavailable at prediction time.</p>
+<p>Increasing polynomial degree enlarges the hypothesis class, so training error cannot increase: the previous solution remains feasible. Test error can rise as the model becomes more sensitive to sample noise. An explicit tradeoff is <span class="math-inline">\(\min_w\widehat R_S(h_w)+\lambda\|w\|_2^2\)</span>. The optimizer and the statistical guarantees for such objectives are developed in <a href="/notes/ml/02/">Lecture 2</a> and <a href="/notes/ml/05/">Lecture 5</a>.</p>
+<h2 id="Dataset-construction-and-unlabeled-data"><a href="#Dataset-construction-and-unlabeled-data" class="headerlink" title="Dataset construction and unlabeled data"></a>Dataset construction and unlabeled data</h2><p>Labeling pipelines can separate candidate selection, annotation, and verification. For object masks, a disagreement between annotators can reflect ambiguity in the target definition. The sampling plan should reflect the deployment distribution, including entities and acquisition conditions. Clustering, PCA, and generative modeling infer structure from <span class="math-inline">\(X\)</span>. Semi-supervised methods add information when a relationship between <span class="math-inline">\(P_X\)</span> and <span class="math-inline">\(P(Y\mid X)\)</span> is assumed. For example, a decision boundary might pass through regions of low input density. Holding <span class="math-inline">\(P_X\)</span> fixed leaves many possible label rules, all consistent with the same unlabeled observations.</p>
+<h2 id="A-Chernoff-calculation-for-demand"><a href="#A-Chernoff-calculation-for-demand" class="headerlink" title="A Chernoff calculation for demand"></a>A Chernoff calculation for demand</h2><p>If <span class="math-inline">\(X_i\)</span> are independent Bernoulli variables and <span class="math-inline">\(Z=\sum_i X_i\)</span> has mean <span class="math-inline">\(\mu\)</span>, then for <span class="math-inline">\(t&gt;0\)</span>,</p>
+<div class="math-display">\[\mathbb E e^{tZ}=\prod_i (1+p_i(e^t-1))\le \exp(\mu(e^t-1)).\]</div>
+<p>By Markov’s inequality, <span class="math-inline">\(P(Z\ge(1+a)\mu)\le e^{\mu(e^t-1)-t(1+a)\mu}\)</span>. The minimizing <span class="math-inline">\(t=\log(1+a)\)</span> gives <span class="math-inline">\(\exp(-\mu[(1+a)\log(1+a)-a])\)</span>. This controls the probability that independent requests exceed a capacity set above the mean.</p>
+<h2 id="Challenges"><a href="#Challenges" class="headerlink" title="Challenges"></a>Challenges</h2><h3 id="Problem-1"><a href="#Problem-1" class="headerlink" title="Problem 1"></a>Problem 1</h3><p>Show that the excess 0–1 risk of a plug-in classifier <span class="math-inline">\(\widehat h=\mathbf1\{\widehat\eta\ge1/2\}\)</span> is at most <span class="math-inline">\(2\mathbb E|\widehat\eta(X)-\eta(X)|\)</span>. If <span class="math-inline">\(\|\widehat\eta-\eta\|_\infty\le a\)</span> and <span class="math-inline">\(P(|\eta(X)-1/2|\le t)\le Ct^\kappa\)</span>, strengthen the rate.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>At a point of disagreement with the Bayes rule, the additional conditional error is <span class="math-inline">\(|2\eta(x)-1|\)</span>. Disagreement implies <span class="math-inline">\(|\eta(x)-1/2|\le|\widehat\eta(x)-\eta(x)|\)</span>, because the two scores straddle the threshold. Take expectations. Under the uniform bound, all disagreements lie in the band of width <span class="math-inline">\(a\)</span> and their conditional cost is at most <span class="math-inline">\(2a\)</span>, so the excess risk is at most <span class="math-inline">\(2Ca^{\kappa+1}\)</span>.</p>
+</details>
+
+<h3 id="Problem-2"><a href="#Problem-2" class="headerlink" title="Problem 2"></a>Problem 2</h3><p>Given <span class="math-inline">\(M\)</span> candidate predictors trained independently of a validation set of <span class="math-inline">\(n\)</span> examples with losses in <span class="math-inline">\([0,1]\)</span>, give a high-probability bound on the selected candidate’s excess risk. What role does independence play?</p>
+<details>
+<summary>Show solution</summary>
+
+<p>Conditioned on the candidates, Hoeffding and a union bound put all empirical risks within <span class="math-inline">\(\varepsilon/2\)</span> of their true risks except with probability <span class="math-inline">\(2M e^{-n\varepsilon^2/2}\)</span>. The selected function then has excess risk at most <span class="math-inline">\(\varepsilon\)</span> by two applications of the deviation bound and empirical optimality. Thus <span class="math-inline">\(n\ge 2\log(2M/\delta)/\varepsilon^2\)</span> suffices. Adaptive candidate construction changes the law of the validation sample conditional on those functions, so the fixed-candidate concentration need not apply.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning (2026), Lecture 1, supervised learning and dataset construction. The Chernoff calculation also follows the setup in Problem Set 1.</p>
+<p><a href="/notes/">Course notes</a> · <a href="/notes/ml/02/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/01/" data-id="cuidJJEE3IPP8n68RNUTocFLh" data-title="机器学习 01｜监督学习、风险与数据" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/01/" data-id="cuidc3Lc1p8PU7UKM01qm9KO1" data-title="ML 01: Supervised Learning, Risk, and Data" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -273,7 +283,7 @@ R(h^\star)=\mathbb E[\min\{\eta(X),1-\eta(X)\}].\]</div>
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          「ACG 01」图形学导论：从场景到像素
+          ACG 01: Introduction to Computer Graphics
         
       </div>
     </a>

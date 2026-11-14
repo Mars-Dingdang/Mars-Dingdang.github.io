@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>机器学习 12｜鲁棒学习与随机平滑证书 | Mars Dingdang</title>
+  <title>ML 12: Robust Learning and Randomized Smoothing | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="用有界输入扰动刻画鲁棒风险，推导线性分类器的精确鲁棒间隔，并说明 Gaussian 随机平滑如何给出可证明的半径。">
+  <meta name="description" content="Derive exact robust margins for linear classifiers and prove a Gaussian-smoothing certificate for bounded input changes.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="机器学习 12｜鲁棒学习与随机平滑证书">
+<meta property="og:title" content="ML 12: Robust Learning and Randomized Smoothing">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/12/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="用有界输入扰动刻画鲁棒风险，推导线性分类器的精确鲁棒间隔，并说明 Gaussian 随机平滑如何给出可证明的半径。">
+<meta property="og:description" content="Derive exact robust margins for linear classifiers and prove a Gaussian-smoothing certificate for bounded input changes.">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-12/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:12:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T18:10:55.531Z">
+<meta property="article:modified_time" content="2026-11-14T02:30:25.850Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Lecture Notes">
 <meta property="article:tag" content="Randomized Smoothing">
@@ -85,7 +85,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -179,9 +181,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -215,7 +216,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      机器学习 12｜鲁棒学习与随机平滑证书
+      ML 12: Robust Learning and Randomized Smoothing
     </h1>
   
 
@@ -223,37 +224,49 @@
     
     <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>用有界输入扰动刻画鲁棒风险，推导线性分类器的精确鲁棒间隔，并说明 Gaussian 随机平滑如何给出可证明的半径。</p>
+        <p>Derive exact robust margins for linear classifiers and prove a Gaussian-smoothing certificate for bounded input changes.</p>
 <span id="more"></span>
 
-<p><img src="/images/posts/ml-12/figure.png" alt="高斯分布以不同输入为中心，两个分类区域的概率质量随中心改变"></p>
-<p><em>示意图使用一维阈值分类器。蓝、橙曲线的面积跨过决策边界后会重新分配，平滑证书通过概率界控制这个变化。</em></p>
-<h2 id="从平均表现到邻域内保证"><a href="#从平均表现到邻域内保证" class="headerlink" title="从平均表现到邻域内保证"></a>从平均表现到邻域内保证</h2><p>分类器可能在干净输入上正确，却在测量噪声或细小的预处理差异下改变预测。给定允许扰动集合 <span class="math-inline">\(\Delta\)</span>，训练的鲁棒目标可以写成</p>
-<div class="math-display">\[\min_\theta\ \mathbb E_{X,Y}\Big[\max_{\delta\in\Delta}\ell(f_\theta(X+\delta),Y)\Big].\]</div>
-<p>这一定义依赖 <span class="math-inline">\(\Delta\)</span>。<span class="math-inline">\(\ell_2\)</span> 范数球约束总能量，<span class="math-inline">\(\ell_\infty\)</span> 范数球逐坐标限制幅度，旋转和裁剪则需要另一种输入变换描述。在一种集合上得到的结论不能直接移植到另一种集合。</p>
-<p>设 <span class="math-inline">\(F(\theta)=\max_{\delta\in\Delta}g(\theta,\delta)\)</span>，<span class="math-inline">\(\Delta\)</span> 紧，<span class="math-inline">\(g\)</span> 与其关于 <span class="math-inline">\(\theta\)</span> 的梯度连续。Danskin 定理给出方向导数</p>
-<div class="math-display">\[F'(\theta;v)=\max_{\delta\in\arg\max g(\theta,\cdot)}
-\langle\nabla_\theta g(\theta,\delta),v\rangle.\]</div>
-<p>当最大化解唯一时，梯度由最大点处的外层偏导给出。这解释了内层寻找最大损失、外层降低该损失的训练结构。数值近似所得的内层损失是最大值的下界。评估中没有找到失效输入只能提供经验结果，梯度饱和或随机波动都可能降低这种经验评估的分辨能力。</p>
-<h2 id="线性分类器的精确鲁棒间隔"><a href="#线性分类器的精确鲁棒间隔" class="headerlink" title="线性分类器的精确鲁棒间隔"></a>线性分类器的精确鲁棒间隔</h2><p>令 <span class="math-inline">\(y\in\{-1,1\}\)</span>、<span class="math-inline">\(m=y(w^\top x+b)\)</span>。在 <span class="math-inline">\(\|\delta\|_p\le r\)</span> 的扰动集合上，Hölder 不等式及其取等条件给出</p>
-<div class="math-display">\[\min_{\|\delta\|_p\le r}y(w^\top(x+\delta)+b)
-=m-r\|w\|_q,\qquad \frac1p+\frac1q=1.\]</div>
-<p>所以 <span class="math-inline">\(m&gt;r\|w\|_q\)</span> 保证整个闭球内的标签正确。对 <span class="math-inline">\(p=2\)</span>，临界半径 <span class="math-inline">\(m/\|w\|_2\)</span> 就是 <a href="/notes/ml/07/">SVM</a> 的几何间隔。若损失随带符号间隔单调递减，例如 logistic loss，线性模型的鲁棒损失等于把原间隔替换成 <span class="math-inline">\(m-r\|w\|_q\)</span> 后的损失。</p>
-<h2 id="随机平滑与-Gaussian-证书"><a href="#随机平滑与-Gaussian-证书" class="headerlink" title="随机平滑与 Gaussian 证书"></a>随机平滑与 Gaussian 证书</h2><p>对任意基础分类器 <span class="math-inline">\(f\)</span>，令 <span class="math-inline">\(Z\sim N(0,\sigma^2 I)\)</span>，定义</p>
-<div class="math-display">\[g(x)=\arg\max_c p_c(x),\qquad p_c(x)=P(f(x+Z)=c).\]</div>
-<p>设在 <span class="math-inline">\(x\)</span>，类别 <span class="math-inline">\(A\)</span> 的概率下界为 <span class="math-inline">\(\underline p_A\)</span>，其他任何类别概率的上界为 <span class="math-inline">\(\overline p_B\)</span>，且 <span class="math-inline">\(\underline p_A&gt;\overline p_B\)</span>。对扰动 <span class="math-inline">\(\delta\)</span>，令 <span class="math-inline">\(P=N(x,\sigma^2 I)\)</span>、<span class="math-inline">\(Q=N(x+\delta,\sigma^2 I)\)</span>。对固定事件在 <span class="math-inline">\(P\)</span> 下的概率，最小或最大化它在 <span class="math-inline">\(Q\)</span> 下的概率时，可按似然比 <span class="math-inline">\(dQ/dP\)</span> 选择半空间。这是 Neyman–Pearson 比较。Gaussian 的对数似然比沿 <span class="math-inline">\(\delta\)</span> 单调，</p>
-<div class="math-display">\[\log\frac{dQ}{dP}(z)=\frac{\langle\delta,z-x\rangle}{\sigma^2}-\frac{\|\delta\|_2^2}{2\sigma^2}.\]</div>
-<p>沿 <span class="math-inline">\(\delta/\|\delta\|\)</span> 投影时，两分布均值相差 <span class="math-inline">\(\|\delta\|\)</span>，标准差同为 <span class="math-inline">\(\sigma\)</span>。因此类别 <span class="math-inline">\(A\)</span> 的新概率至少为 <span class="math-inline">\(\Phi(\Phi^{-1}(\underline p_A)-\|\delta\|/\sigma)\)</span>，任一对手类别至多为 <span class="math-inline">\(\Phi(\Phi^{-1}(\overline p_B)+\|\delta\|/\sigma)\)</span>，其中 <span class="math-inline">\(\Phi\)</span> 是标准正态分布函数。比较两式的参数得到认证半径</p>
-<div class="math-display">\[r_{\rm cert}=\frac\sigma2\left(\Phi^{-1}(\underline p_A)-\Phi^{-1}(\overline p_B)\right).\]</div>
-<p>只要 <span class="math-inline">\(\|\delta\|_2&lt;r_{\rm cert}\)</span>，平滑分类器在 <span class="math-inline">\(x+\delta\)</span> 仍预测 <span class="math-inline">\(A\)</span>。这个证书针对平滑后的 <span class="math-inline">\(g\)</span>。当使用 Monte Carlo 估计概率时，有限样本置信界决定认证的置信水平。噪声标准差 <span class="math-inline">\(\sigma\)</span> 增大时也可能降低类别概率间隔，因此半径一般不随 <span class="math-inline">\(\sigma\)</span> 简单单调。</p>
-<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>二分类有 <span class="math-inline">\(\underline p_A=0.9\)</span>、<span class="math-inline">\(\overline p_B=0.1\)</span>，则 <span class="math-inline">\(r_{\rm cert}=\sigma\Phi^{-1}(0.9)\approx1.282\sigma\)</span>。若对某输入的类别概率下界仅为 <span class="math-inline">\(0.5\)</span>，用互补上界只能给出半径零。</p>
-<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》往年课件第 12 讲。随机平滑证书及其统计估计见 <a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v97/cohen19c.html">Cohen、Rosenfeld 与 Kolter，ICML 2019</a>。</p>
-<p><a href="/notes/ml/11/">← 第 11 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/13/">第 13 讲 →</a></p>
+<p><img src="/images/posts/ml-12/figure.png" alt="Gaussian densities centered at two inputs and a classification threshold"></p>
+<p><em>A shift in the input changes the probability assigned to either side of the classifier’s decision boundary.</em></p>
+<h2 id="Robust-risk-and-the-envelope-derivative"><a href="#Robust-risk-and-the-envelope-derivative" class="headerlink" title="Robust risk and the envelope derivative"></a>Robust risk and the envelope derivative</h2><p>A perturbation set <span class="math-inline">\(\Delta\)</span> models allowable input changes. The worst-case training objective is</p>
+<div class="math-display">\[\min_\theta\mathbb E_{X,Y}\!\left[\max_{\delta\in\Delta}\ell(f_\theta(X+\delta),Y)\right].\]</div>
+<p>An <span class="math-inline">\(\ell_\infty\)</span> ball bounds each coordinate change, whereas an <span class="math-inline">\(\ell_2\)</span> ball bounds total squared magnitude. Robustness depends on the selected input metric.</p>
+<p>Let <span class="math-inline">\(F(\theta)=\max_{z\in\Delta}g(\theta,z)\)</span>, with <span class="math-inline">\(\Delta\)</span> compact and <span class="math-inline">\(g,\nabla_\theta g\)</span> continuous. Write <span class="math-inline">\(M(\theta)\)</span> for its set of maximizers. For any <span class="math-inline">\(z\in M(\theta)\)</span>, evaluating it at <span class="math-inline">\(\theta+tv\)</span> gives the lower bound <span class="math-inline">\(\liminf_{t\downarrow0}(F(\theta+tv)-F(\theta))/t\ge \nabla_\theta g(\theta,z)^\top v\)</span>. For the upper bound choose a maximizer <span class="math-inline">\(z_t\)</span> at <span class="math-inline">\(\theta+tv\)</span>. Since <span class="math-inline">\(F(\theta)\ge g(\theta,z_t)\)</span>, the difference quotient is bounded above by the directional change in <span class="math-inline">\(g\)</span> at <span class="math-inline">\(z_t\)</span>. Compactness gives a convergent subsequence of maximizers, continuity puts its limit in <span class="math-inline">\(M(\theta)\)</span>, and the uniform first-order remainder yields</p>
+<div class="math-display">\[F'(\theta;v)=\max_{z\in M(\theta)}\nabla_\theta g(\theta,z)^\top v.\]</div>
+<p>With a unique maximizer this gives the gradient through the outer parameters. A numerical lower bound on the maximum loss can reveal failures, while a certificate needs an upper bound on the maximum or a direct invariance argument.</p>
+<h2 id="Linear-robust-margins-are-exact"><a href="#Linear-robust-margins-are-exact" class="headerlink" title="Linear robust margins are exact"></a>Linear robust margins are exact</h2><p>For a linear score <span class="math-inline">\(w^\top x+b\)</span> and <span class="math-inline">\(y\in\{-1,1\}\)</span>, let <span class="math-inline">\(m=y(w^\top x+b)\)</span>. The dual-norm identity gives</p>
+<div class="math-display">\[\min_{\|\delta\|_p\le r}y(w^\top(x+\delta)+b)=m-r\|w\|_q,\quad 1/p+1/q=1.\]</div>
+<p>Hölder’s inequality gives the lower bound, and compactness of the unit ball and the definition of the dual norm give equality. The whole closed ball is classified correctly when <span class="math-inline">\(m&gt;r\|w\|_q\)</span>. At <span class="math-inline">\(p=2\)</span> the limiting radius agrees with the geometric distance from <a href="/notes/ml/07/">the SVM lecture</a>.</p>
+<h2 id="The-Gaussian-smoothing-proof"><a href="#The-Gaussian-smoothing-proof" class="headerlink" title="The Gaussian smoothing proof"></a>The Gaussian smoothing proof</h2><p>For base classifier <span class="math-inline">\(f\)</span>, smooth by class probabilities <span class="math-inline">\(p_c(x)=P(f(x+Z)=c)\)</span> with <span class="math-inline">\(Z\sim N(0,\sigma^2 I)\)</span> and choose the most likely class. Suppose the leading class <span class="math-inline">\(A\)</span> has probability at least <span class="math-inline">\(\underline p_A\)</span> at <span class="math-inline">\(x\)</span> and any other class has probability at most <span class="math-inline">\(\overline p_B&lt;\underline p_A\)</span>.</p>
+<p>Let <span class="math-inline">\(P=N(x,\sigma^2I)\)</span>, <span class="math-inline">\(Q=N(x+\delta,\sigma^2I)\)</span> and <span class="math-inline">\(L(z)=dQ/dP(z)\)</span>. Given fixed <span class="math-inline">\(P\)</span>-mass, a set of low likelihood ratio minimizes <span class="math-inline">\(Q\)</span>-mass. To prove it, choose <span class="math-inline">\(H=\{L\le c\}\)</span> with the desired mass, and compare any set <span class="math-inline">\(E\)</span> of equal mass:</p>
+<div class="math-display">\[Q(E)-Q(H)=\int (\mathbf1_E-\mathbf1_H)(L-c)\,dP\ge0.\]</div>
+<p>Both products on the symmetric difference are nonnegative. Reversing the threshold proves the upper-bound version. For nonzero <span class="math-inline">\(\delta\)</span>, the logarithm of <span class="math-inline">\(L\)</span> is <span class="math-inline">\(\delta^\top(z-x)/\sigma^2-\|\delta\|^2/(2\sigma^2)\)</span>, monotone along <span class="math-inline">\(\delta\)</span>. Consequently the extremal sets are halfspaces in that direction. Projection onto <span class="math-inline">\(\delta/\|\delta\|\)</span> shifts the mean by <span class="math-inline">\(\|\delta\|\)</span> and preserves standard deviation <span class="math-inline">\(\sigma\)</span>. For any class <span class="math-inline">\(A\)</span> event with the stated lower bound, its <span class="math-inline">\(Q\)</span>-mass is at least</p>
+<div class="math-display">\[\Phi(\Phi^{-1}(\underline p_A)-\|\delta\|/\sigma),\]</div>
+<p>and every other class has <span class="math-inline">\(Q\)</span>-mass at most <span class="math-inline">\(\Phi(\Phi^{-1}(\overline p_B)+\|\delta\|/\sigma)\)</span>. Therefore the prediction is unchanged for</p>
+<div class="math-display">\[\|\delta\|&lt;\frac{\sigma}{2}\big(\Phi^{-1}(\underline p_A)-\Phi^{-1}(\overline p_B)\big).\]</div>
+<p>The guarantee applies to the smoothed classifier. If probabilities are estimated by sampling, substitute simultaneous valid confidence bounds into the formula. A larger <span class="math-inline">\(\sigma\)</span> increases the prefactor but may shrink the class-probability gap.</p>
+<h2 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h2><p>For a binary halfspace base classifier with nonzero normal <span class="math-inline">\(w\)</span> and a point at positive signed geometric distance <span class="math-inline">\(d\)</span>, derive its smoothed probability and show that the certified radius is exact.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>Gaussian projection along <span class="math-inline">\(w/\|w\|\)</span> has variance <span class="math-inline">\(\sigma^2\)</span>, so the smoothed positive probability is <span class="math-inline">\(\Phi(d/\sigma)\)</span> and the negative probability is <span class="math-inline">\(\Phi(-d/\sigma)\)</span>. The certificate radius is <span class="math-inline">\(\sigma(\Phi^{-1}(\Phi(d/\sigma))-\Phi^{-1}(\Phi(-d/\sigma)))/2=d\)</span>. Smoothing leaves this halfspace’s decision boundary in place, because positive probability exceeds <span class="math-inline">\(1/2\)</span> precisely on its positive side. A shift along the negative normal of magnitude greater than <span class="math-inline">\(d\)</span> therefore switches the prediction.</p>
+</details>
+
+<p><strong>Second challenge.</strong> Find the exact Gaussian smoothing certificate for a binary base classifier whose decision boundary is a hyperplane.</p>
+<details>
+<summary>Show solution to the second challenge</summary>
+
+<p>Let <span class="math-inline">\(h(z)=\mathbf1\{w^\top z\ge b\}\)</span> and <span class="math-inline">\(w\ne0\)</span>. With isotropic Gaussian noise, the positive class probability at <span class="math-inline">\(x\)</span> is <span class="math-inline">\(p=\Phi((w^\top x-b)/(\sigma\|w\|))\)</span>. The runner-up has probability <span class="math-inline">\(1-p\)</span>, so on the positive side the certificate is <span class="math-inline">\(\sigma\Phi^{-1}(p)=(w^\top x-b)/\|w\|\)</span>. Moving against the unit normal reaches the hyperplane at exactly this distance. The averaged classifier retains the original boundary.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 12 from the archived slides. <a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v97/cohen19c.html">Cohen, Rosenfeld, and Kolter, Certified Adversarial Robustness via Randomized Smoothing</a>.</p>
+<p><a href="/notes/ml/11/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/13/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/12/" data-id="cuidCWNJBE9hWa9c0tbzMZw8M" data-title="机器学习 12｜鲁棒学习与随机平滑证书" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/12/" data-id="cuidVaA6zAun_Bi7Dwohvm488" data-title="ML 12: Robust Learning and Randomized Smoothing" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -270,7 +283,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          机器学习 13｜超参数优化与预算分配
+          ML 13: Hyperparameter Optimization and Resource Allocation
         
       </div>
     </a>
@@ -278,7 +291,7 @@
   
     <a href="/notes/ml/11/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">机器学习 11｜SimCLR、t-SNE 与 RoPE</div>
+      <div class="article-nav-title">ML 11: SimCLR, t-SNE, and Rotary Position Embeddings</div>
     </a>
   
 </nav>

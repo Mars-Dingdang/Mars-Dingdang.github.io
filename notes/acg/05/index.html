@@ -4,19 +4,19 @@
   <meta charset="utf-8">
   
   
-  <title>「ACG 05」光栅化：覆盖率、采样与深度测试 | Mars Dingdang</title>
+  <title>ACG 05: Rasterization, Sampling, and Visibility | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="投影后的三角形仍然是连续的几何对象，帧缓冲区却只有离散样本。光栅化用边函数决定哪些样本被覆盖，用过滤控制离散采样造成的锯齿，再用深度测试解决多个片元的可见性。">
+  <meta name="description" content="Rasterization converts projected geometry into samples on a finite grid. Triangle edge tests decide which samples are covered, filtering limits aliasing, and the depth buffer resolves opaque visibilit">
 <meta property="og:type" content="article">
-<meta property="og:title" content="「ACG 05」光栅化：覆盖率、采样与深度测试">
+<meta property="og:title" content="ACG 05: Rasterization, Sampling, and Visibility">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/acg/05/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="投影后的三角形仍然是连续的几何对象，帧缓冲区却只有离散样本。光栅化用边函数决定哪些样本被覆盖，用过滤控制离散采样造成的锯齿，再用深度测试解决多个片元的可见性。">
-<meta property="og:locale" content="zh_CN">
+<meta property="og:description" content="Rasterization converts projected geometry into samples on a finite grid. Triangle edge tests decide which samples are covered, filtering limits aliasing, and the depth buffer resolves opaque visibilit">
+<meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/acg-05-rasterization/thumbnail.png">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/acg-05-rasterization/aliasing.png">
 <meta property="article:published_time" content="2026-11-13T16:05:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T17:51:02.589Z">
+<meta property="article:modified_time" content="2026-11-14T02:25:49.933Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="ACG">
 <meta property="article:tag" content="Lecture Notes">
@@ -86,7 +86,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -180,9 +182,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -212,50 +213,78 @@
   <div class="article-inner">
     
     
-      <header class="article-header" lang="zh-CN">
+      <header class="article-header" lang="en">
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      「ACG 05」光栅化：覆盖率、采样与深度测试
+      ACG 05: Rasterization, Sampling, and Visibility
     </h1>
   
 
       </header>
     
-    <div class="e-content article-entry" itemprop="articleBody" lang="zh-CN">
+    <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>投影后的三角形仍然是连续的几何对象，帧缓冲区却只有离散样本。光栅化用边函数决定哪些样本被覆盖，用过滤控制离散采样造成的锯齿，再用深度测试解决多个片元的可见性。</p>
+        <p>Rasterization converts projected geometry into samples on a finite grid. Triangle edge tests decide which samples are covered, filtering limits aliasing, and the depth buffer resolves opaque visibility at each sample.</p>
 <span id="more"></span>
 
-<h2 id="从连续屏幕到样本"><a href="#从连续屏幕到样本" class="headerlink" title="从连续屏幕到样本"></a>从连续屏幕到样本</h2><p>帧缓冲区存储颜色，显示设备按其物理结构发光或调制光。为分析覆盖率，可将整数格 <span class="math-inline">\((i,j)\)</span> 的像素区域理想化为 <span class="math-inline">\([i,i+1]\times[j,j+1]\)</span>，取中心 <span class="math-inline">\((i+\tfrac12,j+\tfrac12)\)</span> 作为点样本。中心在三角形内时记为 <span class="math-inline">\(1\)</span>，否则记为 <span class="math-inline">\(0\)</span>。像素格内即使有一部分被覆盖，中心采样仍可能给出全黑或全白。</p>
-<h2 id="从边函数到增量遍历"><a href="#从边函数到增量遍历" class="headerlink" title="从边函数到增量遍历"></a>从边函数到增量遍历</h2><p>在 <span class="math-inline">\(y\)</span> 向上的二维坐标系里，给逆时针三角形顶点 <span class="math-inline">\(A,B,C\)</span>。定义边 <span class="math-inline">\(AB\)</span> 对测试点 <span class="math-inline">\(P\)</span> 的函数</p>
+<h2 id="Sampling-a-projected-triangle"><a href="#Sampling-a-projected-triangle" class="headerlink" title="Sampling a projected triangle"></a>Sampling a projected triangle</h2><p>A pixel indexed by <span class="math-inline">\((i,j)\)</span> can be represented by the square <span class="math-inline">\([i,i+1]\times[j,j+1]\)</span>. Center sampling tests the continuous triangle at <span class="math-inline">\((i+\tfrac12,j+\tfrac12)\)</span>. A covered sample initially says nothing about the rest of the pixel. A triangle can cross a pixel without touching its center.</p>
+<p>For counterclockwise vertices <span class="math-inline">\(A,B,C\)</span> in a coordinate system with <span class="math-inline">\(y\)</span> pointing upward, use the directed edge function</p>
 <div class="math-display">\[E_{AB}(P)=(B_x-A_x)(P_y-A_y)-(B_y-A_y)(P_x-A_x).\]</div>
-<p>它等于向量 <span class="math-inline">\(B-A,P-A\)</span> 的有向二维行列式。逆时针绕行时内部在每条边的左侧，于是内部点的三个边函数都为正。更代数地说，重心坐标中 <span class="math-inline">\(C\)</span> 的权重是 <span class="math-inline">\(E_{AB}(P)/E_{AB}(C)\)</span>，其余两个权重用另外两条边循环得到。由于这三个权重和为 <span class="math-inline">\(1\)</span>，三者非负正好等价于 <span class="math-inline">\(P\)</span> 是顶点的凸组合。</p>
-<p>边界样本必须有明确的归属约定。如果两个三角形各自都把共享边上 <span class="math-inline">\(E=0\)</span> 的样本算进来，会重复覆盖。采用与坐标方向一致的 top-left 填充规则，只让共享边的一个方向包括等号。三角形的整数包围盒限制了扫描范围。边函数对 <span class="math-inline">\(P\)</span> 为仿射函数，向右移一个单位，值加 <span class="math-inline">\(-(B_y-A_y)\)</span>，向上移一个单位，值加 <span class="math-inline">\(B_x-A_x\)</span>。因此块内遍历可以用累加完成，较大的瓦片也可用四角的极值判断整块是否落在某条边外。</p>
-<p><img src="/images/posts/acg-05-rasterization/thumbnail.png" alt="同一个三角形覆盖两个像素格。左图只取中心样本，右图每格取四个子样本以近似覆盖率"></p>
-<h2 id="为什么会出现混叠"><a href="#为什么会出现混叠" class="headerlink" title="为什么会出现混叠"></a>为什么会出现混叠</h2><p>对连续信号 <span class="math-inline">\(s(t)\)</span> 以间隔 <span class="math-inline">\(T\)</span> 取样，可把采样过程写成乘一个冲激列 <span class="math-inline">\(\sum_k\delta(t-kT)\)</span>。在傅里叶变换约定 <span class="math-inline">\(S(\nu)=\int s(t)e^{-2\pi i\nu t}\,dt\)</span> 下，冲激列的频谱仍是一列冲激，间隔是 <span class="math-inline">\(1/T\)</span>，幅值是 <span class="math-inline">\(1/T\)</span>。时域相乘对应频域卷积，所以采样信号的频谱是</p>
+<p>The function is a signed area scaled by two. The inside of a counterclockwise triangle lies to the left of all three oriented edges. Equivalently, <span class="math-inline">\(E_{AB}(P)/E_{AB}(C)\)</span> is the barycentric weight for <span class="math-inline">\(C\)</span>, and the other two come from cyclic permutations. The three nonnegative weights sum to one and give a convex combination of the vertices.</p>
+<p><img src="/images/posts/acg-05-rasterization/thumbnail.png" alt="Pixel-center sampling and four samples per pixel evaluate different sets of points against the same triangle."></p>
+<h3 id="Incremental-edge-evaluation"><a href="#Incremental-edge-evaluation" class="headerlink" title="Incremental edge evaluation"></a>Incremental edge evaluation</h3><p>For fixed vertices, <span class="math-inline">\(E(x,y)\)</span> is affine. Moving one coordinate unit to the right changes it by <span class="math-inline">\(-(B_y-A_y)\)</span>, and moving up changes it by <span class="math-inline">\(B_x-A_x\)</span>. Initialize once at the first sample center of the triangle’s bounding box, cache a row start for each edge, and step across the row by addition. With an integer grid of <span class="math-inline">\(S\)</span> subpixel units per pixel, the increments for one pixel are <span class="math-inline">\(-S(B_y-A_y)\)</span> horizontally and <span class="math-inline">\(S(B_x-A_x)\)</span> vertically. Choose even <span class="math-inline">\(S\)</span> so pixel centers are representable and quantize shared vertices consistently.</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">for each scanline y in the bounding box:</span><br><span class="line">    e0, e1, e2 = saved values at the first pixel center</span><br><span class="line">    for each x in the scanline:</span><br><span class="line">        if all three edges accept their current values:</span><br><span class="line">            emit the covered sample with barycentric weights</span><br><span class="line">        e0, e1, e2 += horizontal increments</span><br><span class="line">    saved values += vertical increments</span><br></pre></td></tr></table></figure>
+
+<p>In this <span class="math-inline">\(y\)</span>-up, counterclockwise convention, accept equality on an edge with <span class="math-inline">\(B_y&lt;A_y\)</span>, or on a horizontal edge with <span class="math-inline">\(B_x&lt;A_x\)</span>. A reversed shared edge has exactly the opposite tie classification. This fills the left and top boundaries consistently and leaves the bottom and right boundaries for their neighbors. With <span class="math-inline">\(y\)</span> pointing down, derive the rule again from the winding convention. A tile can be rejected when the maximum of an edge function over its four corners fails that edge test.</p>
+<h2 id="Why-sampling-aliases-frequencies"><a href="#Why-sampling-aliases-frequencies" class="headerlink" title="Why sampling aliases frequencies"></a>Why sampling aliases frequencies</h2><p>Sampling step <span class="math-inline">\(T\)</span> is equivalent to multiplying by <span class="math-inline">\(\sum_k\delta(t-kT)\)</span>. With the Fourier convention <span class="math-inline">\(S(\nu)=\int s(t)e^{-2\pi i\nu t}dt\)</span>, the impulse train transforms into another impulse train at intervals <span class="math-inline">\(1/T\)</span> with nonzero weight <span class="math-inline">\(1/T\)</span>. Multiplication in time becomes convolution in frequency, so</p>
 <div class="math-display">\[S_s(\nu)=\frac1T\sum_k S\left(\nu-\frac{k}{T}\right).\]</div>
-<p>如果原信号限制在 <span class="math-inline">\([-B,B]\)</span>，且 <span class="math-inline">\(1/T&gt;2B\)</span>，相邻频谱副本互不重叠。如果存在重叠，离散样本就无法区分落在同一频率位置的不同来源。直接的例子是频率 <span class="math-inline">\(\nu\)</span> 和 <span class="math-inline">\(m/T-\nu\)</span> 的两个余弦：代入 <span class="math-inline">\(t=kT\)</span>，再用余弦的周期性和偶对称性可知每一个样本都相同。三角形的指示函数有跳变，高频分量在固定采样率下会混叠，于是斜边出现锯齿。时间上的采样也有类似现象，例如旋转的车轮可能看起来向反方向转。</p>
-<p><img src="/images/posts/acg-05-rasterization/aliasing.png" alt="每单位时间采样一次时，频率为 0.22 和 0.78 的两个余弦在所有整数时刻取值相同"></p>
-<h2 id="先过滤，再采样"><a href="#先过滤，再采样" class="headerlink" title="先过滤，再采样"></a>先过滤，再采样</h2><p>对连续图像做局部卷积，可以先压低难以表示的高频，再读取离散样本。用像素区域 <span class="math-inline">\(A\)</span> 的方盒滤波器时，三角形 <span class="math-inline">\(T_\triangle\)</span> 的像素覆盖率是</p>
-<div class="math-display">\[c_A=\frac{1}{|A|}\int_A \mathbf{1}_{T_\triangle}(x,y)\,dx\,dy
+<p>A band-limited signal with bandwidth <span class="math-inline">\(B\)</span> avoids overlap when <span class="math-inline">\(1/T&gt;2B\)</span>. Otherwise, distinct spectra may produce the same samples. The cosines at frequencies <span class="math-inline">\(\nu\)</span> and <span class="math-inline">\(m/T-\nu\)</span> agree at all sample times by periodicity and even symmetry. A triangle boundary creates a discontinuity, which has high-frequency content beyond any finite sample rate. Jagged edges and the apparent reversal of a filmed wheel are spatial and temporal examples of aliasing.</p>
+<p><img src="/images/posts/acg-05-rasterization/aliasing.png" alt="Cosines at 0.22 and 0.78 cycles per unit cross the same sample points at integer times."></p>
+<h2 id="Prefiltering-and-multisampling"><a href="#Prefiltering-and-multisampling" class="headerlink" title="Prefiltering and multisampling"></a>Prefiltering and multisampling</h2><p>An ideal box average for a pixel region <span class="math-inline">\(A\)</span> and triangle <span class="math-inline">\(T_\triangle\)</span> is</p>
+<div class="math-display">\[c_A=\frac1{|A|}\int_A\mathbf 1_{T_\triangle}(x,y)\,dx\,dy
 =\frac{|A\cap T_\triangle|}{|A|}.\]</div>
-<p>常色三角形与常色背景在线性颜色空间可按 <span class="math-inline">\(c_A\)</span> 混合。超采样在像素内取 <span class="math-inline">\(N\)</span> 个位置，用 <span class="math-inline">\(\hat c=\frac1N\sum_i\mathbf 1_{T_\triangle}(x_i,y_i)\)</span> 近似积分。若子样本独立且均匀，<span class="math-inline">\(\mathbb E[\hat c]=c_A\)</span>，方差为 <span class="math-inline">\(c_A(1-c_A)/N\)</span>。规则子样本网格是确定性的数值积分，其误差随边缘位置和方向变化。</p>
-<p>MSAA 保留多个覆盖和深度样本，可以让一次片元着色的结果供多个样本复用。这样能以较少着色成本改善几何边缘。纹理或高光在单个三角形内部产生的高频变化仍需要相应的预过滤或更高着色频率。已经混叠的采样结果里，高频和低频被相加，事后简单模糊无法从合并值恢复两者。</p>
-<h2 id="Z-buffer-为什么有效"><a href="#Z-buffer-为什么有效" class="headerlink" title="Z-buffer 为什么有效"></a>Z-buffer 为什么有效</h2><p>假定深度越小越近，给每个样本初始化深度 <span class="math-inline">\(+\infty\)</span>。遍历一个不透明片元，若它覆盖该样本且深度更近，便同时更新颜色和深度。处理完前 <span class="math-inline">\(k\)</span> 个覆盖片元后，保存值等于它们的最小深度。初始状态满足空集合最小值约定，每次比较等价于用旧最小值和新深度取最小值，所以不变量由归纳法成立。深度互不相等时，结果与提交顺序无关。相等时由深度比较规则和提交顺序决定；半透明物体则需要合成多个表面的贡献。</p>
-<p>画家算法依赖后物体先画，但不同三角形可能在不同区域互相遮挡，产生循环。深度缓冲按样本求最小值，无需给整个三角形排一个全局顺序。工作量主要随实际生成的片元数增长，多个层次反复覆盖同一像素也会产生重复成本。</p>
-<h2 id="本讲前半段的三维重建"><a href="#本讲前半段的三维重建" class="headerlink" title="本讲前半段的三维重建"></a>本讲前半段的三维重建</h2><p>课件在进入光栅化前继续讨论人体与场景建模。人体参数模型将体型参数、关节姿态与蒙皮拆开。简化的线性混合蒙皮将静止顶点 <span class="math-inline">\(v\)</span> 变为 <span class="math-inline">\(\sum_j w_j G_j(\theta)G_j(0)^{-1}v\)</span>，其中 <span class="math-inline">\(G_j\)</span> 是关节全局变换、<span class="math-inline">\(w_j\)</span> 非负且和为 <span class="math-inline">\(1\)</span>。在绑定姿态 <span class="math-inline">\(\theta=0\)</span> 时，每项的复合都是恒等变换，因此加权结果回到 <span class="math-inline">\(v\)</span>。从单图估计这些参数时，可以用三维关节投影与二维关键点之间的重投影误差，并用体型、姿态先验约束深度歧义。室内场景重建可分别预测物体形状、位姿与房间布局，最后将对象放进同一坐标系。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li>弋力，《Advanced Computer Graphics》，Lecture 5: Rasterization，2026 年 10 月 21 日，课件第 19–29 页（人体与场景）、第 44–67 页（覆盖测试）、第 68–120 页（采样与抗锯齿）、第 121–128 页（深度测试）。</li>
-</ul>
+<p>A constant foreground and a constant background can be blended in linear color space according to this coverage. With independent uniform subsamples, their average estimates <span class="math-inline">\(c_A\)</span> without bias, with variance <span class="math-inline">\(c_A(1-c_A)/N\)</span>. A regular subsample grid is deterministic quadrature, so its error depends on alignment with the edge.</p>
+<p>MSAA stores several coverage and depth samples while letting a shaded value serve multiple covered samples. It can smooth triangle edges without shading every subsample independently. High-frequency shading within a triangle retains its own sampling problem and can require texture filtering or per-sample shading.</p>
+<h2 id="Z-buffering"><a href="#Z-buffering" class="headerlink" title="Z-buffering"></a>Z-buffering</h2><p>Start every depth sample at <span class="math-inline">\(+\infty\)</span> when smaller means nearer. Update the sample’s depth and color only if a new opaque fragment is closer. After any number of inputs, the buffer stores the minimum submitted depth: the empty minimum is <span class="math-inline">\(+\infty\)</span>, and one update takes the minimum of the previous minimum and the arriving depth.</p>
+<p>This invariant gives order independence for distinct opaque depths. Equal depths depend on the comparison and submission order. A global painter’s ordering can fail when three faces cyclically occlude one another. The Z-buffer resolves visibility locally, though overdraw can require testing many fragments per sample. Transparent fragments generally require combining several contributions and cannot use nearest-depth selection alone.</p>
+<h2 id="Reconstruction-recap"><a href="#Reconstruction-recap" class="headerlink" title="Reconstruction recap"></a>Reconstruction recap</h2><p>The lecture first concludes its discussion of specialized reconstruction. In linear blend skinning, a bind-pose vertex <span class="math-inline">\(v\)</span> moves to <span class="math-inline">\(\sum_j w_jG_j(\theta)G_j(0)^{-1}v\)</span>, where <span class="math-inline">\(G_j\)</span> is the global joint transform and the weights sum to one. At the bind pose each transform pair becomes identity, and the vertex stays fixed. To estimate the pose from one image, minimize projected joint error and regularize body shape and pose. Indoor reconstruction can estimate object shapes, placements, and room layout separately, then assemble them in one scene.</p>
+<h2 id="Exercises"><a href="#Exercises" class="headerlink" title="Exercises"></a>Exercises</h2><ol>
+<li><strong>Prove shared-edge ownership.</strong> Two consistently counterclockwise triangles share an edge, and a sample is in the relative interior of that edge. Why does the fill rule assign it to exactly one triangle?</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>For a sample in the relative interior of a proper shared edge the other two edge tests of each triangle are positive. On the shared edge the tests are both zero. Its directed increments <span class="math-inline">\((dx,dy)\)</span> are opposite in the two triangles. If <span class="math-inline">\(dy\ne0\)</span>, exactly one orientation has <span class="math-inline">\(dy&lt;0\)</span>. Otherwise <span class="math-inline">\(dx\ne0\)</span> and exactly one has <span class="math-inline">\(dx&lt;0\)</span>. Only that triangle accepts equality.</p>
+</details>
+
+<ol start="2">
+<li><strong>Compute analytic antialiasing.</strong> A triangle covers the portion of the unit pixel where <span class="math-inline">\(x+y&lt;0.75\)</span>. Compare exact coverage with center sampling and a <span class="math-inline">\(2\times2\)</span> grid of quarter-offset samples.</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>Exact coverage is the right-triangle area <span class="math-inline">\(0.75^2/2=0.28125\)</span>. The center has sum <span class="math-inline">\(1\)</span> and returns zero. The four grid sums are <span class="math-inline">\(0.5,1,1,1.5\)</span>, giving estimated coverage <span class="math-inline">\(0.25\)</span>.</p>
+</details>
+
+<ol start="3">
+<li><strong>Find the alias.</strong> A signal <span class="math-inline">\(\cos(2\pi\cdot 47t)\)</span> is sampled at <span class="math-inline">\(60\)</span> Hz. Which nonnegative frequency in <span class="math-inline">\([0,30]\)</span> matches it, and can a post-sampling low-pass filter distinguish the two?</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>The aliased frequency is <span class="math-inline">\(60-47=13\)</span> Hz, since <span class="math-inline">\(\cos(2\pi\cdot47k/60)=\cos(2\pi k-2\pi\cdot13k/60)\)</span>. Both continuous signals give exactly the same discrete input. A filter on that input has no evidence from which to distinguish their origins.</p>
+</details>
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>Li Yi, <em>Advanced Computer Graphics</em>, Lecture 5, “Rasterization,” October 21, 2026, slides 19–29 for reconstruction, 44–67 for coverage, 68–120 for sampling and antialiasing, and 121–128 for depth testing.</p>
 <hr>
-<p><a href="/notes/acg/04/">上一讲</a> · <a href="/notes/">课程笔记</a> · <a href="/notes/acg/06/">下一讲</a></p>
+<p><a href="/notes/acg/04/">Previous lecture</a> · <a href="/notes/#acg">Course notes</a> · <a href="/notes/acg/06/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/acg/05/" data-id="cuidsEAC0-NwoM_COKp1V23By" data-title="「ACG 05」光栅化：覆盖率、采样与深度测试" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-<span>分享</span></button>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/acg/05/" data-id="cuidevvbqGy8HqwmQlJqxZpL4" data-title="ACG 05: Rasterization, Sampling, and Visibility" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>Share</span></button>
       
       
       
@@ -268,18 +297,18 @@
 <nav id="article-nav">
   
     <a href="/notes/ml/06/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
+      <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          机器学习 06｜线性模型、稀疏性与压缩感知
+          ML 06: Linear Models, Sparsity, and Compressed Sensing
         
       </div>
     </a>
   
   
     <a href="/notes/ml/05/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">机器学习 05｜PAC 学习与 VC 维</div>
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">ML 05: PAC Learning and VC Dimension</div>
     </a>
   
 </nav>

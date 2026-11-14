@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>机器学习 10｜K-means 与谱聚类 | Mars Dingdang</title>
+  <title>ML 10: K-means and Spectral Clustering | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="从 Lloyd 迭代的目标下降推到图 Laplacian 的二次型，并用 RatioCut 的连续松弛导出谱嵌入。">
+  <meta name="description" content="Derive Lloyd’s updates, prove the graph Laplacian’s spectral properties, and obtain a clustering algorithm by relaxing RatioCut.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="机器学习 10｜K-means 与谱聚类">
+<meta property="og:title" content="ML 10: K-means and Spectral Clustering">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/10/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="从 Lloyd 迭代的目标下降推到图 Laplacian 的二次型，并用 RatioCut 的连续松弛导出谱嵌入。">
+<meta property="og:description" content="Derive Lloyd’s updates, prove the graph Laplacian’s spectral properties, and obtain a clustering algorithm by relaxing RatioCut.">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-10/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:10:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T18:10:55.529Z">
+<meta property="article:modified_time" content="2026-11-14T02:30:25.329Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Clustering">
 <meta property="article:tag" content="Graph Laplacian">
@@ -85,7 +85,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -179,9 +181,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -215,7 +216,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      机器学习 10｜K-means 与谱聚类
+      ML 10: K-means and Spectral Clustering
     </h1>
   
 
@@ -223,34 +224,52 @@
     
     <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>从 Lloyd 迭代的目标下降推到图 Laplacian 的二次型，并用 RatioCut 的连续松弛导出谱嵌入。</p>
+        <p>Derive Lloyd’s updates, prove the graph Laplacian’s spectral properties, and obtain a clustering algorithm by relaxing RatioCut.</p>
 <span id="more"></span>
 
-<p><img src="/images/posts/ml-10/figure.png" alt="两个稠密小图用一条弱边连接，Fiedler 向量将节点排成两簇"></p>
-<p><em>左侧显示加权图，浅色虚线是弱桥边。右侧将每个节点放在第二小特征值对应的坐标上，便于按一维阈值划分。</em></p>
-<h2 id="Lloyd-迭代的两个子问题"><a href="#Lloyd-迭代的两个子问题" class="headerlink" title="Lloyd 迭代的两个子问题"></a>Lloyd 迭代的两个子问题</h2><p>K-means 寻找分配 <span class="math-inline">\(c_i\)</span> 和中心 <span class="math-inline">\(\mu_1,\dots,\mu_k\)</span>，最小化</p>
-<div class="math-display">\[J(c,\mu)=\sum_i\|x_i-\mu_{c_i}\|^2.\]</div>
-<p>固定中心时，每个点独立分配给最近中心。固定分配且簇非空时，对中心求导可得簇内均值。也可以展开 <span class="math-inline">\(\sum_{i\in S}\|x_i-\mu\|^2=\sum_{i\in S}\|x_i-\bar x_S\|^2+|S|\|\mu-\bar x_S\|^2\)</span>，直接看出均值最优。两个步骤都不会增加目标，初始化决定最后落入哪个稳定划分。平局与空簇需要明确处理。多次初始化可以用目标值比较得到的局部解。</p>
-<p>原空间欧氏距离下，最近中心分配给出凸的 Voronoi 区域，因此弯曲的同一簇可能被切开。把几何邻近改为图上的相似性后，可以沿着局部邻边发现非凸结构。</p>
-<h2 id="图-Laplacian-为什么半正定"><a href="#图-Laplacian-为什么半正定" class="headerlink" title="图 Laplacian 为什么半正定"></a>图 Laplacian 为什么半正定</h2><p>对无向加权图，设 <span class="math-inline">\(W=(w_{ij})\)</span> 对称且非负，<span class="math-inline">\(D_{ii}=\sum_jw_{ij}\)</span>，<span class="math-inline">\(L=D-W\)</span>。任取 <span class="math-inline">\(u\in\mathbb R^n\)</span>，</p>
-<div class="math-display">\[u^\top Lu
-=\sum_i d_i u_i^2-\sum_{i,j}w_{ij}u_iu_j
-=\frac12\sum_{i,j}w_{ij}(u_i-u_j)^2\ge0.\]</div>
-<p>所以 <span class="math-inline">\(L\)</span> 半正定，且 <span class="math-inline">\(L\mathbf1=0\)</span>。二次型取零当且仅当每条正权边两端的 <span class="math-inline">\(u_i\)</span> 相同，于是每个连通分量可以取自己的常数。零特征值重数正好等于连通分量数。对带少数弱桥边的图，分量指示向量不再完全在零空间中，但常仍有很小的图上变化。</p>
-<h2 id="RatioCut-为什么产生第二小特征向量"><a href="#RatioCut-为什么产生第二小特征向量" class="headerlink" title="RatioCut 为什么产生第二小特征向量"></a>RatioCut 为什么产生第二小特征向量</h2><p>记 <span class="math-inline">\(A\)</span> 和 <span class="math-inline">\(B\)</span> 为非空的两个簇，<span class="math-inline">\(W(A,B)=\sum_{i\in A,j\in B}w_{ij}\)</span>。RatioCut 为</p>
-<div class="math-display">\[W(A,B)\left(\frac1{|A|}+\frac1{|B|}\right).\]</div>
-<p>令 <span class="math-inline">\(u_i=\sqrt{|B|/(n|A|)}\)</span> 对 <span class="math-inline">\(i\in A\)</span>，<span class="math-inline">\(u_i=-\sqrt{|A|/(n|B|)}\)</span> 对 <span class="math-inline">\(i\in B\)</span>。则 <span class="math-inline">\(\|u\|=1\)</span>，<span class="math-inline">\(u\perp\mathbf1\)</span>。簇内边没有代价，每条跨簇边的端点差平方为 <span class="math-inline">\(1/|A|+1/|B|\)</span>，所以 <span class="math-inline">\(u^\top Lu\)</span> 恰好是 RatioCut。</p>
-<p>离散约束要求 <span class="math-inline">\(u\)</span> 恰有上述两个值。松弛为任意单位且正交于 <span class="math-inline">\(\mathbf1\)</span> 的向量后，将 <span class="math-inline">\(u\)</span> 按 <span class="math-inline">\(L\)</span> 的特征向量展开，最小二次型由第二小特征值对应的方向达到。得到的 Fiedler 坐标需用阈值或一维二均值转回分簇，松弛值本身给离散最优值下界。</p>
-<h2 id="多簇、归一化与建图"><a href="#多簇、归一化与建图" class="headerlink" title="多簇、归一化与建图"></a>多簇、归一化与建图</h2><p>对 <span class="math-inline">\(k\)</span> 簇，用 <span class="math-inline">\(H_{ij}=\mathbf1\{i\in A_j\}/\sqrt{|A_j|}\)</span> 记归一化指示矩阵。它满足 <span class="math-inline">\(H^\top H=I\)</span>，且 <span class="math-inline">\(\operatorname{tr}(H^\top LH)=\sum_j W(A_j,\overline{A_j})/|A_j|\)</span>。松弛后在所有正交列中最小化迹。令 <span class="math-inline">\(H\)</span> 的列在 <span class="math-inline">\(L\)</span> 的特征基上展开，则迹是特征值的加权和。每个权重介于 0 和 1，权重和为 <span class="math-inline">\(k\)</span>。把权重分配给最小的 <span class="math-inline">\(k\)</span> 个特征值即达到下界。最后把 <span class="math-inline">\(H\)</span> 的第 <span class="math-inline">\(i\)</span> 行视为节点 <span class="math-inline">\(i\)</span> 的新坐标，再做 K-means。</p>
-<p>用簇的总度数代替节点数会得到 Normalized Cut，并引出归一化 Laplacian <span class="math-inline">\(I-D^{-1/2}WD^{-1/2}\)</span>（对正度数节点定义）。两者对密度不均的图给出不同目标。<span class="math-inline">\(\epsilon\)</span> 邻域、对称化的 kNN 邻域和高斯权重也会改变图。建图尺度太小时会产生孤立点，太大时跨簇连边抹去局部结构。</p>
-<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>两组三角形由一条权重 <span class="math-inline">\(\epsilon\)</span> 的桥连接，组内边权为 1。按三角形切开的 RatioCut 是 <span class="math-inline">\(2\epsilon/3\)</span>，因此该图的第二小特征值至多 <span class="math-inline">\(2\epsilon/3\)</span>。取 <span class="math-inline">\(\epsilon\to0\)</span> 时，连通分量从一个变为两个，第二小特征值降到零。</p>
-<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》往年课件第 10 讲。图 Laplacian 与 RatioCut 参见 <a target="_blank" rel="noopener" href="https://arxiv.org/abs/0711.0189">von Luxburg, A Tutorial on Spectral Clustering</a>。</p>
-<p><a href="/notes/ml/09/">← 第 9 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/11/">第 11 讲 →</a></p>
+<p><img src="/images/posts/ml-10/figure.png" alt="Two weighted triangles linked by a weak bridge and their Fiedler coordinates"></p>
+<p><em>The bridge is weak relative to the triangle edges. The second eigenvector places the two triangles on opposite sides of zero.</em></p>
+<h2 id="Lloyd’s-alternating-updates"><a href="#Lloyd’s-alternating-updates" class="headerlink" title="Lloyd’s alternating updates"></a>Lloyd’s alternating updates</h2><p>K-means minimizes <span class="math-inline">\(\sum_i\|x_i-\mu_{c_i}\|^2\)</span> over assignments and centers. With centers fixed, each point chooses its closest center independently. For a fixed nonempty cluster <span class="math-inline">\(S\)</span>, expansion about its mean gives</p>
+<div class="math-display">\[\sum_{i\in S}\|x_i-\mu\|^2
+=\sum_{i\in S}\|x_i-\bar x_S\|^2+|S|\|\mu-\bar x_S\|^2.\]</div>
+<p>The cross term vanishes because the centered points sum to zero. Therefore the optimal center is the cluster mean. Exact alternating updates cannot increase the objective. If assignments change only on strict improvements and empty centers are held fixed, the finite number of partitions ensures eventual stability. The solution can depend on initialization. In Euclidean space, nearest centers induce convex Voronoi cells, which need not follow a curved cluster.</p>
+<h2 id="Graph-Laplacian-energy-and-null-space"><a href="#Graph-Laplacian-energy-and-null-space" class="headerlink" title="Graph Laplacian energy and null space"></a>Graph Laplacian energy and null space</h2><p>Let <span class="math-inline">\(W\)</span> be a symmetric nonnegative weight matrix, <span class="math-inline">\(D_{ii}=\sum_jW_{ij}\)</span>, and <span class="math-inline">\(L=D-W\)</span>. Symmetry gives</p>
+<div class="math-display">\[u^\top Lu=\sum_iD_{ii}u_i^2-\sum_{ij}W_{ij}u_iu_j
+=\tfrac12\sum_{ij}W_{ij}(u_i-u_j)^2.\]</div>
+<p>Thus <span class="math-inline">\(L\)</span> is positive semidefinite. The energy is zero exactly when every edge of positive weight joins two equal coordinates. This means <span class="math-inline">\(u\)</span> is constant on each connected component, so the multiplicity of eigenvalue zero is the number of components. In particular, <span class="math-inline">\(L\mathbf1=0\)</span>.</p>
+<h2 id="RatioCut-as-a-relaxation"><a href="#RatioCut-as-a-relaxation" class="headerlink" title="RatioCut as a relaxation"></a>RatioCut as a relaxation</h2><p>Define <span class="math-inline">\(W(A,B)=\sum_{i\in A,j\in B}W_{ij}\)</span>. For a partition <span class="math-inline">\(A,B\)</span>, take <span class="math-inline">\(u_i=\sqrt{|B|/(n|A|)}\)</span> on <span class="math-inline">\(A\)</span> and <span class="math-inline">\(u_i=-\sqrt{|A|/(n|B|)}\)</span> on <span class="math-inline">\(B\)</span>. Then <span class="math-inline">\(\|u\|=1\)</span> and <span class="math-inline">\(u\perp\mathbf1\)</span>. All internal edges have zero energy. A crossing edge contributes its weight times <span class="math-inline">\((1/|A|+1/|B|)\)</span>, so <span class="math-inline">\(u^\top Lu=\operatorname{RatioCut}(A,B)\)</span>. Removing the two-level constraint permits any unit vector perpendicular to <span class="math-inline">\(\mathbf1\)</span>. Expand in an eigenbasis with <span class="math-inline">\(\mathbf1/\sqrt n\)</span> first. The minimum is <span class="math-inline">\(\lambda_2(L)\)</span>, achieved by a Fiedler vector, and is a lower bound on the discrete optimum. A threshold or one-dimensional two-means converts its real coordinates into a cut.</p>
+<p>For <span class="math-inline">\(k\)</span> nonempty groups, set <span class="math-inline">\(H_{ij}=\mathbf1\{i\in A_j\}/\sqrt{|A_j|}\)</span>. Then <span class="math-inline">\(H^\top H=I\)</span> and</p>
+<div class="math-display">\[\operatorname{tr}(H^\top LH)=\sum_j\frac{W(A_j,\overline{A_j})}{|A_j|}.\]</div>
+<p>To solve the relaxation over all <span class="math-inline">\(H^\top H=I\)</span>, let <span class="math-inline">\(u_i\)</span> be Laplacian eigenvectors and write the trace as <span class="math-inline">\(\sum_i\lambda_i c_i\)</span> where <span class="math-inline">\(c_i=\|H^\top u_i\|^2\)</span>. Since <span class="math-inline">\(HH^\top\)</span> is a rank-<span class="math-inline">\(k\)</span> orthogonal projector, <span class="math-inline">\(0\le c_i\le1\)</span> and <span class="math-inline">\(\sum_i c_i=k\)</span>. Moving weight from a larger eigenvalue to a smaller one until the smallest <span class="math-inline">\(k\)</span> have weight one gives the lower bound <span class="math-inline">\(\sum_{i=1}^k\lambda_i\)</span>. Taking their eigenvectors as columns attains it. This is the trace minimization proof used for the spectral embedding; each row is a node’s embedding, and k-means rounds the points to clusters. The same trace argument, applied to the largest eigenvalues, gives the PCA characterization from <a href="/notes/ml/09/">Lecture 9</a>.</p>
+<p>Replacing the size of a group by its total degree gives normalized cut. Its relaxed matrix on positive-degree vertices is <span class="math-inline">\(I-D^{-1/2}WD^{-1/2}\)</span>, obtained by substituting <span class="math-inline">\(D^{1/2}u\)</span> into a Rayleigh quotient with denominator <span class="math-inline">\(u^\top Du\)</span>. Neighborhood definition and edge weights determine the graph; their scale affects both connectedness and the distinction between weak and strong edges.</p>
+<h3 id="The-Birkhoff-proof-in-the-lecture"><a href="#The-Birkhoff-proof-in-the-lecture" class="headerlink" title="The Birkhoff proof in the lecture"></a>The Birkhoff proof in the lecture</h3><p>Complete <span class="math-inline">\(H\)</span> to an orthogonal basis and express its columns in an eigenbasis of <span class="math-inline">\(L\)</span>, obtaining an orthogonal matrix <span class="math-inline">\(Q\)</span>. The matrix <span class="math-inline">\(B\)</span> with entries <span class="math-inline">\(Q_{ij}^2\)</span> is doubly stochastic because each row and column of <span class="math-inline">\(Q\)</span> has squared norm one. By Birkhoff’s theorem, <span class="math-inline">\(B\)</span> is a convex combination of permutation matrices. The objective is the linear expression <span class="math-inline">\(\sum_i\lambda_i\sum_{j\le k}B_{ij}\)</span>. At each permutation this is the sum of some <span class="math-inline">\(k\)</span> distinct eigenvalues, at least <span class="math-inline">\(\lambda_1+\cdots+\lambda_k\)</span>. The same is true of their convex combination. The first <span class="math-inline">\(k\)</span> eigenvectors give equality.</p>
+<h2 id="Two-supplementary-proofs-of-the-trace-minimum"><a href="#Two-supplementary-proofs-of-the-trace-minimum" class="headerlink" title="Two supplementary proofs of the trace minimum"></a>Two supplementary proofs of the trace minimum</h2><p><strong>PCA and best low-rank approximation.</strong> Choose <span class="math-inline">\(c&gt;\lambda_{\max}(L)\)</span> and set <span class="math-inline">\(A=cI-L=XX^\top\)</span> using the symmetric square root. Minimizing <span class="math-inline">\(\operatorname{tr}(H^\top LH)\)</span> over <span class="math-inline">\(H^\top H=I_k\)</span> is equivalent to maximizing <span class="math-inline">\(\operatorname{tr}(H^\top XX^\top H)\)</span>, since their sum is <span class="math-inline">\(ck\)</span>. For a fixed column subspace, the best approximation of <span class="math-inline">\(X\)</span> in that subspace is the projection <span class="math-inline">\(HH^\top X\)</span>. Its squared error is <span class="math-inline">\(\|X\|_F^2-\operatorname{tr}(H^\top XX^\top H)\)</span>. Every matrix of rank at most <span class="math-inline">\(k\)</span> has columns in such a subspace, so the problem is exactly best rank-<span class="math-inline">\(k\)</span> approximation.</p>
+<p>Here is the singular value argument from Zeyang Zhang’s supplement. For <span class="math-inline">\(n\)</span>-column matrices <span class="math-inline">\(B,C\)</span>, take the subspaces orthogonal to the leading <span class="math-inline">\(i-1\)</span> right singular vectors of <span class="math-inline">\(B\)</span> and leading <span class="math-inline">\(j-1\)</span> of <span class="math-inline">\(C\)</span>. Their intersection has dimension at least <span class="math-inline">\(n-i-j+2\)</span>, and <span class="math-inline">\(\|(B+C)v\|\le(\sigma_i(B)+\sigma_j(C))\|v\|\)</span> there. The variational formula for singular values, which minimizes the maximal stretch over subspaces of this dimension, gives <span class="math-inline">\(\sigma_{i+j-1}(B+C)\le\sigma_i(B)+\sigma_j(C)\)</span>. This variational formula follows by choosing the trailing right singular vectors for the upper bound and intersecting any candidate subspace with the span of the first <span class="math-inline">\(i+j-1\)</span> right singular vectors for the lower bound. Set <span class="math-inline">\(B=X-M\)</span>, <span class="math-inline">\(C=M\)</span>, and <span class="math-inline">\(j=k+1\)</span>. Since <span class="math-inline">\(\sigma_{k+1}(M)=0\)</span> for rank at most <span class="math-inline">\(k\)</span>, summing squares gives</p>
+<div class="math-display">\[\|X-M\|_F^2=\sum_i\sigma_i(X-M)^2\ge\sum_{i&gt;k}\sigma_i(X)^2.\]</div>
+<p>The rank-<span class="math-inline">\(k\)</span> truncated singular value decomposition attains the bound. The largest eigenvalues of <span class="math-inline">\(XX^\top=cI-L\)</span> correspond to the smallest ones of <span class="math-inline">\(L\)</span>, giving the desired trace minimum.</p>
+<p><strong>Lagrange multipliers and the determinant argument.</strong> This follows Wenjie Huang’s supplement. For any symmetric <span class="math-inline">\(A\)</span>, use the Lagrangian <span class="math-inline">\(\operatorname{tr}(H^\top AH)-\operatorname{tr}(M(H^\top H-I))\)</span>, with <span class="math-inline">\(M\)</span> symmetric. The derivative of the constraint is onto the symmetric <span class="math-inline">\(k\times k\)</span> matrices, because the perturbation <span class="math-inline">\(HS/2\)</span> gives derivative <span class="math-inline">\(S\)</span> for any symmetric <span class="math-inline">\(S\)</span>. Thus at a minimizer <span class="math-inline">\(AH=HM\)</span>. To see the determinant step, form the block matrix <span class="math-inline">\(D\)</span> with commuting entries <span class="math-inline">\(D_{ij}=\delta_{ij}A-M_{ij}I\)</span>. The cofactor identity <span class="math-inline">\(\operatorname{adj}(D)D=\det(D)I\)</span> holds over the commutative ring generated by <span class="math-inline">\(A\)</span> and <span class="math-inline">\(I\)</span>: an off-diagonal entry is the expansion of a determinant with two equal columns and vanishes. Applying it to the column vectors of <span class="math-inline">\(H\)</span> gives <span class="math-inline">\(p(A)h_j=0\)</span> with <span class="math-inline">\(p(t)=\det(tI_k-M)\)</span>.</p>
+<p>For simple spectrum, <span class="math-inline">\(p(A)\)</span> has at least <span class="math-inline">\(k\)</span> linearly independent null vectors, so <span class="math-inline">\(p(t)\)</span> vanishes at <span class="math-inline">\(k\)</span> distinct eigenvalues <span class="math-inline">\(\lambda_{i_1},\ldots,\lambda_{i_k}\)</span> of <span class="math-inline">\(A\)</span>. Since <span class="math-inline">\(p\)</span> is monic of degree <span class="math-inline">\(k\)</span>, comparing the coefficient of <span class="math-inline">\(t^{k-1}\)</span> gives <span class="math-inline">\(\operatorname{tr}(M)=\sum_{j=1}^k\lambda_{i_j}\)</span>. The objective is <span class="math-inline">\(\operatorname{tr}(M)\)</span> at the stationary point and is at least the sum of the smallest <span class="math-inline">\(k\)</span> eigenvalues. Choosing their eigenvectors attains equality. For repeated eigenvalues diagonalize <span class="math-inline">\(M=Q\Lambda Q^\top\)</span>: <span class="math-inline">\(AHQ=HQ\Lambda\)</span>, so the <span class="math-inline">\(k\)</span> orthonormal columns select eigenvalues with multiplicity at most their eigenspace dimensions. The same lower bound follows. Compactness of <span class="math-inline">\(H^\top H=I\)</span> ensures the minimum is attained.</p>
+<h2 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h2><p>Suppose <span class="math-inline">\(G\)</span> has exactly <span class="math-inline">\(k\)</span> connected components. Show that k-means on the rows of any orthonormal basis of the bottom-<span class="math-inline">\(k\)</span> eigenspace has a unique zero-loss grouping up to label order.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>The normalized component indicators form an orthonormal basis <span class="math-inline">\(B\)</span> of the null space. Every other orthonormal basis is <span class="math-inline">\(BQ\)</span> for an orthogonal <span class="math-inline">\(Q\)</span>. The rows of <span class="math-inline">\(B\)</span> are constant within each component, and different components use nonzero multiples of distinct standard basis vectors, so have distinct rows. Orthogonal rotation preserves these distances. There are exactly <span class="math-inline">\(k\)</span> distinct embedded points. A zero-loss solution requires all rows assigned to a center to be identical, so its <span class="math-inline">\(k\)</span> centers must be the <span class="math-inline">\(k\)</span> distinct points and recover the components.</p>
+</details>
+
+<p><strong>Second challenge.</strong> For a connected weighted graph, show the normalized Laplacian has spectrum in <span class="math-inline">\([0,2]\)</span>. When does the largest eigenvalue reach 2?</p>
+<details>
+<summary>Show solution to the second challenge</summary>
+
+<p>For <span class="math-inline">\(v=D^{-1/2}u\)</span>, the energy is <span class="math-inline">\(\tfrac12\sum_{ij}W_{ij}(v_i-v_j)^2\)</span>. The bound <span class="math-inline">\((a-b)^2\le2(a^2+b^2)\)</span> makes it at most <span class="math-inline">\(2\sum_iD_{ii}v_i^2=2\|u\|^2\)</span>. Equality requires <span class="math-inline">\(v_i=-v_j\)</span> on every positive-weight edge, so a connected graph has a nonzero equality vector exactly when its edges respect a bipartition. On a bipartite graph take <span class="math-inline">\(v=1\)</span> on one side and <span class="math-inline">\(-1\)</span> on the other.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 10 from the archived slides and its trace minimization supplements. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/0711.0189">Von Luxburg, A Tutorial on Spectral Clustering</a>.</p>
+<p><a href="/notes/ml/09/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/11/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/10/" data-id="cuidZt-M1eicaJcFtmphd2GIZ" data-title="机器学习 10｜K-means 与谱聚类" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/10/" data-id="cuid_pBNISPpKo5e9tmuKVGwK" data-title="ML 10: K-means and Spectral Clustering" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -267,7 +286,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          机器学习 11｜SimCLR、t-SNE 与 RoPE
+          ML 11: SimCLR, t-SNE, and Rotary Position Embeddings
         
       </div>
     </a>
@@ -275,7 +294,7 @@
   
     <a href="/notes/ml/09/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">机器学习 09｜PCA、近邻搜索与度量学习</div>
+      <div class="article-nav-title">ML 09: PCA, Nearest Neighbors, and Metric Learning</div>
     </a>
   
 </nav>

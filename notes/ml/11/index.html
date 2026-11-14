@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>机器学习 11｜SimCLR、t-SNE 与 RoPE | Mars Dingdang</title>
+  <title>ML 11: SimCLR, t-SNE, and Rotary Position Embeddings | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="从正负配对、邻居概率和旋转内积三个角度理解表示学习中的相似性，推导 InfoNCE 梯度与 RoPE 的相对位置性质。">
+  <meta name="description" content="Derive the contrastive and t-SNE gradients, connect augmentation pairs to graph energy, and prove why RoPE depends explicitly on relative position.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="机器学习 11｜SimCLR、t-SNE 与 RoPE">
+<meta property="og:title" content="ML 11: SimCLR, t-SNE, and Rotary Position Embeddings">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/11/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="从正负配对、邻居概率和旋转内积三个角度理解表示学习中的相似性，推导 InfoNCE 梯度与 RoPE 的相对位置性质。">
+<meta property="og:description" content="Derive the contrastive and t-SNE gradients, connect augmentation pairs to graph energy, and prove why RoPE depends explicitly on relative position.">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-11/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:11:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T18:10:55.530Z">
+<meta property="article:modified_time" content="2026-11-14T02:31:43.770Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Contrastive Learning">
 <meta property="article:tag" content="Lecture Notes">
@@ -86,7 +86,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -180,9 +182,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -216,7 +217,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      机器学习 11｜SimCLR、t-SNE 与 RoPE
+      ML 11: SimCLR, t-SNE, and Rotary Position Embeddings
     </h1>
   
 
@@ -224,45 +225,54 @@
     
     <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>从正负配对、邻居概率和旋转内积三个角度理解表示学习中的相似性，推导 InfoNCE 梯度与 RoPE 的相对位置性质。</p>
+        <p>Derive the contrastive and t-SNE gradients, connect augmentation pairs to graph energy, and prove why RoPE depends explicitly on relative position.</p>
 <span id="more"></span>
 
-<p><img src="/images/posts/ml-11/figure.png" alt="同一个查询和键先后旋转后，其夹角变化只由两个位置的旋转角之差决定"></p>
-<p><em>每对坐标共享一个角频率。固定内容向量，两者的内积只通过相对旋转角依赖位置。</em></p>
-<h2 id="SimCLR-如何制造监督信号"><a href="#SimCLR-如何制造监督信号" class="headerlink" title="SimCLR 如何制造监督信号"></a>SimCLR 如何制造监督信号</h2><p>给一张图像独立采样两次数据增强，得到两个视图。由同一原图生成的视图互为正样本，一个批次内来自其他原图的视图作为负样本。编码器输出 <span class="math-inline">\(h_i\)</span>，投影头再产生归一化向量 <span class="math-inline">\(z_i\)</span>。若 <span class="math-inline">\(j\)</span> 是 <span class="math-inline">\(i\)</span> 的正样本，</p>
-<div class="math-display">\[\ell_{i,j}
-=-\log\frac{\exp(z_i^\top z_j/\tau)}
-{\sum_{k\ne i}\exp(z_i^\top z_k/\tau)},
-\qquad \tau&gt;0.\]</div>
-<p>对每对增强使用两个方向的损失。把 <span class="math-inline">\(s_{ik}=z_i^\top z_k\)</span> 看作 logits 的原始分数，记 <span class="math-inline">\(p_{ik}\)</span> 为其温度 softmax，则</p>
-<div class="math-display">\[\frac{\partial \ell_{i,j}}{\partial s_{ik}}
-=\frac{p_{ik}-\mathbf1\{k=j\}}{\tau}.\]</div>
-<p>正样本分数受到向上的驱动力，负样本分数受到向下的驱动力，当前相似度较高的负样本获得更大权重。实际参数更新还通过编码器共享参数和归一化耦合所有分数。投影头服务于训练目标，下游常使用编码器的 <span class="math-inline">\(h_i\)</span>。</p>
-<p>增强分布定义了模型学习的不变性。例如裁剪通常保留物体身份，但在依赖全局构图的任务里可能删掉目标信息。用图理解正样本配对时，令 <span class="math-inline">\(w_{ij}\)</span> 为增强边权，有</p>
-<div class="math-display">\[\frac12\sum_{i,j}w_{ij}\|z_i-z_j\|^2=\operatorname{tr}(Z^\top LZ).\]</div>
-<p>单位范数下它与最大化加权正样本内积等价。这解释了目标吸引项与 <a href="/notes/ml/10/">第 10 讲</a>图 Laplacian 的联系。InfoNCE 还含 log-sum-exp 归一化项，谱方法的正交约束或其他防坍塌条件承担不同角色，完整目标的等价结论需要明确建模假设。图文对比可将正样本图改成图像与文本之间的二部图。</p>
-<h2 id="t-SNE-用概率表达局部近邻"><a href="#t-SNE-用概率表达局部近邻" class="headerlink" title="t-SNE 用概率表达局部近邻"></a>t-SNE 用概率表达局部近邻</h2><p>高维样本 <span class="math-inline">\(x_i\)</span> 的条件邻居分布为</p>
-<div class="math-display">\[p_{j\mid i}=\frac{\exp(-\|x_i-x_j\|^2/(2\sigma_i^2))}
-{\sum_{k\ne i}\exp(-\|x_i-x_k\|^2/(2\sigma_i^2))}.\]</div>
-<p>逐点调整 <span class="math-inline">\(\sigma_i\)</span>，使困惑度 <span class="math-inline">\(2^{-\sum_jp_{j\mid i}\log_2p_{j\mid i}}\)</span> 接近指定值。困惑度是有效邻居数的尺度。高维联合概率取 <span class="math-inline">\(p_{ij}=(p_{j\mid i}+p_{i\mid j})/(2n)\)</span>。低维坐标 <span class="math-inline">\(y_i\)</span> 对应概率</p>
-<div class="math-display">\[q_{ij}=\frac{(1+\|y_i-y_j\|^2)^{-1}}{\sum_{a\ne b}(1+\|y_a-y_b\|^2)^{-1}},\qquad q_{ii}=0.\]</div>
-<p>最小化 <span class="math-inline">\(\operatorname{KL}(P\|Q)\)</span> 使高维强邻居在低维仍有较大概率。<span class="math-inline">\(q\)</span> 的重尾允许在低维拉开中等与较远距离，减轻 crowding。展开梯度可得</p>
-<div class="math-display">\[\nabla_{y_i}\operatorname{KL}(P\|Q)
-=4\sum_{j\ne i}(p_{ij}-q_{ij})
-\frac{y_i-y_j}{1+\|y_i-y_j\|^2}.\]</div>
-<p>符号给出吸引和排斥的方向。坐标可因随机初始化和困惑度改变，簇间空白或面积没有直接的原空间单位。</p>
-<h2 id="RoPE-为何产生相对位置"><a href="#RoPE-为何产生相对位置" class="headerlink" title="RoPE 为何产生相对位置"></a>RoPE 为何产生相对位置</h2><p>把查询、键的偶数维通道分成二维块。在第 <span class="math-inline">\(j\)</span> 块，位置 <span class="math-inline">\(m\)</span> 的查询乘旋转矩阵 <span class="math-inline">\(R(m\theta_j)\)</span>，位置 <span class="math-inline">\(n\)</span> 的键乘 <span class="math-inline">\(R(n\theta_j)\)</span>。正交性和旋转的加法给出</p>
-<div class="math-display">\[(R(m\theta_j)q)^\top R(n\theta_j)k
-=q^\top R((n-m)\theta_j)k.\]</div>
-<p>所以这部分注意力分数的显式位置依赖只经过 <span class="math-inline">\(n-m\)</span>。查询和键的内容本身仍由各自位置的 token 和上下文决定。常用频率为 <span class="math-inline">\(\theta_j=10000^{-2j/d}\)</span>，<span class="math-inline">\(j=0,\dots,d/2-1\)</span>。多个频率让不同通道感知不同距离尺度。RoPE 改变的是查询和键的内积结构，序列外推效果还取决于训练长度、频率设置和模型。</p>
-<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>若二维 <span class="math-inline">\(q=k=(1,0)\)</span>，旋转后的内积为 <span class="math-inline">\(\cos((n-m)\theta)\)</span>。位置同时从 <span class="math-inline">\((m,n)\)</span> 移为 <span class="math-inline">\((m+a,n+a)\)</span>，内积不变。若只移动键，内积通常会变。</p>
-<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》往年课件第 11 讲。原文：<a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v119/chen20j.html">SimCLR</a>，<a target="_blank" rel="noopener" href="https://jmlr.org/papers/v9/vandermaaten08a.html">t-SNE</a>，<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2104.09864">RoFormer</a>。</p>
-<p><a href="/notes/ml/10/">← 第 10 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/12/">第 12 讲 →</a></p>
+<p><img src="/images/posts/ml-11/figure.png" alt="Two vector pairs show the original angle and the angle after position rotations"></p>
+<p><em>A two-dimensional query and key rotate at a shared frequency. Their relative angle changes by the difference of the position rotations.</em></p>
+<h2 id="SimCLR-and-positive-pair-graphs"><a href="#SimCLR-and-positive-pair-graphs" class="headerlink" title="SimCLR and positive-pair graphs"></a>SimCLR and positive-pair graphs</h2><p>Apply two independent random augmentations to each image. Each such pair consists of positive views, while the other images in the batch supply negative views. An encoder provides <span class="math-inline">\(h_i\)</span>, and a projection head provides unit embeddings <span class="math-inline">\(z_i\)</span>. For anchor <span class="math-inline">\(i\)</span> and its positive partner <span class="math-inline">\(j\)</span>, define</p>
+<div class="math-display">\[\ell_{i,j}=-\log\frac{\exp(z_i^\top z_j/\tau)}{\sum_{k\ne i}\exp(z_i^\top z_k/\tau)}.\]</div>
+<p>Write <span class="math-inline">\(s_{ik}=z_i^\top z_k\)</span> and <span class="math-inline">\(p_{ik}\)</span> for the temperature softmax. Differentiating the positive linear term and the log normalizer gives <span class="math-inline">\(\partial\ell_{i,j}/\partial s_{ik}=(p_{ik}-\mathbf1\{k=j\})/\tau\)</span>. High-similarity negative examples receive a larger repulsive derivative. The actual encoder gradient couples many pairs through shared parameters. SimCLR uses both directions of each positive pair and commonly uses the encoder’s pre-projection representation downstream.</p>
+<p>In a finite vocabulary of possible augmented views, put a symmetric edge weight on each positive pair proportional to its frequency. With embedding matrix <span class="math-inline">\(Z\)</span> and Laplacian <span class="math-inline">\(L\)</span>, expanding squared edge differences gives</p>
+<div class="math-display">\[\tfrac12\sum_{i,j}w_{ij}\|z_i-z_j\|^2=\operatorname{tr}(Z^\top LZ).\]</div>
+<p>With unit embeddings, minimizing this term is equivalent to maximizing the weighted dot products over positive edges. The InfoNCE normalizer adds a second term. For example, with ordered positive-pair probabilities <span class="math-inline">\(\pi_{ij}\)</span> and marginals <span class="math-inline">\(\pi_i=\sum_j\pi_{ij}\)</span>, the full-vocabulary loss is <span class="math-inline">\(-\tau^{-1}\sum_{ij}\pi_{ij}s_{ij}+\sum_i\pi_i\log\sum_{k\ne i}e^{s_{ik}/\tau}\)</span>. The graph energy accounts for the attraction term. Spectral equivalence for a complete contrastive objective depends on how subgraphs, kernel probabilities, and normalization are modeled. Image–text contrastive learning instead uses a bipartite positive graph.</p>
+<h3 id="Deriving-InfoNCE-from-the-graph-cross-entropy"><a href="#Deriving-InfoNCE-from-the-graph-cross-entropy" class="headerlink" title="Deriving InfoNCE from the graph cross-entropy"></a>Deriving InfoNCE from the graph cross-entropy</h3><p>For each directed edge from <span class="math-inline">\(i\)</span> to <span class="math-inline">\(j\)</span>, let <span class="math-inline">\(w_{ij}\)</span> be its nonnegative score and exclude self-edges. Impose the constraint that every row selects one outgoing edge. A graph is then determined by its choices <span class="math-inline">\(j(i)\)</span>, and its unnormalized probability is <span class="math-inline">\(\prod_i w_{i,j(i)}\)</span>. Since the constraint on one row is independent of the other rows, summing this product over all graphs gives <span class="math-inline">\(\prod_i\sum_{k\ne i}w_{ik}\)</span>. The resulting probability of the graph factors into the product of its row probabilities.</p>
+<p>Take the positive-pair weights to be <span class="math-inline">\(\pi_{ij}\)</span> and the embedding weights to be <span class="math-inline">\(w_{ij}=\exp(z_i^\top z_j/\tau)\)</span>. Write <span class="math-inline">\(\pi(j\mid i)=\pi_{ij}/\sum_{k\ne i}\pi_{ik}\)</span> for every row with positive total weight. The negative log probability under the embedding distribution, averaged over the positive-pair graph, is</p>
+<div class="math-display">\[-\sum_i\sum_{j\ne i}\pi(j\mid i)
+\log\frac{\exp(z_i^\top z_j/\tau)}{\sum_{k\ne i}\exp(z_i^\top z_k/\tau)}.\]</div>
+<p>This is the sum of per-anchor InfoNCE objectives, averaged over each anchor’s positives. Weighting the rows by their anchor frequencies gives the ordered-pair objective above. The derivation requires the one-outgoing-edge constraint and these exponential weights. For a graph model that couples row choices, the partition function need not factor.</p>
+<h2 id="t-SNE-preserves-a-distribution-over-neighbors"><a href="#t-SNE-preserves-a-distribution-over-neighbors" class="headerlink" title="t-SNE preserves a distribution over neighbors"></a>t-SNE preserves a distribution over neighbors</h2><p>For high-dimensional inputs use</p>
+<div class="math-display">\[p_{j\mid i}=
+\frac{e^{-\|x_i-x_j\|^2/(2\sigma_i^2)}}{\sum_{k\ne i}e^{-\|x_i-x_k\|^2/(2\sigma_i^2)}},\qquad
+p_{ij}=\frac{p_{j\mid i}+p_{i\mid j}}{2n}.\]</div>
+<p>Tune <span class="math-inline">\(\sigma_i\)</span> so that the row perplexity, <span class="math-inline">\(2\)</span> raised to its base-2 entropy, matches the desired effective neighborhood size. For low-dimensional coordinates let <span class="math-inline">\(w_{ij}=(1+\|y_i-y_j\|^2)^{-1}\)</span> and <span class="math-inline">\(q_{ij}=w_{ij}/Z\)</span>, <span class="math-inline">\(Z=\sum_{a\ne b}w_{ab}\)</span>. Self-pairs have probability zero. The heavy tail leaves room for moderate and large distances and reduces crowding in the embedding.</p>
+<p>To differentiate <span class="math-inline">\(D_{\rm KL}(P\|Q)\)</span>, omit the constant <span class="math-inline">\(\sum p_{ij}\log p_{ij}\)</span> and write the remainder as <span class="math-inline">\(\log Z-\sum p_{ij}\log w_{ij}\)</span>. For <span class="math-inline">\(j\ne i\)</span>, <span class="math-inline">\(\nabla_{y_i}\log w_{ij}=-2w_{ij}(y_i-y_j)\)</span>. Each unordered pair appears twice. The two terms therefore combine to</p>
+<div class="math-display">\[\nabla_{y_i}D_{\rm KL}(P\|Q)=4\sum_{j\ne i}(p_{ij}-q_{ij})w_{ij}(y_i-y_j).\]</div>
+<p>A pair with <span class="math-inline">\(p_{ij}&gt;q_{ij}\)</span> attracts under gradient descent. Distances between clusters and relative cluster areas can vary considerably with the initialization and perplexity.</p>
+<h2 id="RoPE-is-a-representation-of-position-offsets"><a href="#RoPE-is-a-representation-of-position-offsets" class="headerlink" title="RoPE is a representation of position offsets"></a>RoPE is a representation of position offsets</h2><p>In each two-dimensional coordinate block, apply <span class="math-inline">\(R(m\theta_j)\)</span> to query at position <span class="math-inline">\(m\)</span> and <span class="math-inline">\(R(n\theta_j)\)</span> to key at position <span class="math-inline">\(n\)</span>. Here <span class="math-inline">\(R(\alpha)\)</span> is the rotation with rows <span class="math-inline">\((\cos\alpha,-\sin\alpha)\)</span> and <span class="math-inline">\((\sin\alpha,\cos\alpha)\)</span>. Since <span class="math-inline">\(R(\alpha)^\top=R(-\alpha)\)</span> and <span class="math-inline">\(R(a)R(b)=R(a+b)\)</span>,</p>
+<div class="math-display">\[(R(m\theta_j)q)^\top R(n\theta_j)k=q^\top R((n-m)\theta_j)k.\]</div>
+<p>Thus the positional action on the dot product is a function of the relative position. The content vectors can still depend on the surrounding context. Multiple blocks use different frequencies, for example <span class="math-inline">\(\theta_j=10000^{-2j/d}\)</span>, so they encode different offset scales.</p>
+<h2 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h2><p>Prove row perplexity is nondecreasing as Gaussian bandwidth grows. Under what conditions is it strictly increasing?</p>
+<details>
+<summary>Show solution</summary>
+
+<p>Write <span class="math-inline">\(\beta=1/(2\sigma_i^2)\)</span>, <span class="math-inline">\(a_j=\|x_i-x_j\|^2\)</span>, and <span class="math-inline">\(p_j=e^{-\beta a_j}/Z\)</span>. In natural units <span class="math-inline">\(H=\log Z+\beta\mathbb E_pa\)</span>. Differentiate: <span class="math-inline">\((\log Z)'=-\mathbb E_pa\)</span> and <span class="math-inline">\((\mathbb E_pa)'=-\operatorname{Var}_p(a)\)</span>. Therefore <span class="math-inline">\(dH/d\beta=-\beta\operatorname{Var}_p(a)\)</span>. Increasing <span class="math-inline">\(\sigma_i\)</span> decreases <span class="math-inline">\(\beta\)</span>, so <span class="math-inline">\(e^H\)</span> is nondecreasing. For finite positive bandwidth and at least two unequal distances the variance is positive, making the increase strict. If all distances are equal, the distribution is always uniform.</p>
+</details>
+
+<p><strong>Second challenge.</strong> Suppose a single RoPE block uses angle <span class="math-inline">\(\theta\)</span> with <span class="math-inline">\(\theta/2\pi\)</span> irrational. Can two integer offsets give exactly the same rotation? Can their rotations be arbitrarily close?</p>
+<details>
+<summary>Show solution to the second challenge</summary>
+
+<p>Equality would require <span class="math-inline">\((m-n)\theta\in2\pi\mathbb Z\)</span>, which is impossible for different integer offsets. For closeness, divide the circle into <span class="math-inline">\(N\)</span> intervals and place the <span class="math-inline">\(N+1\)</span> angles <span class="math-inline">\(0,\theta,\ldots,N\theta\)</span> into them modulo <span class="math-inline">\(2\pi\)</span>. Two fall into the same interval, so the nonzero difference has angular distance at most <span class="math-inline">\(2\pi/N\)</span> from zero. Exact injectivity therefore gives no uniform numerical separation over unbounded positions.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 11 from the archived slides. <a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v119/chen20j.html">SimCLR</a>, <a target="_blank" rel="noopener" href="https://jmlr.org/papers/v9/vandermaaten08a.html">t-SNE</a>, and <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2104.09864">RoFormer</a>.</p>
+<p><a href="/notes/ml/10/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/12/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/11/" data-id="cuidqXl-h35K4owf21wnCkKWZ" data-title="机器学习 11｜SimCLR、t-SNE 与 RoPE" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/11/" data-id="cuidXFLcKwy14Se5aDKuNgw54" data-title="ML 11: SimCLR, t-SNE, and Rotary Position Embeddings" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -279,7 +289,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          机器学习 12｜鲁棒学习与随机平滑证书
+          ML 12: Robust Learning and Randomized Smoothing
         
       </div>
     </a>
@@ -287,7 +297,7 @@
   
     <a href="/notes/ml/10/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">机器学习 10｜K-means 与谱聚类</div>
+      <div class="article-nav-title">ML 10: K-means and Spectral Clustering</div>
     </a>
   
 </nav>

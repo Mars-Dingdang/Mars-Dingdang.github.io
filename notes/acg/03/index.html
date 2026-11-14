@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>「ACG 03」空间变换：齐次坐标、旋转与相机 | Mars Dingdang</title>
+  <title>ACG 03: Transformations, Rotations, and Camera Frames | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="移动一个物体、换一套坐标系和转动一台相机，常常写成相似的矩阵。判断矩阵是否写对，先明确输入和输出属于哪个坐标系，再用原点、基向量和已知方向检验。">
+  <meta name="description" content="A transformation can move a point in one coordinate system or express the same point in another. In either case, name the source and destination frames and check the origin and basis vectors before co">
 <meta property="og:type" content="article">
-<meta property="og:title" content="「ACG 03」空间变换：齐次坐标、旋转与相机">
+<meta property="og:title" content="ACG 03: Transformations, Rotations, and Camera Frames">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/acg/03/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="移动一个物体、换一套坐标系和转动一台相机，常常写成相似的矩阵。判断矩阵是否写对，先明确输入和输出属于哪个坐标系，再用原点、基向量和已知方向检验。">
-<meta property="og:locale" content="zh_CN">
+<meta property="og:description" content="A transformation can move a point in one coordinate system or express the same point in another. In either case, name the source and destination frames and check the origin and basis vectors before co">
+<meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/acg-03-transformation/thumbnail.png">
 <meta property="article:published_time" content="2026-11-13T16:03:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T17:51:03.096Z">
+<meta property="article:modified_time" content="2026-11-14T02:22:49.629Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="ACG">
 <meta property="article:tag" content="Lecture Notes">
@@ -85,7 +85,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -179,9 +181,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -211,55 +212,82 @@
   <div class="article-inner">
     
     
-      <header class="article-header" lang="zh-CN">
+      <header class="article-header" lang="en">
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      「ACG 03」空间变换：齐次坐标、旋转与相机
+      ACG 03: Transformations, Rotations, and Camera Frames
     </h1>
   
 
       </header>
     
-    <div class="e-content article-entry" itemprop="articleBody" lang="zh-CN">
+    <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>移动一个物体、换一套坐标系和转动一台相机，常常写成相似的矩阵。判断矩阵是否写对，先明确输入和输出属于哪个坐标系，再用原点、基向量和已知方向检验。</p>
+        <p>A transformation can move a point in one coordinate system or express the same point in another. In either case, name the source and destination frames and check the origin and basis vectors before composing matrices.</p>
 <span id="more"></span>
 
-<h2 id="仿射变换与齐次坐标"><a href="#仿射变换与齐次坐标" class="headerlink" title="仿射变换与齐次坐标"></a>仿射变换与齐次坐标</h2><p>采用列向量。线性变换 <span class="math-inline">\(x'=Ax\)</span> 固定原点，平移 <span class="math-inline">\(x'=x+t\)</span> 则把原点移到 <span class="math-inline">\(t\)</span>。把仿射变换统一写成</p>
-<div class="math-display">\[\begin{pmatrix}x'\\1\end{pmatrix}
-=
+<h2 id="Affine-transformations-and-homogeneous-coordinates"><a href="#Affine-transformations-and-homogeneous-coordinates" class="headerlink" title="Affine transformations and homogeneous coordinates"></a>Affine transformations and homogeneous coordinates</h2><p>With column vectors, the affine map <span class="math-inline">\(x'=Ax+t\)</span> becomes</p>
+<div class="math-display">\[\begin{pmatrix}x'\\1\end{pmatrix}=
 \begin{pmatrix}A&amp;t\\0&amp;1\end{pmatrix}
 \begin{pmatrix}x\\1\end{pmatrix}.\]</div>
-<p>两个点相减得到方向 <span class="math-inline">\((d,0)\)</span>，所以仿射矩阵作用在方向上时，平移列乘以零。绕点 <span class="math-inline">\(c\)</span> 旋转可以写成 <span class="math-inline">\(T(c)RT(-c)\)</span>，最右侧先作用。展开得到 <span class="math-inline">\(x'=R(x-c)+c\)</span>，代入 <span class="math-inline">\(x=c\)</span> 可以检查旋转中心是否固定。</p>
-<p>当 <span class="math-inline">\(A\)</span> 可逆，解 <span class="math-inline">\(x'=Ax+t\)</span> 可知逆变换为 <span class="math-inline">\(x=A^{-1}x'-A^{-1}t\)</span>。法向使用逆转置。若 <span class="math-inline">\(n\)</span> 垂直于切向量 <span class="math-inline">\(u\)</span>，希望变换后仍有 <span class="math-inline">\(n'^\mathsf T(Au)=0\)</span>。取 <span class="math-inline">\(n'=A^{-\mathsf T}n\)</span>，左侧化成 <span class="math-inline">\(n^\mathsf Tu\)</span>。在非均匀缩放后，直接用 <span class="math-inline">\(An\)</span> 计算的方向通常无法保持这一条件。<a target="_blank" rel="noopener" href="https://pbr-book.org/4ed/Geometry_and_Transformations/Transformations">PBRT · Transformations</a></p>
-<h2 id="三维旋转为什么属于-SO-3"><a href="#三维旋转为什么属于-SO-3" class="headerlink" title="三维旋转为什么属于 SO(3)"></a>三维旋转为什么属于 SO(3)</h2><p>旋转保持内积，因此 <span class="math-inline">\((Ra)^\mathsf T(Rb)=a^\mathsf T b\)</span> 对任意 <span class="math-inline">\(a,b\)</span> 成立，等价于 <span class="math-inline">\(R^\mathsf T R=I\)</span>。取行列式得到 <span class="math-inline">\(\det R=\pm1\)</span>。反射属于 <span class="math-inline">\(-1\)</span> 的分支，保持定向的旋转满足 <span class="math-inline">\(\det R=1\)</span>。这样的矩阵对复合和求逆封闭，记作 <span class="math-inline">\(SO(3)\)</span>。</p>
-<p>对单位轴 <span class="math-inline">\(u\)</span>，记 <span class="math-inline">\(K=[u]_\times\)</span>，即 <span class="math-inline">\(Kv=u\times v\)</span>。用向量三重积得到 <span class="math-inline">\(K^2=uu^\mathsf T-I\)</span>，从而 <span class="math-inline">\(K^3=-K\)</span>。把指数的奇数项与偶数项各自合并成三角函数，得到 Rodrigues 公式</p>
-<div class="math-display">\[e^{\theta K}=I+\sin\theta\,K+(1-\cos\theta)K^2 .\]</div>
-<p>它保持轴向分量不变，并把垂直于轴的分量在平面里旋转 <span class="math-inline">\(\theta\)</span>。因此在以旋转轴为一条基向量的正交基下，<span class="math-inline">\(R\)</span> 由一个二维旋转块和一个 <span class="math-inline">\(1\)</span> 组成。迹与选基无关，于是 <span class="math-inline">\(\operatorname{tr}(R)=1+2\cos\theta\)</span>。两姿态的最短旋转角可以对相对旋转 <span class="math-inline">\(R_1^\mathsf T R_2\)</span> 使用这个公式。恒等旋转不决定轴。角度为 <span class="math-inline">\(\pi\)</span> 时，<span class="math-inline">\(u\)</span> 与 <span class="math-inline">\(-u\)</span> 对应同一个旋转。</p>
-<h2 id="欧拉角与单位四元数"><a href="#欧拉角与单位四元数" class="headerlink" title="欧拉角与单位四元数"></a>欧拉角与单位四元数</h2><p>欧拉角要同时声明轴顺序和参考系。以 <span class="math-inline">\(R=R_z(\gamma)R_y(\beta)R_x(\alpha)\)</span> 为例，当 <span class="math-inline">\(\beta=\pi/2\)</span>，<span class="math-inline">\(R_y\)</span> 把 <span class="math-inline">\(x\)</span> 轴转向 <span class="math-inline">\(-z\)</span>，有 <span class="math-inline">\(R_y(\pi/2)R_x(\alpha)=R_z(-\alpha)R_y(\pi/2)\)</span>。所以 <span class="math-inline">\(R\)</span> 只依赖 <span class="math-inline">\(\gamma-\alpha\)</span>。两个控制参数在这一姿态附近失去独立性，这就是万向节锁。</p>
-<p>单位四元数 <span class="math-inline">\(q=(\cos(\theta/2),u\sin(\theta/2))\)</span> 通过 <span class="math-inline">\((0,v')=q(0,v)q^{-1}\)</span> 旋转向量。展开乘积，向量部分为</p>
-<div class="math-display">\[(\cos^2\tfrac{\theta}{2}-\sin^2\tfrac{\theta}{2})v
-+2\sin^2\tfrac{\theta}{2}\,u(u^\mathsf Tv)
-+2\cos\tfrac{\theta}{2}\sin\tfrac{\theta}{2}\,(u\times v),\]</div>
-<p>应用倍角公式可还原 Rodrigues 公式。<span class="math-inline">\(q\)</span> 与 <span class="math-inline">\(-q\)</span> 在夹乘中符号相消，因此它们代表同一个旋转。插值前常检查两个单位四元数的点积，若为负便翻转其中一个的符号，沿较短弧连接。对网络输出，也要考虑两种符号对应同一个目标姿态。</p>
-<h2 id="从世界坐标到相机坐标"><a href="#从世界坐标到相机坐标" class="headerlink" title="从世界坐标到相机坐标"></a>从世界坐标到相机坐标</h2><p>设相机中心为 <span class="math-inline">\(e\)</span>，它的右、上、后三个单位方向组成矩阵 <span class="math-inline">\(R=(r,u,b)\)</span>。采用相机看向本地 <span class="math-inline">\(-z\)</span> 的约定。相机到世界的映射是 <span class="math-inline">\(p_w=Rp_c+e\)</span>，因此</p>
+<p>The difference of two point vectors has homogeneous component zero, so translations leave displacement vectors unchanged. A rotation around <span class="math-inline">\(c\)</span> is <span class="math-inline">\(T(c)RT(-c)\)</span>, applied from right to left. The expression <span class="math-inline">\(R(x-c)+c\)</span> immediately verifies that the pivot remains fixed. For invertible <span class="math-inline">\(A\)</span>, the inverse map is <span class="math-inline">\(A^{-1}x'-A^{-1}t\)</span>.</p>
+<p>Normal vectors follow a different rule. If <span class="math-inline">\(n^\mathsf T u=0\)</span> for a tangent <span class="math-inline">\(u\)</span>, require <span class="math-inline">\(n'^\mathsf T Au=0\)</span>. Choosing <span class="math-inline">\(n'=A^{-\mathsf T}n\)</span> preserves the dot product. Normalize afterward when a shader expects unit length. Using <span class="math-inline">\(An\)</span> works for rotations and uniform scaling up to normalization, but nonuniform scaling can break orthogonality. <a target="_blank" rel="noopener" href="https://pbr-book.org/4ed/Geometry_and_Transformations/Transformations">PBRT, “Transformations”</a></p>
+<h2 id="Rotations-and-the-exponential-map"><a href="#Rotations-and-the-exponential-map" class="headerlink" title="Rotations and the exponential map"></a>Rotations and the exponential map</h2><p>A rotation preserves inner products, so <span class="math-inline">\(R^\mathsf T R=I\)</span>. Its determinant is <span class="math-inline">\(1\)</span> because it also preserves orientation. These matrices form <span class="math-inline">\(SO(3)\)</span>. Their inverses are transposes, and their products remain rotations.</p>
+<p>Let <span class="math-inline">\(u\)</span> be a unit axis and set <span class="math-inline">\(Kv=u\times v\)</span>. The triple product gives <span class="math-inline">\(K^2=uu^\mathsf T-I\)</span> and <span class="math-inline">\(K^3=-K\)</span>. Summing the odd and even terms of the exponential power series yields Rodrigues’ formula,</p>
+<div class="math-display">\[R=e^{\theta K}=I+\sin\theta\,K+(1-\cos\theta)K^2.\]</div>
+<p>In an orthonormal basis with <span class="math-inline">\(u\)</span> as one axis, <span class="math-inline">\(R\)</span> consists of a planar rotation block and an unchanged axis. Taking the trace gives <span class="math-inline">\(\operatorname{tr}R=1+2\cos\theta\)</span>. Apply this identity to <span class="math-inline">\(R_1^\mathsf T R_2\)</span> to recover the angle between two orientations. The identity rotation has no unique axis. At angle <span class="math-inline">\(\pi\)</span>, an axis and its negative define the same rotation.</p>
+<h2 id="Euler-angles-and-quaternions"><a href="#Euler-angles-and-quaternions" class="headerlink" title="Euler angles and quaternions"></a>Euler angles and quaternions</h2><p>Euler angles depend on the rotation convention. For <span class="math-inline">\(R=R_z(\gamma)R_y(\beta)R_x(\alpha)\)</span>, at <span class="math-inline">\(\beta=\pi/2\)</span> the <span class="math-inline">\(x\)</span> axis rotates onto <span class="math-inline">\(-z\)</span>. Conjugating the rotation around <span class="math-inline">\(x\)</span> then gives</p>
+<div class="math-display">\[R_z(\gamma)R_y(\pi/2)R_x(\alpha)=R_z(\gamma-\alpha)R_y(\pi/2).\]</div>
+<p>The two angles <span class="math-inline">\(\gamma,\alpha\)</span> no longer have independent effects. This is gimbal lock.</p>
+<p>The unit quaternion <span class="math-inline">\(q=(\cos(\theta/2),u\sin(\theta/2))\)</span> rotates a vector through <span class="math-inline">\((0,v')=q(0,v)q^{-1}\)</span>. Expanding the vector part gives</p>
+<div class="math-display">\[\cos\theta\,v+(1-\cos\theta)u(u^\mathsf Tv)+\sin\theta\,(u\times v),\]</div>
+<p>the same Rodrigues formula. Since the signs cancel in the sandwich product, <span class="math-inline">\(q\)</span> and <span class="math-inline">\(-q\)</span> encode one rotation.</p>
+<h3 id="Implement-shortest-arc-spherical-interpolation"><a href="#Implement-shortest-arc-spherical-interpolation" class="headerlink" title="Implement shortest-arc spherical interpolation"></a>Implement shortest-arc spherical interpolation</h3><p>Two unit quaternions span a two-dimensional plane in four dimensions. In that plane, the geodesic interpolation at fraction <span class="math-inline">\(t\)</span> combines them with sine weights. Flipping the endpoint representative when the dot product is negative chooses the shorter rotation path. The normalized linear limit avoids division by a tiny sine when the inputs are nearly equal.</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> math <span class="keyword">import</span> acos, sin</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">slerp</span>(<span class="params">q0, q1, t</span>):</span><br><span class="line">    d = dot(q0, q1)</span><br><span class="line">    <span class="keyword">if</span> d &lt; <span class="number">0</span>:</span><br><span class="line">        q1, d = -q1, -d</span><br><span class="line">    d = <span class="built_in">min</span>(<span class="number">1.0</span>, d)</span><br><span class="line">    <span class="keyword">if</span> d &gt; <span class="number">0.9995</span>:</span><br><span class="line">        <span class="keyword">return</span> normalize((<span class="number">1</span> - t)*q0 + t*q1)</span><br><span class="line">    omega = acos(d)</span><br><span class="line">    a = sin((<span class="number">1</span> - t)*omega) / sin(omega)</span><br><span class="line">    b = sin(t*omega) / sin(omega)</span><br><span class="line">    <span class="keyword">return</span> a*q0 + b*q1</span><br></pre></td></tr></table></figure>
+
+<p>The function assumes unit inputs, and the result represents <span class="math-inline">\(q_0\)</span> at <span class="math-inline">\(t=0\)</span> and the orientation of <span class="math-inline">\(q_1\)</span> at <span class="math-inline">\(t=1\)</span>. When <span class="math-inline">\(q_1=-q_0\)</span>, the entire interpolation represents the same orientation.</p>
+<h2 id="The-view-matrix"><a href="#The-view-matrix" class="headerlink" title="The view matrix"></a>The view matrix</h2><p>Let <span class="math-inline">\(e\)</span> be the camera center and let <span class="math-inline">\(r,u,b\)</span> denote its right, up, and backward unit vectors. Put the basis vectors into the columns of <span class="math-inline">\(R\)</span>. The camera looks along its local negative <span class="math-inline">\(z\)</span> axis. Its camera-to-world map is <span class="math-inline">\(p_w=Rp_c+e\)</span>, so</p>
 <div class="math-display">\[p_c=R^\mathsf T(p_w-e),\qquad
 V=\begin{pmatrix}R^\mathsf T&amp;-R^\mathsf T e\\0&amp;1\end{pmatrix}.\]</div>
-<p><img src="/images/posts/acg-03-transformation/thumbnail.png" alt="相机中心 e 与世界坐标 p。将位移 p−e 分别投影到相机基向量上，得到相机局部坐标"></p>
-<p>已知观察目标 <span class="math-inline">\(a\)</span> 与参考上方向 <span class="math-inline">\(u_0\)</span> 时，可以取 <span class="math-inline">\(b=(e-a)/\|e-a\|\)</span>，再令 <span class="math-inline">\(r=\operatorname{normalize}(u_0\times b)\)</span>、<span class="math-inline">\(u=b\times r\)</span>。参考上方向不能与 <span class="math-inline">\(b\)</span> 平行，否则无法由它确定横滚角。检查 <span class="math-inline">\(V(e,1)^\mathsf T=(0,0,0,1)^\mathsf T\)</span>，并确认相机前方点 <span class="math-inline">\(e-\lambda b\)</span> 的局部 <span class="math-inline">\(z\)</span> 为负。如果只把平移项写成 <span class="math-inline">\(-e\)</span>，相机有旋转时通常就无法通过第一个检查。</p>
-<p>从模型到相机的复合是 <span class="math-inline">\(VM\)</span>。随后用<a href="/notes/acg/04/">第 04 讲</a>的投影矩阵和视口映射确定屏幕位置。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li>弋力，《Advanced Computer Graphics》，Lecture 3: Transformation，2026 年 9 月 30 日，课件第 50–81 页（变换）、第 82–125 页（旋转）、第 126–137 页（相机）。</li>
-</ul>
+<p><img src="/images/posts/acg-03-transformation/thumbnail.png" alt="The world-space displacement from camera center e to point p is projected onto the camera basis."></p>
+<p>For target <span class="math-inline">\(a\)</span> and reference up vector <span class="math-inline">\(u_0\)</span>, use <span class="math-inline">\(b=\operatorname{normalize}(e-a)\)</span>, <span class="math-inline">\(r=\operatorname{normalize}(u_0\times b)\)</span>, and <span class="math-inline">\(u=b\times r\)</span>. A reference up parallel to <span class="math-inline">\(b\)</span> fails to determine the roll. The implementation should check that the camera center maps to the origin and that <span class="math-inline">\(e-\lambda b\)</span> with <span class="math-inline">\(\lambda&gt;0\)</span> maps to negative local <span class="math-inline">\(z\)</span>. The model-view composition is <span class="math-inline">\(VM\)</span>, followed by the projection in <a href="/notes/acg/04/">Lecture 4</a>.</p>
+<h2 id="Exercises"><a href="#Exercises" class="headerlink" title="Exercises"></a>Exercises</h2><ol>
+<li><strong>Construct the correct normal.</strong> The plane <span class="math-inline">\(x+y=0\)</span> undergoes scaling by <span class="math-inline">\(\operatorname{diag}(2,1,3)\)</span>. Derive its transformed equation and normal. Explain why applying the same matrix to the original normal disagrees.</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>Solve for the old coordinates to obtain <span class="math-inline">\(x'/2+y'=0\)</span>. The new normal is proportional to <span class="math-inline">\((1/2,1,0)\)</span>, given by the inverse transpose. Multiplying directly gives <span class="math-inline">\((2,1,0)\)</span>, whose dot product with the transformed tangent <span class="math-inline">\((2,-1,0)\)</span> is <span class="math-inline">\(3\)</span>.</p>
+</details>
+
+<ol start="2">
+<li><strong>Move the model and camera together.</strong> Let a rigid motion <span class="math-inline">\(T\)</span> transform both the camera-to-world matrix <span class="math-inline">\(C\)</span> and the model-to-world matrix <span class="math-inline">\(M\)</span>. Prove that camera-space geometry is invariant.</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>After the motion, the product is <span class="math-inline">\((TC)^{-1}(TM)=C^{-1}T^{-1}TM=C^{-1}M\)</span>. The camera senses relative placement, so the common world-space motion cancels.</p>
+</details>
+
+<ol start="3">
+<li><strong>Quaternion sign and timing.</strong> Interpolate from identity to a <span class="math-inline">\(270^\circ\)</span> rotation about <span class="math-inline">\(z\)</span> via shortest-arc SLERP. What orientation is represented at <span class="math-inline">\(t=1/2\)</span>?</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>The endpoint quaternion has negative real part <span class="math-inline">\(\cos 135^\circ\)</span>. Its negation represents a <span class="math-inline">\(-90^\circ\)</span> turn about <span class="math-inline">\(z\)</span>. The shortest arc begins at identity and ends at this signed angle, so its midpoint represents <span class="math-inline">\(-45^\circ\)</span> about <span class="math-inline">\(z\)</span>.</p>
+</details>
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>Li Yi, <em>Advanced Computer Graphics</em>, Lecture 3, “Transformation,” September 30, 2026, slides 50–81 for affine maps, 82–125 for rotations, and 126–137 for camera frames.</p>
 <hr>
-<p><a href="/notes/acg/02/">上一讲</a> · <a href="/notes/">课程笔记</a> · <a href="/notes/acg/04/">下一讲</a></p>
+<p><a href="/notes/acg/02/">Previous lecture</a> · <a href="/notes/#acg">Course notes</a> · <a href="/notes/acg/04/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/acg/03/" data-id="cuidHCmZ5nijQ2cS3JVWQXdz-" data-title="「ACG 03」空间变换：齐次坐标、旋转与相机" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-<span>分享</span></button>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/acg/03/" data-id="cuidYjzBT6YQZYCPsb9WGOI96" data-title="ACG 03: Transformations, Rotations, and Camera Frames" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>Share</span></button>
       
       
       
@@ -272,18 +300,18 @@ V=\begin{pmatrix}R^\mathsf T&amp;-R^\mathsf T e\\0&amp;1\end{pmatrix}.\]</div>
 <nav id="article-nav">
   
     <a href="/notes/ml/04/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
+      <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          机器学习 04｜矩阵补全、核范数与鞍点
+          ML 04: Matrix Completion and Nonconvex Geometry
         
       </div>
     </a>
   
   
     <a href="/notes/ml/03/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">机器学习 03｜SGD、SVRG 与镜像下降</div>
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">ML 03: SGD, SVRG, and Mirror Descent</div>
     </a>
   
 </nav>

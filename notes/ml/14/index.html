@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>机器学习 14｜模型解释、积分梯度与 Shapley 值 | Mars Dingdang</title>
+  <title>ML 14: Model Interpretability and Feature Attribution | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="从局部代理模型走到相对基线的特征归因，证明积分梯度的完备性和 Shapley 值的效率性。">
+  <meta name="description" content="Derive the weighted fit in LIME and prove completeness for Integrated Gradients and efficiency for Shapley values.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="机器学习 14｜模型解释、积分梯度与 Shapley 值">
+<meta property="og:title" content="ML 14: Model Interpretability and Feature Attribution">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/14/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="从局部代理模型走到相对基线的特征归因，证明积分梯度的完备性和 Shapley 值的效率性。">
+<meta property="og:description" content="Derive the weighted fit in LIME and prove completeness for Integrated Gradients and efficiency for Shapley values.">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-14/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:14:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T18:10:55.532Z">
+<meta property="article:modified_time" content="2026-11-14T02:30:26.363Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Feature Attribution">
 <meta property="article:tag" content="Interpretability">
@@ -85,7 +85,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -179,9 +181,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -215,7 +216,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      机器学习 14｜模型解释、积分梯度与 Shapley 值
+      ML 14: Model Interpretability and Feature Attribution
     </h1>
   
 
@@ -223,39 +224,51 @@
     
     <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>从局部代理模型走到相对基线的特征归因，证明积分梯度的完备性和 Shapley 值的效率性。</p>
+        <p>Derive the weighted fit in LIME and prove completeness for Integrated Gradients and efficiency for Shapley values.</p>
 <span id="more"></span>
 
-<p><img src="/images/posts/ml-14/figure.png" alt="饱和函数在输入点处斜率为零，积分梯度沿基线到输入的整段路径累积导数"></p>
-<p><em>函数在右侧进入平坦区。输入点的局部斜率为零，而基线和输入的输出差为 1，这一差值由路径上的非零斜率贡献。</em></p>
-<h2 id="解释一个模型的哪部分行为"><a href="#解释一个模型的哪部分行为" class="headerlink" title="解释一个模型的哪部分行为"></a>解释一个模型的哪部分行为</h2><p>解释可能指小范围输入变化时预测怎样改变，也可能问一个预测相对参考样本的差异由哪些特征贡献。局部代理模型与基线归因分别回答这两个问题。特征存在相关性时，还必须定义“只改变一个特征”对应什么输入。缺失特征的填充值或采样分布会影响归因含义。</p>
-<h2 id="LIME-是带邻域权重的局部拟合"><a href="#LIME-是带邻域权重的局部拟合" class="headerlink" title="LIME 是带邻域权重的局部拟合"></a>LIME 是带邻域权重的局部拟合</h2><p>固定待解释输入 <span class="math-inline">\(x\)</span>。在附近采样或遮挡得到扰动输入 <span class="math-inline">\(z_j\)</span>，调用黑盒得到 <span class="math-inline">\(f(z_j)\)</span>。用人可读的表示 <span class="math-inline">\(z_j'\)</span> 拟合简单模型 <span class="math-inline">\(g\)</span>，例如稀疏线性函数。</p>
-<div class="math-display">\[\min_g \sum_j\pi_x(z_j)\big(f(z_j)-g(z_j')\big)^2+\Omega(g).\]</div>
-<p><span class="math-inline">\(\pi_x\)</span> 给近邻更高权重，<span class="math-inline">\(\Omega\)</span> 限制特征数等复杂度。若选择固定特征集且暂不加惩罚，设 <span class="math-inline">\(A\)</span> 为含截距的解释特征矩阵、<span class="math-inline">\(W\)</span> 为权重对角矩阵，则正规方程为 <span class="math-inline">\(A^\top WA\,\beta=A^\top Wf\)</span>。这是普通加权回归。改变核宽度、遮挡方法和样本采样会改变所拟合的局部问题。以图中饱和函数为例，小邻域线性拟合会给接近零的斜率，这与输入点附近的函数行为一致。</p>
-<h2 id="积分梯度补上从基线到输入的变化"><a href="#积分梯度补上从基线到输入的变化" class="headerlink" title="积分梯度补上从基线到输入的变化"></a>积分梯度补上从基线到输入的变化</h2><p>设基线 <span class="math-inline">\(x'\)</span>、输入 <span class="math-inline">\(x\)</span>，沿直线路径 <span class="math-inline">\(\gamma(\alpha)=x'+\alpha(x-x')\)</span> 积分。第 <span class="math-inline">\(i\)</span> 个特征的积分梯度为</p>
-<div class="math-display">\[\operatorname{IG}_i(x;x')=(x_i-x_i')\int_0^1 \partial_i F(\gamma(\alpha))\,d\alpha.\]</div>
-<p>若 <span class="math-inline">\(F\)</span> 沿路径满足链式法则且 <span class="math-inline">\(F\circ\gamma\)</span> 绝对连续，求和后可用微积分基本定理：</p>
-<div class="math-display">\[\begin{aligned}
-\sum_i\operatorname{IG}_i
-&amp;=\int_0^1\nabla F(\gamma(\alpha))^\top(x-x')\,d\alpha\\
-&amp;=\int_0^1\frac{d}{d\alpha}F(\gamma(\alpha))\,d\alpha\\
-&amp;=F(x)-F(x').
-\end{aligned}\]</div>
-<p>这称为完备性。比如 <span class="math-inline">\(F(x)=\min\{\max(x,0),1\}\)</span>，取 <span class="math-inline">\(x'=0\)</span>、<span class="math-inline">\(x=2\)</span>。在 <span class="math-inline">\(x=2\)</span> 导数为零，而路径前半段导数为 1，于是积分归因为 <span class="math-inline">\(2\times1/2=1\)</span>。数值实现以离散采样近似积分，完备性残差可检查积分精度。基线仍决定差值的含义。</p>
-<h2 id="Shapley-值是平均边际贡献"><a href="#Shapley-值是平均边际贡献" class="headerlink" title="Shapley 值是平均边际贡献"></a>Shapley 值是平均边际贡献</h2><p>设 <span class="math-inline">\(N\)</span> 为全部特征集合，给定一个集合价值函数 <span class="math-inline">\(v(S)\)</span>，表示只掌握 <span class="math-inline">\(S\)</span> 时的预测价值。对特征 <span class="math-inline">\(i\)</span>，</p>
+<p><img src="/images/posts/ml-14/figure.png" alt="A saturated function with nonzero integrated change from a baseline"></p>
+<p><em>The model is locally flat at the input, but the path from the baseline crosses a segment of slope one.</em></p>
+<h2 id="Local-Interpretable-Model-Agnostic-Explanations"><a href="#Local-Interpretable-Model-Agnostic-Explanations" class="headerlink" title="Local Interpretable Model-Agnostic Explanations"></a>Local Interpretable Model-Agnostic Explanations</h2><p>For an input <span class="math-inline">\(x\)</span>, sample nearby or masked inputs <span class="math-inline">\(z_j\)</span> and compute the black box’s scores <span class="math-inline">\(f(z_j)\)</span>. Fit an interpretable model <span class="math-inline">\(g\)</span> on human-readable representations <span class="math-inline">\(z'_j\)</span> via</p>
+<div class="math-display">\[\min_g \sum_j \pi_x(z_j)(f(z_j)-g(z'_j))^2+\Omega(g).\]</div>
+<p>The proximity weights <span class="math-inline">\(\pi_x\)</span> emphasize the neighborhood. The penalty <span class="math-inline">\(\Omega\)</span> limits complexity, for example the number of nonzero coefficients. On a fixed feature set and without the penalty, write the design as <span class="math-inline">\(A\)</span>, weights as a diagonal matrix <span class="math-inline">\(W\)</span>, and responses as <span class="math-inline">\(f\)</span>. Differentiating <span class="math-inline">\((A\beta-f)^\top W(A\beta-f)\)</span> gives the normal equation <span class="math-inline">\(A^\top WA\beta=A^\top Wf\)</span>. Kernel width and the distribution of perturbed examples determine the fitting problem. A model that is flat near <span class="math-inline">\(x\)</span> can have a near-zero local slope even when its output differs substantially from a meaningful baseline.</p>
+<h2 id="Integrated-Gradients-along-a-baseline-path"><a href="#Integrated-Gradients-along-a-baseline-path" class="headerlink" title="Integrated Gradients along a baseline path"></a>Integrated Gradients along a baseline path</h2><p>Set <span class="math-inline">\(\gamma(t)=x'+t(x-x')\)</span> for baseline <span class="math-inline">\(x'\)</span>. The attribution for coordinate <span class="math-inline">\(i\)</span> is</p>
+<div class="math-display">\[\operatorname{IG}_i(x;x')=(x_i-x'_i)\int_0^1\partial_iF(\gamma(t))\,dt.\]</div>
+<p>When <span class="math-inline">\(F\circ\gamma\)</span> is absolutely continuous and the chain rule holds almost everywhere along the path, summing the attributions gives</p>
+<div class="math-display">\[\sum_i\operatorname{IG}_i
+=\int_0^1\nabla F(\gamma(t))^\top (x-x')\,dt
+=\int_0^1 (F\circ\gamma)'(t)\,dt=F(x)-F(x').\]</div>
+<p>This is completeness. If only coordinate <span class="math-inline">\(i\)</span> differs from the baseline, completeness means all nonzero output difference must be assigned to <span class="math-inline">\(i\)</span>, giving the sensitivity property for that case. Implementation invariance follows because two identical differentiable functions have identical partial derivatives wherever they exist. For <span class="math-inline">\(F(x)=\min\{\max(x,0),1\}\)</span> from baseline 0 to input 2, the path lies in the unit-slope region for half its duration. The contribution is <span class="math-inline">\(2(1/2)=1\)</span> despite zero endpoint derivative. Numerical quadrature can be checked by the residual in completeness.</p>
+<h2 id="Shapley-values-as-averages-over-permutations"><a href="#Shapley-values-as-averages-over-permutations" class="headerlink" title="Shapley values as averages over permutations"></a>Shapley values as averages over permutations</h2><p>Let <span class="math-inline">\(v(S)\)</span> be the prediction-related value for a coalition of available features <span class="math-inline">\(S\)</span> from feature set <span class="math-inline">\(N\)</span>. The Shapley attribution is</p>
 <div class="math-display">\[\phi_i=\sum_{S\subseteq N\setminus\{i\}}
-\frac{|S|!(|N|-|S|-1)!}{|N|!}
-\big[v(S\cup\{i\})-v(S)\big].\]</div>
-<p>在随机排列里，恰好 <span class="math-inline">\(S\)</span> 出现在 <span class="math-inline">\(i\)</span> 前的排列数是 <span class="math-inline">\(|S|!(|N|-|S|-1)!\)</span>，所以公式等于对所有加入顺序取平均边际贡献。对一个固定排列，所有边际贡献望远镜求和为 <span class="math-inline">\(v(N)-v(\varnothing)\)</span>。再取平均得到效率性 <span class="math-inline">\(\sum_i\phi_i=v(N)-v(\varnothing)\)</span>。对称玩家的边际贡献在交换排列后相同，没有任何边际贡献的玩家得到零。</p>
-<p>SHAP 方法在具体预测问题中选择集合价值及求解方式。可以用固定基线填补缺失特征，也可以用背景数据作边际或条件期望。若特征相关，按条件分布补全会允许一个特征通过提供对其他特征的信息获得归因。报告数值时同时给出价值函数、基线或背景数据，读者才能比较结果。</p>
-<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>对 <span class="math-inline">\(F(x_1,x_2)=x_1x_2\)</span>、基线 <span class="math-inline">\((0,0)\)</span>、输入 <span class="math-inline">\((2,3)\)</span>，直线路径上 <span class="math-inline">\(\partial_1F=3\alpha\)</span>、<span class="math-inline">\(\partial_2F=2\alpha\)</span>，积分梯度各为 3。用基线填补定义 Shapley 游戏时，只有两个特征都加入后价值才是 6，所以先加入者贡献 0、后加入者贡献 6，平均也各为 3。这个例子中两个分解恰好一致。</p>
-<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》往年课件第 14 讲。原文：<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1602.04938">LIME</a>，<a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v70/sundararajan17a.html">Integrated Gradients</a>，<a target="_blank" rel="noopener" href="https://papers.neurips.cc/paper_files/paper/2017/hash/8a20a8621978632d76c43dfd28b67767-Abstract.html">SHAP</a>。</p>
-<p><a href="/notes/ml/13/">← 第 13 讲</a> · <a href="/notes/">课程目录</a></p>
+\frac{|S|!(|N|-|S|-1)!}{|N|!}\,[v(S\cup\{i\})-v(S)].\]</div>
+<p>The coefficient is the probability that exactly <span class="math-inline">\(S\)</span> precedes <span class="math-inline">\(i\)</span> in a uniform random permutation: order these predecessors arbitrarily, then order all successors. For any fixed permutation, the marginal contributions telescope to <span class="math-inline">\(v(N)-v(\varnothing)\)</span>. Averaging proves efficiency. Symmetric participants exchange positions through a bijection of permutations and hence receive the same average. A dummy with zero marginal contribution receives zero, and linearity follows by taking expectations. For a pure interaction <span class="math-inline">\(v_T(S)=\mathbf1\{T\subseteq S\}\)</span>, an element of <span class="math-inline">\(T\)</span> receives the unit contribution exactly when it is last among <span class="math-inline">\(T\)</span>. Its attribution is therefore <span class="math-inline">\(1/|T|\)</span>. These pure interactions also span all games with <span class="math-inline">\(v(\varnothing)=0\)</span> by subset inclusion–exclusion, which gives uniqueness under these axioms.</p>
+<p>SHAP specifies a value function and an approximation or evaluation procedure. Examples include filling missing features with a fixed baseline, integrating over background features, or conditioning the missing features on observed ones. Correlation means these choices answer different questions. In a conditional game, a feature can get credit for information about another feature on which the model directly depends.</p>
+<h3 id="Why-Shapley-weights-give-the-unique-additive-attribution"><a href="#Why-Shapley-weights-give-the-unique-additive-attribution" class="headerlink" title="Why Shapley weights give the unique additive attribution"></a>Why Shapley weights give the unique additive attribution</h3><p>Write <span class="math-inline">\(v(\varnothing)=0\)</span> after subtracting the baseline. For nonempty <span class="math-inline">\(T\subseteq[d]\)</span>, let <span class="math-inline">\(u_T(S)=\mathbf1\{T\subseteq S\}\)</span>. Every set function has a unique expansion <span class="math-inline">\(v=\sum_{T\ne\varnothing}a_Tu_T\)</span>: recursively take <span class="math-inline">\(a_T=v(T)-\sum_{U\subsetneq T}a_U\)</span> starting with singletons. For the game <span class="math-inline">\(u_T\)</span>, the null-player axiom gives zero to players outside <span class="math-inline">\(T\)</span> and symmetry forces equal shares inside <span class="math-inline">\(T\)</span>. Efficiency makes those shares sum to one, so each player in <span class="math-inline">\(T\)</span> gets <span class="math-inline">\(1/|T|\)</span>. The additivity and homogeneity axioms then determine every share for <span class="math-inline">\(v\)</span>. The permutation formula yields exactly these values: in <span class="math-inline">\(u_T\)</span>, the marginal contribution is one precisely when the player is last among the elements of <span class="math-inline">\(T\)</span>, an event of probability <span class="math-inline">\(1/|T|\)</span>. This proves existence and uniqueness under the axioms.</p>
+<p>For two features the argument gives</p>
+<div class="math-display">\[\phi_1=\tfrac12(v(\{1\})-v(\varnothing))+\tfrac12(v(\{1,2\})-v(\{2\})).\]</div>
+<p>A symmetric interaction visible only when both features are present is divided in half. The definition of <span class="math-inline">\(v(S)\)</span> determines which interaction is being explained: averaging missing features independently and taking a conditional expectation can produce different coalition values.</p>
+<h2 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h2><p>For <span class="math-inline">\(F(x_1,x_2)=x_1^2 x_2\)</span>, compare Integrated Gradients and baseline Shapley at <span class="math-inline">\((2,3)\)</span> relative to <span class="math-inline">\((0,0)\)</span>. Explain the discrepancy.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>Along <span class="math-inline">\((2t,3t)\)</span> the partials are <span class="math-inline">\(12t^2\)</span> and <span class="math-inline">\(4t^2\)</span>, giving Integrated Gradients <span class="math-inline">\((8,4)\)</span>. The baseline game is zero unless both features are present, in which case its value is 12. Each variable is last in one of the two permutations and receives attribution 6. Along the straight path the two factors of <span class="math-inline">\(x_1\)</span> give it twice the attribution of <span class="math-inline">\(x_2\)</span>. In the baseline game both features are equally necessary, and arrival order splits the payoff evenly. Both totals are 12.</p>
+</details>
+
+<p><strong>Second challenge.</strong> For <span class="math-inline">\(F(x_1,x_2)=x_1^2x_2\)</span>, compare Integrated Gradients from zero with Shapley values from zero masking.</p>
+<details>
+<summary>Show solution to the second challenge</summary>
+
+<p>On the straight path <span class="math-inline">\(tx\)</span>, the first partial derivative is <span class="math-inline">\(2t^2x_1x_2\)</span> and the second is <span class="math-inline">\(t^2x_1^2\)</span>. The Integrated Gradients are <span class="math-inline">\((2/3,1/3)F(x)\)</span> after integrating <span class="math-inline">\(t^2\)</span> from zero to one. Under zero masking neither feature alone yields any value and the two-feature coalition yields <span class="math-inline">\(F(x)\)</span>, so Shapley gives <span class="math-inline">\((1/2,1/2)F(x)\)</span>. Both satisfy completeness, with different allocations of the interaction because one measures increments along a continuous path and the other averages discrete coalition orders.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 14 from the archived slides. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1602.04938">LIME</a>, <a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v70/sundararajan17a.html">Integrated Gradients</a>, and <a target="_blank" rel="noopener" href="https://papers.neurips.cc/paper_files/paper/2017/hash/8a20a8621978632d76c43dfd28b67767-Abstract.html">SHAP</a>.</p>
+<p><a href="/notes/ml/13/">Previous lecture</a> · <a href="/notes/">Course notes</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/14/" data-id="cuidfPNKUGd174lqBdAEjSy-c" data-title="机器学习 14｜模型解释、积分梯度与 Shapley 值" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/14/" data-id="cuidx2OBxMNkoQkizuqWfCgSe" data-title="ML 14: Model Interpretability and Feature Attribution" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -280,7 +293,7 @@
   
     <a href="/notes/ml/13/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">机器学习 13｜超参数优化与预算分配</div>
+      <div class="article-nav-title">ML 13: Hyperparameter Optimization and Resource Allocation</div>
     </a>
   
 </nav>

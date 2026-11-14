@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>机器学习 05｜PAC 学习与 VC 维 | Mars Dingdang</title>
+  <title>ML 05: PAC Learning and VC Dimension | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="从有限类的样本复杂度出发，用 shattering 和增长函数解释为什么某些无限假设类仍然可以学习。">
+  <meta name="description" content="Prove finite-class sample bounds and compute VC dimension by combining explicit realizations with impossible labelings.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="机器学习 05｜PAC 学习与 VC 维">
+<meta property="og:title" content="ML 05: PAC Learning and VC Dimension">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/05/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="从有限类的样本复杂度出发，用 shattering 和增长函数解释为什么某些无限假设类仍然可以学习。">
+<meta property="og:description" content="Prove finite-class sample bounds and compute VC dimension by combining explicit realizations with impossible labelings.">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-05/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:05:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T18:10:55.525Z">
+<meta property="article:modified_time" content="2026-11-14T02:31:24.327Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Generalization">
 <meta property="article:tag" content="Learning Theory">
@@ -85,7 +85,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -179,9 +181,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -215,7 +216,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      机器学习 05｜PAC 学习与 VC 维
+      ML 05: PAC Learning and VC Dimension
     </h1>
   
 
@@ -223,42 +224,51 @@
     
     <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>从有限类的样本复杂度出发，用 shattering 和增长函数解释为什么某些无限假设类仍然可以学习。</p>
+        <p>Prove finite-class sample bounds and compute VC dimension by combining explicit realizations with impossible labelings.</p>
 <span id="more"></span>
 
-<p><img src="/images/posts/ml-05/figure.png" alt="平面中的点被仿射直线分离，方形四点交替标签不可分"></p>
-<p><em>左图给出三个非共线点的一种标记及其分割线。右图两条对角线分别属于两个标签，其凸包在中心相交。</em></p>
-<h2 id="PAC-保证里的两个概率"><a href="#PAC-保证里的两个概率" class="headerlink" title="PAC 保证里的两个概率"></a>PAC 保证里的两个概率</h2><p>设分类损失是 0–1 损失。<span class="math-inline">\(R(h)\)</span> 是随机测试样本被分错的概率。PAC 保证另有一个概率，来自随机抽取训练集。可实现情形假设某个 <span class="math-inline">\(h^\star\in\mathcal H\)</span> 满足 <span class="math-inline">\(R(h^\star)=0\)</span>，要求训练算法对至少 <span class="math-inline">\(1-\delta\)</span> 的训练集输出 <span class="math-inline">\(R(\hat h)\le\varepsilon\)</span>。<span class="math-inline">\(\varepsilon\)</span> 是精度，<span class="math-inline">\(\delta\)</span> 是失败概率。不可知情形允许任何标签分布，将目标改为 <span class="math-inline">\(R(\hat h)\le\inf_{h\in\mathcal H}R(h)+\varepsilon\)</span>。</p>
-<p>对固定的坏假设 <span class="math-inline">\(h\)</span>，若 <span class="math-inline">\(R(h)&gt;\varepsilon\)</span>，它恰好通过所有 <span class="math-inline">\(n\)</span> 个训练样本的概率满足</p>
-<div class="math-display">\[P(\widehat R_S(h)=0)=(1-R(h))^n\le e^{-n\varepsilon}.\]</div>
-<p>有限类中，联集界保证存在坏的一致假设的概率不超过 <span class="math-inline">\(|\mathcal H|e^{-n\varepsilon}\)</span>。可实现性保证 ERM 会输出一致假设，因此只需</p>
-<div class="math-display">\[n\ge \frac{\log|\mathcal H|+\log(1/\delta)}{\varepsilon}.\]</div>
-<p>不可知情形下，用 Hoeffding 不等式控制每个假设的经验误差。对有限类有</p>
-<div class="math-display">\[P\left(\sup_{h\in\mathcal H}|\widehat R_S(h)-R(h)|&gt;\varepsilon/2\right)
+<p><img src="/images/posts/ml-05/figure.png" alt="A separable labeling of three points and an impossible alternating labeling of four points"></p>
+<p><em>Opposite vertices of the square share a label. The two convex hulls intersect at its center.</em></p>
+<h2 id="Realizable-and-agnostic-PAC-guarantees"><a href="#Realizable-and-agnostic-PAC-guarantees" class="headerlink" title="Realizable and agnostic PAC guarantees"></a>Realizable and agnostic PAC guarantees</h2><p>In binary classification, <span class="math-inline">\(R(h)\)</span> is the probability of error on an independent test draw. Realizable PAC learning assumes some hypothesis in the class has zero risk. The learner must output a predictor with risk at most <span class="math-inline">\(\varepsilon\)</span> with probability at least <span class="math-inline">\(1-\delta\)</span> over the training sample. Agnostic PAC learning permits arbitrary labels and asks for risk within <span class="math-inline">\(\varepsilon\)</span> of <span class="math-inline">\(\inf_{h\in\mathcal H}R(h)\)</span>.</p>
+<p>For any fixed hypothesis of risk greater than <span class="math-inline">\(\varepsilon\)</span>, the chance it makes no errors on <span class="math-inline">\(n\)</span> independent examples is <span class="math-inline">\((1-R(h))^n\le e^{-n\varepsilon}\)</span>. A union bound over a finite class and the existence of a consistent hypothesis give the realizable ERM bound</p>
+<div class="math-display">\[n\ge\frac{\log|\mathcal H|+\log(1/\delta)}{\varepsilon}.\]</div>
+<p>For the agnostic case, two-sided Hoeffding and a union bound give</p>
+<div class="math-display">\[P\!\left(\sup_{h\in\mathcal H}|\widehat R(h)-R(h)|&gt;\varepsilon/2\right)
 \le 2|\mathcal H|e^{-n\varepsilon^2/2}.\]</div>
-<p>在一致收敛事件上，<span class="math-inline">\(R(\hat h)\le\widehat R_S(\hat h)+\varepsilon/2\le\widehat R_S(h)+\varepsilon/2\le R(h)+\varepsilon\)</span> 对每个 <span class="math-inline">\(h\)</span> 成立。取下确界便得到所需结果。可实现证明只问坏模型能否保持零错误，不可知证明还要估计非零错误率，给出不同的 <span class="math-inline">\(\varepsilon\)</span> 依赖。</p>
-<h2 id="No-Free-Lunch-的一个构造"><a href="#No-Free-Lunch-的一个构造" class="headerlink" title="No Free Lunch 的一个构造"></a>No Free Lunch 的一个构造</h2><p>在 <span class="math-inline">\(2n\)</span> 个点上取均匀输入分布，并在论证中给每个点独立均匀随机的确定性标签。训练样本最多覆盖 <span class="math-inline">\(n\)</span> 个点。条件于训练数据，任何未见点的标签仍是一枚公平硬币，学习器在该点的期望错误率为 <span class="math-inline">\(1/2\)</span>。未见点至少占一半，所以对随机标签规则与训练样本一起取期望，错误率至少 <span class="math-inline">\(1/4\)</span>。因此至少有一个确定标签规则使学习器的期望错误率达到该下界。能对某类任务作保证，依赖关于标签结构的限制。</p>
-<h2 id="无限类如何数复杂度"><a href="#无限类如何数复杂度" class="headerlink" title="无限类如何数复杂度"></a>无限类如何数复杂度</h2><p>假设类 <span class="math-inline">\(\mathcal H\)</span> 在有限点集 <span class="math-inline">\(C\)</span> 上只产生有限个二进制标记向量。若产生全部 <span class="math-inline">\(2^{|C|}\)</span> 种标记，称它打散 <span class="math-inline">\(C\)</span>。VC 维是可以被打散的最大点数。</p>
-<ul>
-<li>实轴上的固定方向阈值 <span class="math-inline">\(h_t(x)=\mathbf1\{x\ge t\}\)</span> 能打散一个点。对 <span class="math-inline">\(x_1&lt;x_2\)</span>，标记 <span class="math-inline">\((1,0)\)</span> 不可实现，故 VC 维为 1。</li>
-<li>实轴上单区间的指示函数能打散两点。三个有序点的标记 <span class="math-inline">\((1,0,1)\)</span> 不可实现，故 VC 维为 2。</li>
-<li>平面仿射半空间能打散三个非共线点。给三个顶点任意赋 <span class="math-inline">\(\pm1\)</span>，存在仿射函数精确插值这三个值。</li>
-</ul>
-<p>证明四点的上界时，取任意四个二维点，将它们增广为 <span class="math-inline">\((x_i,1)\in\mathbb R^3\)</span>，必存在线性关系 <span class="math-inline">\(\sum_i a_i(x_i,1)=0\)</span>，其中系数不全为零。<span class="math-inline">\(\sum_i a_i=0\)</span> 使正、负系数都出现。归一化后，两组点的凸组合相等，故凸包相交。对两组赋相反标签，任何仿射阈值都会遇到矛盾。因此平面仿射半空间的 VC 维恰为 3。图中的方形是这个证明的一个例子。</p>
-<h2 id="从-VC-维回到泛化"><a href="#从-VC-维回到泛化" class="headerlink" title="从 VC 维回到泛化"></a>从 VC 维回到泛化</h2><p>增长函数 <span class="math-inline">\(\Pi_{\mathcal H}(n)\)</span> 是在任意 <span class="math-inline">\(n\)</span> 个点上可实现的最大标记数。若 VC 维为 <span class="math-inline">\(d\)</span>，Sauer–Shelah 引理给出</p>
-<div class="math-display">\[\Pi_{\mathcal H}(n)\le\sum_{j=0}^{d}{n\choose j}\le(en/d)^d
-\qquad (n\ge d\ge1).\]</div>
-<p>关键是把概率事件中的无限假设类换成有限样本上可区分的标记模式。证明使用一份独立的影子样本把总体风险替换成经验风险，并对合并样本上的标记向量作计数。在常见可测性条件下，这导出量级为</p>
-<div class="math-display">\[\sqrt{\frac{d\log(en/d)+\log(1/\delta)}{n}}\]</div>
-<p>的一致收敛上界。这个增长函数证明含一个对数因子，更精细的结果可改进该量级。有限 VC 维解释了经典二分类中可学习性与类复杂度的联系，也说明参数可以连续变化而类依然可学。</p>
-<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>将固定方向阈值扩展为两种方向，即 <span class="math-inline">\(x\ge t\)</span> 或 <span class="math-inline">\(x\le t\)</span>。两点的四种标签都能实现。三点中 <span class="math-inline">\((1,0,1)\)</span> 无法实现，因此 VC 维从 1 升到 2。</p>
-<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》2026 年第 5 讲。教材参见 Shalev-Shwartz 与 Ben-David 的《Understanding Machine Learning: From Theory to Algorithms》，第 3、5、6 章。</p>
-<p><a href="/notes/ml/04/">← 第 4 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/06/">第 6 讲 →</a></p>
+<p>On the complementary event, <span class="math-inline">\(R(\widehat h)\le\widehat R(\widehat h)+\varepsilon/2\le\widehat R(h)+\varepsilon/2\le R(h)+\varepsilon\)</span> for every <span class="math-inline">\(h\)</span>. Take the infimum. A population-risk comparison with the Bayes predictor separates approximation error, <span class="math-inline">\(\inf_{\mathcal H}R-R(h^\star)\)</span>, from the learner’s excess above the best in its class.</p>
+<p>For a no-free-lunch example, select labels independently and uniformly for each point in a uniform domain of <span class="math-inline">\(2n\)</span> points, then draw <span class="math-inline">\(n\)</span> training examples. At least half the domain remains unseen. Conditional on the data, each unseen label remains an independent fair coin, giving expected risk at least <span class="math-inline">\(1/4\)</span> over the labeling and sample. Some deterministic labeling attains that lower bound in expectation over training draws. A random risk in <span class="math-inline">\([0,1]\)</span> satisfies <span class="math-inline">\(\mathbb E R\le 1/8+(7/8)P(R\ge1/8)\)</span>, so for that labeling the learner has risk at least <span class="math-inline">\(1/8\)</span> with probability at least <span class="math-inline">\(1/7\)</span>. If <span class="math-inline">\(\mathcal H\)</span> has infinite VC dimension, we can choose a shattered <span class="math-inline">\(2n\)</span>-point set for every <span class="math-inline">\(n\)</span>. Its deterministic labeling is then realizable in <span class="math-inline">\(\mathcal H\)</span>, so the bound contradicts any distribution-free PAC sample complexity at, for example, <span class="math-inline">\(\varepsilon=1/9,\delta=1/8\)</span>.</p>
+<h2 id="Infinite-classes-can-have-small-effective-complexity"><a href="#Infinite-classes-can-have-small-effective-complexity" class="headerlink" title="Infinite classes can have small effective complexity"></a>Infinite classes can have small effective complexity</h2><p>For thresholds <span class="math-inline">\(h_t(x)=\mathbf1\{x\ge t\}\)</span> on the line, two ordered points cannot receive <span class="math-inline">\((1,0)\)</span>, but one point can receive either label. The VC dimension is 1. A single interval shatters two points, while three ordered points cannot receive <span class="math-inline">\((1,0,1)\)</span>, so its dimension is 2.</p>
+<p>For a realizable threshold at <span class="math-inline">\(t^\star\)</span>, any consistent empirical minimizer has zero sample points in its error interval. If the empirical threshold is larger than <span class="math-inline">\(t^\star\)</span>, the error interval is an initial segment of <span class="math-inline">\([t^\star,\infty)\)</span>; if it is smaller, the error interval is a terminal segment of <span class="math-inline">\((-\infty,t^\star)\)</span>. On each side with enough mass, choose the closest fixed segment of mass at least <span class="math-inline">\(\varepsilon\)</span>, using the probability quantile and including the boundary atom if needed to reach <span class="math-inline">\(\varepsilon\)</span>. Every error interval on that side of mass greater than <span class="math-inline">\(\varepsilon\)</span> contains this segment. Therefore the probability of any consistent threshold with risk greater than <span class="math-inline">\(\varepsilon\)</span> is at most <span class="math-inline">\(2(1-\varepsilon)^n\)</span>. This directly yields order <span class="math-inline">\(\log(1/\delta)/\varepsilon\)</span> samples. The same argument applies to concentric disks by replacing <span class="math-inline">\(x\)</span> with negative distance to the known center.</p>
+<p>In <span class="math-inline">\(\mathbb R^d\)</span>, an affine halfspace shatters <span class="math-inline">\(d+1\)</span> affinely independent points because an affine function interpolates arbitrary assigned values <span class="math-inline">\(\pm1\)</span>. For any <span class="math-inline">\(d+2\)</span> points, the augmented vectors <span class="math-inline">\((x_i,1)\)</span> have a nontrivial linear dependence. Its coefficients sum to zero, and the positive and negative groups therefore have convex combinations representing the same point. Opposite labels on those groups cannot be realized. Thus the dimension is exactly <span class="math-inline">\(d+1\)</span>.</p>
+<h2 id="Sauer–Shelah-and-the-generalization-bound"><a href="#Sauer–Shelah-and-the-generalization-bound" class="headerlink" title="Sauer–Shelah and the generalization bound"></a>Sauer–Shelah and the generalization bound</h2><p>Let <span class="math-inline">\(\Pi_d(n)\)</span> denote the largest possible trace size on <span class="math-inline">\(n\)</span> points for VC dimension at most <span class="math-inline">\(d\)</span>. Split the traces on the first <span class="math-inline">\(n-1\)</span> points into prefixes appearing at least once and prefixes that can be extended with either last label. The first family has VC dimension at most <span class="math-inline">\(d\)</span>, and the second at most <span class="math-inline">\(d-1\)</span>, because shattering <span class="math-inline">\(d\)</span> points with both extensions would shatter <span class="math-inline">\(d+1\)</span> points. Thus <span class="math-inline">\(\Pi_d(n)\le\Pi_d(n-1)+\Pi_{d-1}(n-1)\)</span>. The base cases <span class="math-inline">\(n=0\)</span> and <span class="math-inline">\(d=0\)</span> have at most one trace. Pascal’s identity yields</p>
+<div class="math-display">\[\Pi_{\mathcal H}(n)\le\sum_{j=0}^d {n\choose j}\le(en/d)^d\qquad(1\le d\le n).\]</div>
+<p>For the last inequality, multiply the binomial sum by <span class="math-inline">\((d/n)^d\)</span>, use <span class="math-inline">\((d/n)^d\le(d/n)^j\)</span> for <span class="math-inline">\(j\le d\)</span>, and bound <span class="math-inline">\((1+d/n)^n\)</span> by <span class="math-inline">\(e^d\)</span>.</p>
+<p>To see why this controls uniform convergence, add an independent ghost sample of size <span class="math-inline">\(n\)</span>. For <span class="math-inline">\(n\varepsilon^2\ge 2\)</span>, a hypothesis whose true and empirical risk differ by more than <span class="math-inline">\(\varepsilon\)</span> has at least a constant probability that its ghost error is within <span class="math-inline">\(\varepsilon/2\)</span> of the truth, by Chebyshev’s inequality for Bernoulli averages. The resulting two-sample event has a discrepancy above <span class="math-inline">\(\varepsilon/2\)</span>. Swap the two members of each independent sample pair with a fair coin. Conditional on the pooled data, the discrepancy for any fixed trace is an average of independent signed terms bounded in magnitude by 1. Hoeffding and a union bound over at most <span class="math-inline">\(\Pi_{\mathcal H}(2n)\)</span> pooled prediction traces give</p>
+<div class="math-display">\[P\!\left(\sup_h|\widehat R(h)-R(h)|&gt;\varepsilon\right)
+\le 4\Pi_{\mathcal H}(2n)e^{-n\varepsilon^2/8}\]</div>
+<p>under the usual measurability assumptions. This gives an order <span class="math-inline">\(\sqrt{(d\log(en/d)+\log(1/\delta))/n}\)</span> bound for the empirical-population gap. The quantitative fundamental theorem stated in the course gives agnostic sample complexity <span class="math-inline">\(\Theta((d+\log(1/\delta))/\varepsilon^2)\)</span> and the textbook realizable bounds <span class="math-inline">\(\Omega((d+\log(1/\delta))/\varepsilon)\)</span> and <span class="math-inline">\(O((d\log(1/\varepsilon)+\log(1/\delta))/\varepsilon)\)</span> in their usual nontrivial parameter range. The sharper agnostic bound uses more than the one-scale union bound above. Together with the shattered-set lower bound, finite VC dimension characterizes distribution-free PAC learnability for binary classes under the standard regularity conditions.</p>
+<h2 id="Challenges"><a href="#Challenges" class="headerlink" title="Challenges"></a>Challenges</h2><h3 id="Problem-1"><a href="#Problem-1" class="headerlink" title="Problem 1"></a>Problem 1</h3><p>Find the VC dimension of all subsets of the real line that are unions of at most <span class="math-inline">\(k\)</span> intervals. Permit the empty set.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>The dimension is <span class="math-inline">\(2k\)</span>. Among <span class="math-inline">\(2k\)</span> ordered points, any binary labeling has at most <span class="math-inline">\(k\)</span> contiguous runs of positives. Put one interval around each positive run, excluding neighboring negative points. For <span class="math-inline">\(2k+1\)</span> ordered points the alternating labeling starting and ending with 1 has <span class="math-inline">\(k+1\)</span> positive runs. Every interval joining any two of those runs contains a negative point. That labeling is impossible on every set of <span class="math-inline">\(2k+1\)</span> points.</p>
+</details>
+
+<h3 id="Problem-2"><a href="#Problem-2" class="headerlink" title="Problem 2"></a>Problem 2</h3><p>Compare the VC dimensions of <span class="math-inline">\(\mathbf1\{a\sin x&gt;0\}\)</span>, <span class="math-inline">\(\mathbf1\{\sin(x+a)&gt;0\}\)</span>, and <span class="math-inline">\(\mathbf1\{\sin(ax)&gt;0\}\)</span>.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>The amplitude class has three distinct functions and can shatter one point, giving dimension 1. Phase shifts produce open semicircles of positives. The points <span class="math-inline">\(0,\pi/2\)</span> admit all four labels. Among three distinct points, either they cannot all fit in an open semicircle, or they can be ordered within one. In the latter case any open semicircle containing the two extremes contains the short arc between them, so the middle point cannot be negative. The dimension is 2.</p>
+<p>For frequency scaling use <span class="math-inline">\(x_i=2^{i-1}\)</span> for any <span class="math-inline">\(n\)</span>. Given labels <span class="math-inline">\(y_i\)</span>, put <span class="math-inline">\(b_i=1-y_i\)</span> and take <span class="math-inline">\(a=2\pi(\sum_{j=1}^n b_j2^{-j}+2^{-n-1})\)</span>. The fractional part of <span class="math-inline">\(ax_i/(2\pi)\)</span> is <span class="math-inline">\(b_i/2\)</span> plus a number strictly between 0 and <span class="math-inline">\(1/2\)</span>. Its sine is positive precisely when <span class="math-inline">\(b_i=0\)</span>. Hence these <span class="math-inline">\(n\)</span> points are shattered for arbitrary <span class="math-inline">\(n\)</span>.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning (2026), Lecture 5 and Problem Sets 3–4. Shalev-Shwartz and Ben-David, Understanding Machine Learning: From Theory to Algorithms, chapters 3, 5, and 6.</p>
+<p><a href="/notes/ml/04/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/06/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/05/" data-id="cuidONmST1WJ_PZmkGixu-rn0" data-title="机器学习 05｜PAC 学习与 VC 维" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/05/" data-id="cuidqU77HyS0ypLZuSPbRdVkW" data-title="ML 05: PAC Learning and VC Dimension" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -275,7 +285,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          「ACG 05」光栅化：覆盖率、采样与深度测试
+          ACG 05: Rasterization, Sampling, and Visibility
         
       </div>
     </a>
@@ -283,7 +293,7 @@
   
     <a href="/notes/acg/04/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">「ACG 04」投影与三维学习：从相机视锥到点云</div>
+      <div class="article-nav-title">ACG 04: Projection and Learning on 3D Geometry</div>
     </a>
   
 </nav>

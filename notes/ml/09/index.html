@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>机器学习 09｜PCA、近邻搜索与度量学习 | Mars Dingdang</title>
+  <title>ML 09: PCA, Nearest Neighbors, and Metric Learning | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="证明 PCA 的投影方差与重构误差等价，分析近邻搜索中的 LSH 碰撞率，并说明怎样用标签学习距离。">
+  <meta name="description" content="Prove the equivalence of PCA’s variance and reconstruction objectives, derive locality-sensitive hashing guarantees, and learn distances from labels.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="机器学习 09｜PCA、近邻搜索与度量学习">
+<meta property="og:title" content="ML 09: PCA, Nearest Neighbors, and Metric Learning">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/09/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="证明 PCA 的投影方差与重构误差等价，分析近邻搜索中的 LSH 碰撞率，并说明怎样用标签学习距离。">
+<meta property="og:description" content="Prove the equivalence of PCA’s variance and reconstruction objectives, derive locality-sensitive hashing guarantees, and learn distances from labels.">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-09/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:09:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T18:10:55.529Z">
+<meta property="article:modified_time" content="2026-11-14T02:30:25.068Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Lecture Notes">
 <meta property="article:tag" content="Metric Learning">
@@ -86,7 +86,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -180,9 +182,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -216,7 +217,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      机器学习 09｜PCA、近邻搜索与度量学习
+      ML 09: PCA, Nearest Neighbors, and Metric Learning
     </h1>
   
 
@@ -224,37 +225,50 @@
     
     <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>证明 PCA 的投影方差与重构误差等价，分析近邻搜索中的 LSH 碰撞率，并说明怎样用标签学习距离。</p>
+        <p>Prove the equivalence of PCA’s variance and reconstruction objectives, derive locality-sensitive hashing guarantees, and learn distances from labels.</p>
 <span id="more"></span>
 
-<p><img src="/images/posts/ml-09/figure.png" alt="二维散点投影到第一主成分，浅色连线显示正交重构残差"></p>
-<p><em>蓝色散点是中心化样本，橙线沿最大方差方向。浅色线段把每个点连到正交投影，长度平方相加就是该直线的重构代价。</em></p>
-<h2 id="PCA-的两个等价目标"><a href="#PCA-的两个等价目标" class="headerlink" title="PCA 的两个等价目标"></a>PCA 的两个等价目标</h2><p>将样本中心化后写成 <span class="math-inline">\(X=[x_1,\dots,x_n]\in\mathbb R^{d\times n}\)</span>，经验协方差 <span class="math-inline">\(C=XX^\top/n\)</span>。单位向量 <span class="math-inline">\(v\)</span> 方向上的投影方差是 <span class="math-inline">\(v^\top Cv\)</span>。若用该方向重构样本，估计为 <span class="math-inline">\(vv^\top x_i\)</span>。投影和残差正交，因此</p>
-<div class="math-display">\[\frac1n\sum_i\|x_i-vv^\top x_i\|^2
-=\operatorname{tr}(C)-v^\top Cv.\]</div>
-<p>这证明最小化正交重构误差等价于最大化投影方差。展开 <span class="math-inline">\(v=\sum_j a_j u_j\)</span>，其中 <span class="math-inline">\(u_j\)</span> 是 <span class="math-inline">\(C\)</span> 的正交特征向量，则 <span class="math-inline">\(v^\top Cv=\sum_j\lambda_j a_j^2\)</span>，在 <span class="math-inline">\(\sum_j a_j^2=1\)</span> 时由最大特征值取到。对有 <span class="math-inline">\(k\)</span> 列的正交矩阵 <span class="math-inline">\(V\)</span>，同理最大化 <span class="math-inline">\(\operatorname{tr}(V^\top CV)\)</span>，解由最大的 <span class="math-inline">\(k\)</span> 个特征值的特征空间给出。最优残差是剩余特征值的和。</p>
-<p>只求第一主成分时，幂法迭代 <span class="math-inline">\(v_{t+1}=Cv_t/\|Cv_t\|\)</span>。若 <span class="math-inline">\(\lambda_1&gt;\lambda_2\)</span> 且 <span class="math-inline">\(v_0\)</span> 在 <span class="math-inline">\(u_1\)</span> 上有非零分量，沿 <span class="math-inline">\(u_j\)</span> 的相对系数乘 <span class="math-inline">\((\lambda_j/\lambda_1)^t\)</span>。因此特征值间隔决定速度。列尺度也会改变 <span class="math-inline">\(C\)</span>，量纲不同的特征可先标准化，具体选择取决于任务要保留绝对变动还是相对变动。</p>
-<h2 id="kNN-与近邻查询"><a href="#kNN-与近邻查询" class="headerlink" title="kNN 与近邻查询"></a>kNN 与近邻查询</h2><p>kNN 以最接近 <span class="math-inline">\(x\)</span> 的 <span class="math-inline">\(k\)</span> 个训练点投票。<span class="math-inline">\(k\)</span> 小时分界面能追随局部变化，也容易受单点噪声影响。<span class="math-inline">\(k\)</span> 大时更平滑，但稀有小簇可能被周围多数类吞没。近邻查询本身是一个几何搜索问题。给定半径 <span class="math-inline">\(R\)</span> 与近似因子 <span class="math-inline">\(c&gt;1\)</span>，若有一点在 <span class="math-inline">\(R\)</span> 内，<span class="math-inline">\((R,cR)\)</span>-近邻查询希望返回某个在 <span class="math-inline">\(cR\)</span> 内的点。候选是否合格可用真实距离检查。</p>
-<h2 id="用-LSH-的碰撞概率控制查询成本"><a href="#用-LSH-的碰撞概率控制查询成本" class="headerlink" title="用 LSH 的碰撞概率控制查询成本"></a>用 LSH 的碰撞概率控制查询成本</h2><p>一个 <span class="math-inline">\((R,cR,p_1,p_2)\)</span>-敏感哈希族要求近点碰撞概率至少 <span class="math-inline">\(p_1\)</span>，远点碰撞概率至多 <span class="math-inline">\(p_2&lt;p_1\)</span>。对二进制向量的 Hamming 距离，均匀抽一个坐标 <span class="math-inline">\(J\)</span> 并取 <span class="math-inline">\(h_J(x)=x_J\)</span>，碰撞概率恰为 <span class="math-inline">\(1-d_H(x,y)/d\)</span>。</p>
-<p>拼接 <span class="math-inline">\(k\)</span> 个独立哈希成一个桶键，单表近点与远点碰撞概率分别至少 <span class="math-inline">\(p_1^k\)</span>、至多 <span class="math-inline">\(p_2^k\)</span>。再做 <span class="math-inline">\(L\)</span> 个独立哈希表，漏掉某个确定近点的概率至多</p>
-<div class="math-display">\[(1-p_1^k)^L\le e^{-Lp_1^k}.\]</div>
-<p>取 <span class="math-inline">\(k=\lceil\log_{1/p_2}n\rceil\)</span>，则远点在每表的预期碰撞数至多 1。取 <span class="math-inline">\(L\)</span> 与 <span class="math-inline">\(p_1^{-k}\)</span> 同阶可得到常数成功概率。因为</p>
-<div class="math-display">\[p_1^{-k}=\Theta(n^\rho),\qquad
-\rho=\frac{\log(1/p_1)}{\log(1/p_2)}&lt;1,\]</div>
-<p>哈希候选扫描的预期远点负担为次线性。还需计入桶键计算、去重和实际距离检查。实现时可遇到大量本身就合格的近点，此时找到一个合格候选即可返回。</p>
-<p>对欧氏空间，一类哈希是 <span class="math-inline">\(h(x)=\lfloor(a^\top x+b)/w\rfloor\)</span>，<span class="math-inline">\(a\)</span> 为标准高斯向量、<span class="math-inline">\(b\)</span> 在 <span class="math-inline">\([0,w)\)</span> 均匀。固定两点的投影距离 <span class="math-inline">\(t\)</span> 后，两个点同桶的条件概率为 <span class="math-inline">\((1-t/w)_+\)</span>。由于 <span class="math-inline">\(t\)</span> 与原距离的乘积关系为 <span class="math-inline">\(t\stackrel{d}{=}\|x-y\||Z|\)</span>，<span class="math-inline">\(Z\sim N(0,1)\)</span>，取期望可知碰撞概率随原距离非增。</p>
-<h2 id="学一个更合适的距离"><a href="#学一个更合适的距离" class="headerlink" title="学一个更合适的距离"></a>学一个更合适的距离</h2><p>线性映射 <span class="math-inline">\(A\)</span> 定义距离 <span class="math-inline">\(\|A(x_i-x_j)\|^2=(x_i-x_j)^\top A^\top A(x_i-x_j)\)</span>。Neighborhood Components Analysis 用</p>
-<div class="math-display">\[p_{ij}=\frac{e^{-\|A(x_i-x_j)\|^2}}{\sum_{k\ne i}e^{-\|A(x_i-x_k)\|^2}}
-\quad(j\ne i),\qquad p_{ii}=0\]</div>
-<p>代替硬最近邻。最大化 <span class="math-inline">\(\sum_i\sum_{j:y_i=y_j}p_{ij}\)</span> 相当于提高随机近邻分类器的留一训练正确数。排除自身使目标依赖类内邻居。另一类方法直接约束三元组 <span class="math-inline">\((x,x^+,x^-)\)</span>，使正样本距离比负样本距离至少小一个间隔。监督度量有助于抑制与标签无关的高方差方向。</p>
-<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>若中心化数据的协方差特征值是 <span class="math-inline">\((5,2,1)\)</span>，一维 PCA 保留的方差比例为 <span class="math-inline">\(5/8\)</span>，平均平方重构误差为 <span class="math-inline">\(2+1=3\)</span>。</p>
-<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》往年课件第 9 讲。LSH 参见 <a target="_blank" rel="noopener" href="https://doi.org/10.1145/276698.276876">Indyk 与 Motwani</a> 和 <a target="_blank" rel="noopener" href="https://graphics.stanford.edu/courses/cs468-06-fall/Papers/12%20lsh04.pdf">Datar 等人的 p-stable 构造</a>。</p>
-<p><a href="/notes/ml/08/">← 第 8 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/10/">第 10 讲 →</a></p>
+<p><img src="/images/posts/ml-09/figure.png" alt="Centered points projected orthogonally onto their first principal component"></p>
+<p><em>Each thin segment represents a reconstruction residual. Squaring and averaging its length gives the reconstruction loss of the chosen direction.</em></p>
+<h2 id="PCA-and-orthogonal-reconstruction"><a href="#PCA-and-orthogonal-reconstruction" class="headerlink" title="PCA and orthogonal reconstruction"></a>PCA and orthogonal reconstruction</h2><p>Center the columns of <span class="math-inline">\(X=[x_1,\ldots,x_n]\in\mathbb R^{d\times n}\)</span> and form <span class="math-inline">\(C=XX^\top/n\)</span>. A unit vector <span class="math-inline">\(v\)</span> maximizes retained variance <span class="math-inline">\(v^\top Cv\)</span> exactly when it minimizes the mean squared reconstruction error. By orthogonality,</p>
+<div class="math-display">\[n^{-1}\sum_i\|x_i-vv^\top x_i\|^2=\operatorname{tr}(C)-v^\top Cv.\]</div>
+<p>Writing <span class="math-inline">\(v=\sum_j a_j u_j\)</span> in the eigenbasis gives <span class="math-inline">\(v^\top Cv=\sum_j\lambda_j a_j^2\)</span> with <span class="math-inline">\(\sum_j a_j^2=1\)</span>. The maximum is the largest eigenvalue. More generally, for <span class="math-inline">\(k\)</span> orthonormal columns <span class="math-inline">\(V\)</span>, the retained variance is <span class="math-inline">\(\sum_j\lambda_j\|V^\top u_j\|^2\)</span>. Each weight is in <span class="math-inline">\([0,1]\)</span> and their sum is <span class="math-inline">\(k\)</span>, so the largest <span class="math-inline">\(k\)</span> eigenvalues give the best possible total. The omitted eigenvalues sum to the minimum residual.</p>
+<p>For <span class="math-inline">\(\lambda_1&gt;\lambda_2\)</span> and initial <span class="math-inline">\(v_0\)</span> with nonzero first eigencoordinate, the normalized power iteration gives a vector parallel to <span class="math-inline">\(C^tv_0\)</span>. Each eigencoordinate relative to the first is multiplied by <span class="math-inline">\((\lambda_j/\lambda_1)^t\)</span>, establishing convergence to the leading eigendirection. Orthogonal projection away from an exactly known leading eigenvector preserves the other eigendirections, which permits orthogonal deflation. Scaling features changes the covariance geometry, so the units of the data affect the principal directions.</p>
+<h2 id="From-neighbor-search-to-locality-sensitive-hashing"><a href="#From-neighbor-search-to-locality-sensitive-hashing" class="headerlink" title="From neighbor search to locality-sensitive hashing"></a>From neighbor search to locality-sensitive hashing</h2><p>The <span class="math-inline">\(k\)</span> nearest labeled examples vote in a kNN classifier. Search is the separate problem of finding candidates quickly. In the <span class="math-inline">\((R,cR)\)</span> decision version, if there is an item within <span class="math-inline">\(R\)</span> of a query, an item within <span class="math-inline">\(cR\)</span> qualifies. Every returned candidate can be checked using its actual distance.</p>
+<p>An <span class="math-inline">\((R,cR,p_1,p_2)\)</span>-sensitive hash family offers collision probability at least <span class="math-inline">\(p_1\)</span> for near points and at most <span class="math-inline">\(p_2&lt;p_1\)</span> for far points. For Hamming distance, a uniformly chosen coordinate agrees with probability <span class="math-inline">\(1-d_H(x,y)/d\)</span>. Concatenate <span class="math-inline">\(k\)</span> independent hashes so the near and far collision probabilities become at least <span class="math-inline">\(p_1^k\)</span> and at most <span class="math-inline">\(p_2^k\)</span>. Then use <span class="math-inline">\(L\)</span> independent tables. A fixed near point is missed with probability at most <span class="math-inline">\((1-p_1^k)^L\le e^{-Lp_1^k}\)</span>.</p>
+<p>Take <span class="math-inline">\(k=\lceil\log_{1/p_2}n\rceil\)</span> and <span class="math-inline">\(L=\lceil p_1^{-k}\rceil\)</span>. Each table contributes at most one far collision in expectation, so at most <span class="math-inline">\(L\)</span> far collisions are expected across all tables. Markov bounds the probability of more than <span class="math-inline">\(aL\)</span> far collisions by <span class="math-inline">\(1/a\)</span>. A budgeted scan of at least <span class="math-inline">\(\lceil aL\rceil+1\)</span> candidates guarantees a qualifying point on the event that the fixed near point appears and there are at most <span class="math-inline">\(aL\)</span> far collisions. A union bound gives success at least <span class="math-inline">\(1-e^{-1}-1/a\)</span>. Hash evaluation, distance comparisons, and table space are additional costs. The number of tables is of order <span class="math-inline">\(n^\rho\)</span> for <span class="math-inline">\(\rho=\log(1/p_1)/\log(1/p_2)\)</span>.</p>
+<p>A Euclidean design takes <span class="math-inline">\(h(x)=\lfloor(a^\top x+b)/w\rfloor\)</span>, where <span class="math-inline">\(a\sim N(0,I)\)</span> and <span class="math-inline">\(b\)</span> is uniform in <span class="math-inline">\([0,w)\)</span>. Conditional on projected distance <span class="math-inline">\(t\)</span>, the fraction of offsets putting the two points in the same bucket is <span class="math-inline">\((1-t/w)_+\)</span>. Since <span class="math-inline">\(t\)</span> is distributed as <span class="math-inline">\(\|x-y\||Z|\)</span> with <span class="math-inline">\(Z\sim N(0,1)\)</span>, the unconditional collision rate decreases as their original distance increases.</p>
+<h2 id="Learning-a-useful-metric"><a href="#Learning-a-useful-metric" class="headerlink" title="Learning a useful metric"></a>Learning a useful metric</h2><p>A linear representation <span class="math-inline">\(Ax\)</span> gives squared distance <span class="math-inline">\((x_i-x_j)^\top A^\top A(x_i-x_j)\)</span>. Neighborhood Components Analysis (NCA) replaces a hard neighbor choice by</p>
+<div class="math-display">\[p_{ij}=\frac{e^{-\|A(x_i-x_j)\|^2}}{\sum_{k\ne i}e^{-\|A(x_i-x_k)\|^2}},\quad j\ne i,\qquad p_{ii}=0.\]</div>
+<p>The expected number of correct leave-one-out predictions is <span class="math-inline">\(\sum_i\sum_{j:y_j=y_i}p_{ij}\)</span>. Excluding self-neighbors ensures that training fits relationships between distinct examples. Another approach uses a triplet objective to prefer a positive neighbor over a negative one by a margin. Under a matrix metric <span class="math-inline">\(M\succeq0\)</span>, a fixed triplet yields the hinge of an affine function of <span class="math-inline">\(M\)</span>, hence a convex penalty in that variable.</p>
+<h3 id="Euclidean-locality-sensitive-hashing"><a href="#Euclidean-locality-sensitive-hashing" class="headerlink" title="Euclidean locality-sensitive hashing"></a>Euclidean locality-sensitive hashing</h3><p>For the <span class="math-inline">\(p\)</span>-stable construction at <span class="math-inline">\(p=2\)</span>, let <span class="math-inline">\(a\sim N(0,I_d)\)</span> and <span class="math-inline">\(b\)</span> be uniform on <span class="math-inline">\([0,w)\)</span>, independently, and hash <span class="math-inline">\(h_{a,b}(x)=\lfloor(a^\top x+b)/w\rfloor\)</span>. Conditional on projection separation <span class="math-inline">\(t=|a^\top(x-z)|\)</span>, the random shift places a bin boundary between the projections with probability <span class="math-inline">\(\min(1,t/w)\)</span>. This follows because a boundary lies between them for exactly <span class="math-inline">\(t\)</span> out of <span class="math-inline">\(w\)</span> shift values when <span class="math-inline">\(t&lt;w\)</span>, and at least one boundary always lies between them when <span class="math-inline">\(t\ge w\)</span>. Since <span class="math-inline">\(t\overset{d}{=}\|x-z\|_2|Z|\)</span> for <span class="math-inline">\(Z\sim N(0,1)\)</span>, the collision probability at distance <span class="math-inline">\(r\)</span> is</p>
+<div class="math-display">\[p(r)=\mathbb E\!\left[(1-r|Z|/w)_+\right].\]</div>
+<p>For <span class="math-inline">\(0\le r_1&lt;r_2\)</span>, use the same <span class="math-inline">\(|Z|\)</span> in both expectations. The integrand for <span class="math-inline">\(r_1\)</span> is larger on the positive-probability event <span class="math-inline">\(0&lt;|Z|&lt;w/r_2\)</span>, and never smaller. Thus the <span class="math-inline">\((R,cR)\)</span> near and far probabilities satisfy <span class="math-inline">\(p(R)&gt;p(cR)\)</span> for <span class="math-inline">\(R&gt;0,c&gt;1\)</span>.</p>
+<h3 id="Why-the-LMNN-objective-is-convex-in-the-metric"><a href="#Why-the-LMNN-objective-is-convex-in-the-metric" class="headerlink" title="Why the LMNN objective is convex in the metric"></a>Why the LMNN objective is convex in the metric</h3><p>Fix the same-class target neighbors in advance and put <span class="math-inline">\(D_{ij}=(x_i-x_j)(x_i-x_j)^\top\)</span>. A positive semidefinite matrix <span class="math-inline">\(M\)</span> gives squared distance <span class="math-inline">\(d_M(i,j)=\operatorname{tr}(MD_{ij})\)</span>. The large-margin nearest neighbor objective combines the sum of target-neighbor distances and a hinge penalty <span class="math-inline">\(\max(0,1+d_M(i,j)-d_M(i,k))\)</span> on differently labeled <span class="math-inline">\(k\)</span>. Both distance expressions are affine in <span class="math-inline">\(M\)</span>. The maximum of two affine functions is convex, sums with nonnegative weights preserve convexity, and the positive semidefinite cone is convex since each inequality <span class="math-inline">\(z^\top Mz\ge0\)</span> is linear in <span class="math-inline">\(M\)</span>. Factoring <span class="math-inline">\(M=T^\top T\)</span> gives the resulting Euclidean embedding.</p>
+<h3 id="A-bounded-work-query-guarantee"><a href="#A-bounded-work-query-guarantee" class="headerlink" title="A bounded-work query guarantee"></a>A bounded-work query guarantee</h3><p>For a fixed query, suppose at least one data point is within <span class="math-inline">\(R\)</span>. Let <span class="math-inline">\(k=\lceil\log n/\log(1/p_2)\rceil\)</span>, concatenate <span class="math-inline">\(k\)</span> independent hashes per table, and let <span class="math-inline">\(\rho=\log(1/p_1)/\log(1/p_2)\)</span>. A far point collides in one table with probability at most <span class="math-inline">\(p_2^k\le1/n\)</span>. Linearity of expectation bounds the total number of far candidate occurrences in <span class="math-inline">\(L\)</span> tables by <span class="math-inline">\(L\)</span>, whether or not collisions for different data points are independent. By Markov, more than <span class="math-inline">\(4L\)</span> far occurrences has probability at most <span class="math-inline">\(1/4\)</span>. The distinguished near point collides per table with probability at least <span class="math-inline">\(p_1^k\ge p_1n^{-\rho}\)</span>. Independence across tables bounds the probability of missing it by <span class="math-inline">\(\exp(-Lp_1n^{-\rho})\)</span>, at most <span class="math-inline">\(1/4\)</span> when <span class="math-inline">\(L\ge n^\rho\log(4)/p_1\)</span>. If both good events occur, scanning up to <span class="math-inline">\(4L+1\)</span> candidates and checking their distances must find a point within <span class="math-inline">\(cR\)</span>. This succeeds with probability at least <span class="math-inline">\(1/2\)</span> by the union bound.</p>
+<h2 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h2><p>Find the behavior of Gaussian bucket hashing when the projected spacing parameter <span class="math-inline">\(w\)</span> is tiny compared with the original distance <span class="math-inline">\(d=\|x-y\|\)</span>. Show <span class="math-inline">\(P(h(x)=h(y))\sim w/(d\sqrt{2\pi})\)</span>.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>The density of <span class="math-inline">\(t=d|Z|\)</span> is <span class="math-inline">\(\sqrt{2/\pi}\exp(-t^2/(2d^2))/d\)</span> for <span class="math-inline">\(t\ge0\)</span>. Thus</p>
+<div class="math-display">\[P=\sqrt{\frac2\pi}\frac wd\int_0^1(1-u)e^{-w^2u^2/(2d^2)}\,du.\]</div>
+<p>As <span class="math-inline">\(w/d\to0\)</span>, dominated convergence gives an integral tending to <span class="math-inline">\(1/2\)</span>, proving the result.</p>
+</details>
+
+<p><strong>Second challenge.</strong> Suppose each query uses <span class="math-inline">\(L\)</span> independent tables from the proved constant-success LSH construction. How many independent copies are required to answer <span class="math-inline">\(Q\)</span> fixed queries with total failure probability at most <span class="math-inline">\(\delta\)</span>?</p>
+<details>
+<summary>Show solution to the second challenge</summary>
+
+<p>For a query with a near neighbor, each fresh copy fails with probability at most <span class="math-inline">\(1/2\)</span>. Trying <span class="math-inline">\(r\)</span> copies independently reduces this to <span class="math-inline">\(2^{-r}\)</span>. A union bound over queries gives at most <span class="math-inline">\(Q2^{-r}\)</span> even though different queries reuse the copies. It suffices to take <span class="math-inline">\(r=\lceil\log_2(Q/\delta)\rceil\)</span>. This argument assumes the queries are fixed independently of the randomized tables.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 9 from the archived slides. <a target="_blank" rel="noopener" href="https://doi.org/10.1145/276698.276876">Indyk and Motwani, Approximate Nearest Neighbors</a>. <a target="_blank" rel="noopener" href="https://graphics.stanford.edu/courses/cs468-06-fall/Papers/12%20lsh04.pdf">Datar et al., p-stable LSH</a>.</p>
+<p><a href="/notes/ml/08/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/10/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/09/" data-id="cuid4ysfzWgQYqt8JtD7WQd4P" data-title="机器学习 09｜PCA、近邻搜索与度量学习" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/09/" data-id="cuiddiTrb1uhZM5o9n_3ycHHJ" data-title="ML 09: PCA, Nearest Neighbors, and Metric Learning" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -271,7 +285,7 @@
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          机器学习 10｜K-means 与谱聚类
+          ML 10: K-means and Spectral Clustering
         
       </div>
     </a>
@@ -279,7 +293,7 @@
   
     <a href="/notes/ml/08/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">机器学习 08｜决策树、随机森林与 Boosting</div>
+      <div class="article-nav-title">ML 08: Decision Trees, Random Forests, and Boosting</div>
     </a>
   
 </nav>

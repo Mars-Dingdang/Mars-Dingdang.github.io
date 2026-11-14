@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>「ACG 04」投影与三维学习：从相机视锥到点云 | Mars Dingdang</title>
+  <title>ACG 04: Projection and Learning on 3D Geometry | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="相机投影把一个三维位置压缩成屏幕坐标，单视图重建试图从这些不完整观测恢复形状。投影矩阵解释了信息在哪里丢失，三维学习则利用数据中的形状先验补充约束。">
+  <meta name="description" content="Perspective projection maps three-dimensional positions to two-dimensional image coordinates. Single-view reconstruction asks what can be recovered after that mapping. Camera geometry identifies the m">
 <meta property="og:type" content="article">
-<meta property="og:title" content="「ACG 04」投影与三维学习：从相机视锥到点云">
+<meta property="og:title" content="ACG 04: Projection and Learning on 3D Geometry">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/acg/04/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="相机投影把一个三维位置压缩成屏幕坐标，单视图重建试图从这些不完整观测恢复形状。投影矩阵解释了信息在哪里丢失，三维学习则利用数据中的形状先验补充约束。">
-<meta property="og:locale" content="zh_CN">
+<meta property="og:description" content="Perspective projection maps three-dimensional positions to two-dimensional image coordinates. Single-view reconstruction asks what can be recovered after that mapping. Camera geometry identifies the m">
+<meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/acg-04-learning-geometry/thumbnail.png">
 <meta property="article:published_time" content="2026-11-13T16:04:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T17:44:05.748Z">
+<meta property="article:modified_time" content="2026-11-14T02:25:49.632Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="3D Vision">
 <meta property="article:tag" content="ACG">
@@ -85,7 +85,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -179,9 +181,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -211,96 +212,122 @@
   <div class="article-inner">
     
     
-      <header class="article-header" lang="zh-CN">
+      <header class="article-header" lang="en">
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      「ACG 04」投影与三维学习：从相机视锥到点云
+      ACG 04: Projection and Learning on 3D Geometry
     </h1>
   
 
       </header>
     
-    <div class="e-content article-entry" itemprop="articleBody" lang="zh-CN">
+    <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>相机投影把一个三维位置压缩成屏幕坐标，单视图重建试图从这些不完整观测恢复形状。投影矩阵解释了信息在哪里丢失，三维学习则利用数据中的形状先验补充约束。</p>
+        <p>Perspective projection maps three-dimensional positions to two-dimensional image coordinates. Single-view reconstruction asks what can be recovered after that mapping. Camera geometry identifies the missing constraints, and learning supplies priors about plausible scenes.</p>
 <span id="more"></span>
 
-<h2 id="正交投影与透视投影"><a href="#正交投影与透视投影" class="headerlink" title="正交投影与透视投影"></a>正交投影与透视投影</h2><p>采用右手相机坐标，相机看向 <span class="math-inline">\(-z\)</span>。近平面距离 <span class="math-inline">\(n&gt;0\)</span>，远平面距离 <span class="math-inline">\(f&gt;n\)</span>，沿视线距离记为 <span class="math-inline">\(d=-z\)</span>。以下用 NDC 深度范围 <span class="math-inline">\([-1,1]\)</span>，近处映到 <span class="math-inline">\(-1\)</span>。</p>
-<p>正交投影把 <span class="math-inline">\([l,r]\times[b,t]\times[n,f]\)</span> 分别沿每个轴平移到中心并缩放。比如 <span class="math-inline">\(x_{\mathrm{ndc}}=(2x-r-l)/(r-l)\)</span>，由 <span class="math-inline">\(x=l,r\)</span> 两个端点的线性约束确定。物体在屏幕上的大小与 <span class="math-inline">\(d\)</span> 无关。透视投影把靠近相机的物体投得更大。设垂直视场角为 <span class="math-inline">\(\phi\)</span>、宽高比为 <span class="math-inline">\(a\)</span>，则近平面半高 <span class="math-inline">\(n\tan(\phi/2)\)</span>，半宽是半高的 <span class="math-inline">\(a\)</span> 倍。用相似三角形，近面交点为 <span class="math-inline">\((nx/d,ny/d)\)</span>，所以</p>
+<h2 id="Orthographic-and-perspective-projection"><a href="#Orthographic-and-perspective-projection" class="headerlink" title="Orthographic and perspective projection"></a>Orthographic and perspective projection</h2><p>Use a right-handed camera with forward axis <span class="math-inline">\(-z\)</span>. Let <span class="math-inline">\(n,f\)</span> be the positive near and far distances, <span class="math-inline">\(d=-z\)</span>, and set normalized depth to <span class="math-inline">\([-1,1]\)</span> with near mapping to <span class="math-inline">\(-1\)</span>. Orthographic projection centers and scales each coordinate independently. For horizontal interval <span class="math-inline">\([l,r]\)</span>, impose the two endpoint values to get <span class="math-inline">\(x_{\mathrm{ndc}}=(2x-r-l)/(r-l)\)</span>. The same linear construction applies to vertical position and depth.</p>
+<p>Perspective instead projects along rays from the camera center. Let <span class="math-inline">\(\phi\)</span> be the vertical field of view and <span class="math-inline">\(a\)</span> the width-to-height ratio. The near plane’s half-height is <span class="math-inline">\(n\tan(\phi/2)\)</span>, and similar triangles scale the near-plane intersection by <span class="math-inline">\(n/d\)</span>. After normalization,</p>
 <div class="math-display">\[x_{\mathrm{ndc}}=\frac{x}{ad\tan(\phi/2)},\qquad
 y_{\mathrm{ndc}}=\frac{y}{d\tan(\phi/2)}.\]</div>
-<p><img src="/images/posts/acg-04-learning-geometry/thumbnail.png" alt="相机视锥侧视图。相似三角形把深度为 d 的点缩放到近面，深度通过非线性曲线映到 NDC"></p>
-<p>齐次坐标里让 <span class="math-inline">\(w_c=-z=d\)</span>，在裁剪之后统一做透视除法。若 <span class="math-inline">\(z_c=Az+B\)</span>，则 <span class="math-inline">\(z_{\mathrm{ndc}}=-A+B/d\)</span>。代入 <span class="math-inline">\(d=n,f\)</span> 的端点条件，得到 <span class="math-inline">\(A=-(f+n)/(f-n)\)</span>、<span class="math-inline">\(B=-2fn/(f-n)\)</span>。记 <span class="math-inline">\(s=1/\tan(\phi/2)\)</span>，对称视锥的矩阵是</p>
+<p><img src="/images/posts/acg-04-learning-geometry/thumbnail.png" alt="Similar triangles determine the near-plane projection. The depth map assigns more of its range to points close to the near plane."></p>
+<p>Choose clip <span class="math-inline">\(w_c=d\)</span>, making the homogeneous division produce the desired scale. Assume <span class="math-inline">\(z_c=Az+B\)</span> so normalized depth is <span class="math-inline">\(-A+B/d\)</span>. Evaluating at <span class="math-inline">\(d=n,f\)</span> yields <span class="math-inline">\(A=-(f+n)/(f-n)\)</span> and <span class="math-inline">\(B=-2fn/(f-n)\)</span>. For <span class="math-inline">\(s=1/\tan(\phi/2)\)</span>, the projection matrix is</p>
 <div class="math-display">\[P=\begin{pmatrix}
 s/a&amp;0&amp;0&amp;0\\0&amp;s&amp;0&amp;0\\
 0&amp;0&amp;-\frac{f+n}{f-n}&amp;-\frac{2fn}{f-n}\\
 0&amp;0&amp;-1&amp;0
 \end{pmatrix}.\]</div>
-<p>其深度导数为 <span class="math-inline">\(2fn/((f-n)d^2)\)</span>。对均匀量化的深度缓冲，等量深度步长在远处对应更大的世界距离，两层近邻表面可能量化到相同深度。把 <span class="math-inline">\(n\)</span> 设得很小，也会把更多可用精度集中到靠近相机的位置。对于左上角为原点、<span class="math-inline">\(y\)</span> 朝下的 <span class="math-inline">\(W\times H\)</span> 视口，可写 <span class="math-inline">\(x_s=W(x_{\mathrm{ndc}}+1)/2\)</span>、<span class="math-inline">\(y_s=H(1-y_{\mathrm{ndc}})/2\)</span>。这些是连续屏幕坐标，像素中心的半单位偏移留给采样阶段。</p>
-<h2 id="学习方法由三维数据表示决定"><a href="#学习方法由三维数据表示决定" class="headerlink" title="学习方法由三维数据表示决定"></a>学习方法由三维数据表示决定</h2><table>
+<p>The derivative of depth with respect to <span class="math-inline">\(d\)</span> is <span class="math-inline">\(2fn/((f-n)d^2)\)</span>. Uniform quantization of projected depth therefore corresponds to coarser distance resolution farther away. A smaller near plane consumes more of the representable depth range near the eye. After clipping and division, a <span class="math-inline">\(W\times H\)</span> top-left-origin viewport maps NDC to <span class="math-inline">\(x_s=W(x_{\mathrm{ndc}}+1)/2\)</span> and <span class="math-inline">\(y_s=H(1-y_{\mathrm{ndc}})/2\)</span>.</p>
+<h3 id="Clip-before-the-perspective-divide"><a href="#Clip-before-the-perspective-divide" class="headerlink" title="Clip before the perspective divide"></a>Clip before the perspective divide</h3><p>The visible clip-space region satisfies six linear half-space inequalities, such as <span class="math-inline">\(w+x\ge0\)</span> for the left boundary. An edge whose endpoints <span class="math-inline">\(A,B\)</span> lie on opposite sides of a clipping plane <span class="math-inline">\(g(C)=0\)</span> intersects it at</p>
+<div class="math-display">\[t=\frac{g(A)}{g(A)-g(B)},\qquad C=(1-t)A+tB.\]</div>
+<p>Sutherland–Hodgman clipping processes one plane at a time. For each polygon edge, emit an intersection if membership changes and emit the next vertex if it is inside. Interpolate ordinary perspective-correct vertex attributes with the same <span class="math-inline">\(t\)</span> before dividing by <span class="math-inline">\(w\)</span>. After all six planes, triangulate the clipped polygon and divide its retained vertices by <span class="math-inline">\(w\)</span>. Performing clipping in screen space after division would mishandle edges that cross the eye plane.</p>
+<h2 id="Choosing-a-representation-for-3D-learning"><a href="#Choosing-a-representation-for-3D-learning" class="headerlink" title="Choosing a representation for 3D learning"></a>Choosing a representation for 3D learning</h2><table>
 <thead>
 <tr>
-<th>表示</th>
-<th>适合的计算</th>
-<th>主要限制</th>
+<th>Representation</th>
+<th>Useful computation</th>
+<th>Main tradeoff</th>
 </tr>
 </thead>
 <tbody><tr>
-<td>多视图</td>
-<td>每个视角用二维 CNN 提取特征，再跨视图聚合</td>
-<td>投影遮挡，结果受视角覆盖影响</td>
+<td>Multiview images</td>
+<td>Share a 2D encoder and aggregate features across views</td>
+<td>Occluded surfaces depend on viewpoint coverage</td>
 </tr>
 <tr>
-<td>稠密体素</td>
-<td>三维卷积及规则邻域访问</td>
-<td>分辨率每轴加倍，体素数量变为八倍</td>
+<td>Dense voxels</td>
+<td>Apply regular 3D kernels</td>
+<td>Doubling resolution per axis requires eight times as many cells</td>
 </tr>
 <tr>
-<td>稀疏体素、八叉树</td>
-<td>只计算活跃体素，或细分有结构的区域</td>
-<td>需要索引稀疏邻接或跨层操作</td>
+<td>Sparse voxels and octrees</td>
+<td>Process occupied cells or subdivide selected regions</td>
+<td>Neighbor lookup requires a spatial index or cross-level handling</td>
 </tr>
 <tr>
-<td>点云</td>
-<td>直接处理扫描或采样的三维位置</td>
-<td>无显式面连接，密度可能不均匀</td>
+<td>Point sets</td>
+<td>Process scan samples directly</td>
+<td>Sampling density varies and connectivity is absent</td>
 </tr>
 <tr>
-<td>网格</td>
-<td>用边和面提供结构，适合曲面输出</td>
-<td>模板变形通常限制可改变的拓扑</td>
+<td>Meshes</td>
+<td>Use face and edge structure and output a surface directly</td>
+<td>A deformable template generally retains its topology</td>
 </tr>
 <tr>
-<td>隐式场</td>
-<td>用坐标查询占据率或距离，输出分辨率可变</td>
-<td>密集查询和提取表面本身有成本</td>
+<td>Implicit fields</td>
+<td>Query occupancy or distance at arbitrary coordinates</td>
+<td>Surface extraction requires additional queries</td>
 </tr>
 </tbody></table>
-<p>数据集的标注决定了能训练或评估什么任务。ShapeNet 适合对象级类别和形状研究，PartNet 提供细粒度部件层次，ScanNet 面向室内扫描和场景语义。HOI4D 增加随时间变化的人与物体交互观测。评价模型时，应说明输入是完整物体、部分扫描还是动态场景，因为它们的遮挡、噪声和监督都不同。</p>
-<h2 id="PointNet-的置换不变性"><a href="#PointNet-的置换不变性" class="headerlink" title="PointNet 的置换不变性"></a>PointNet 的置换不变性</h2><p>点云的行序没有几何含义。PointNet 对每个点共享映射 <span class="math-inline">\(h\)</span>，然后用按通道最大值聚合。</p>
+<p>Datasets differ in the signals available for training. ShapeNet studies object-level geometry, PartNet adds part hierarchies, ScanNet provides indoor observations, and HOI4D records interactions over time. An evaluation should state whether the input is a complete shape, a partial scan, or a changing scene.</p>
+<h2 id="Set-aggregation-and-local-structure"><a href="#Set-aggregation-and-local-structure" class="headerlink" title="Set aggregation and local structure"></a>Set aggregation and local structure</h2><p>PointNet shares a feature extractor <span class="math-inline">\(h\)</span> across points, uses per-channel maxima, and applies an output head <span class="math-inline">\(\gamma\)</span>:</p>
 <div class="math-display">\[F(\{p_1,\ldots,p_m\})=\gamma\left(\max_i h(p_i)\right).\]</div>
-<p>对任何排列 <span class="math-inline">\(\pi\)</span>，<span class="math-inline">\(h(p_{\pi(i)})\)</span> 只是同一组特征的重排，每个通道的最大值保持不变，因而 <span class="math-inline">\(F\)</span> 保持不变。若所有新加入点的特征都低于已有最大值，结果也保持不变。这解释了全局 max 聚合对部分采样变化的稳定性，同时指出它可以丢掉密度和局部结构。PointNet++ 先按度量空间的邻近关系构造局部组，在局部坐标内提取特征，再逐层扩大感受范围。<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1612.00593">PointNet</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1706.02413">PointNet++</a></p>
-<h2 id="单视图重建的尺度歧义与训练目标"><a href="#单视图重建的尺度歧义与训练目标" class="headerlink" title="单视图重建的尺度歧义与训练目标"></a>单视图重建的尺度歧义与训练目标</h2><p>沿每个像点的射线移动三维点，只要不改变相机可见部分的投影与外观，就可能得到同一张图。最简单的例子是把相机坐标内的整个对象乘一个正比例因子。学习模型可利用物体类别和常见比例猜测深度，但投影本身不提供绝对尺度。</p>
-<p>设正值预测深度为 <span class="math-inline">\(\hat z_i\)</span>，参考深度为 <span class="math-inline">\(z_i\)</span>，对数差为 <span class="math-inline">\(\delta_i=\log\hat z_i-\log z_i\)</span>。允许对预测乘任意全局因子 <span class="math-inline">\(e^\alpha\)</span>，最小化 <span class="math-inline">\(\frac1m\sum_i(\delta_i+\alpha)^2\)</span>。令一阶导数为零得 <span class="math-inline">\(\alpha=-\bar\delta\)</span>，代回得到尺度不变的损失</p>
-<div class="math-display">\[\frac1m\sum_i\delta_i^2-\left(\frac1m\sum_i\delta_i\right)^2.\]</div>
-<p>它度量的是对数误差的方差。若所有预测深度都是参考值的两倍，<span class="math-inline">\(\delta_i\)</span> 恒等于 <span class="math-inline">\(\log 2\)</span>，损失为零。</p>
-<p>点云输出不宜逐行比较。采用按点数归一化的双向平方 Chamfer 距离时，</p>
-<div class="math-display">\[D(P,Q)=
-\frac{1}{|P|}\sum_{p\in P}\min_{q\in Q}\|p-q\|^2
+<p>Reordering the points reorders the feature rows, leaving each maximum unchanged. A perturbation that changes only points below all existing maxima can likewise leave the output unchanged. The same property limits the ability to infer density or local arrangements. PointNet++ selects local neighborhoods in the metric space, encodes relative coordinates in each neighborhood, and repeats the procedure at larger scales. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1612.00593">PointNet</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1706.02413">PointNet++</a></p>
+<p>A simple implementation can use farthest-point sampling to choose neighborhood centers. Track the smallest squared distance from each point to any selected center, update the distance array after adding each center, and take its maximum for the next center. This costs <span class="math-inline">\(O(mN)\)</span> for <span class="math-inline">\(m\)</span> centers and <span class="math-inline">\(N\)</span> points, with <span class="math-inline">\(O(N)\)</span> memory. Gather neighbors for each center using a radius or nearest-neighbor query. Subtract the center coordinates so each local feature extractor sees the geometry of the patch.</p>
+<h2 id="Single-view-reconstruction-objectives"><a href="#Single-view-reconstruction-objectives" class="headerlink" title="Single-view reconstruction objectives"></a>Single-view reconstruction objectives</h2><p>Scaling an object uniformly about the pinhole leaves its projected coordinates unchanged. Depth supervision can accommodate this ambiguity by comparing the shape of the predicted depth map up to one per-image scale. With <span class="math-inline">\(\delta_i=\log\hat z_i-\log z_i\)</span>, minimize the squared error after adding a global offset <span class="math-inline">\(\alpha\)</span> to the predicted log depths. Differentiation gives <span class="math-inline">\(\alpha=-\bar\delta\)</span>, and the minimized loss is</p>
+<div class="math-display">\[\frac1m\sum_i\delta_i^2-\left(\frac1m\sum_i\delta_i\right)^2 .\]</div>
+<p>Point sets lack a canonical ordering, so a reconstruction can use the bidirectional squared Chamfer objective,</p>
+<div class="math-display">\[D(P,Q)=\frac{1}{|P|}\sum_{p\in P}\min_{q\in Q}\|p-q\|^2
 +\frac{1}{|Q|}\sum_{q\in Q}\min_{p\in P}\|q-p\|^2.\]</div>
-<p>第一项检查预测点离参考表面有多远，第二项检查预测是否覆盖参考。每项都由集合上的求和与最小值构成，因此对排列不变。这个损失允许多个点选择同一个最近邻，对局部采样密度的约束较弱。对于网格输出，可以从模板顶点预测位移、保留面连接，再结合曲面采样和邻域平滑损失约束局部形状。模板固定的代价是无法直接生出新的洞或组件。</p>
-<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
-<li>弋力，《Advanced Computer Graphics》，Lecture 4: Learning + Geometry，2026 年 10 月 17 日，课件第 3–32 页（投影与视口）、第 37–60 页（数据）、第 61–106 页（形状分析）、第 107–144 页（形状合成）。</li>
-</ul>
+<p>The first term measures prediction accuracy and the second term measures coverage. Both are permutation invariant. Because a target can be reused as the closest neighbor of many different predictions, the objective gives limited control over sample density. Mesh prediction can instead deform a template, sample surface points for data terms, and regularize neighboring vertices and faces. A fixed template constrains changes to topology.</p>
+<h2 id="Exercises"><a href="#Exercises" class="headerlink" title="Exercises"></a>Exercises</h2><ol>
+<li><strong>Find precision loss.</strong> Under this projection, compare the world-space depth increments corresponding to an equal, infinitesimal NDC increment at <span class="math-inline">\(d=2n\)</span> and at <span class="math-inline">\(d=20n\)</span>. Assume both are inside the frustum.</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>Invert <span class="math-inline">\(dz_{\mathrm{ndc}}/dd=2fn/((f-n)d^2)\)</span> locally. The distance increment scales as <span class="math-inline">\(d^2\)</span>, so the farther sample’s increment is <span class="math-inline">\(100\)</span> times as large.</p>
+</details>
+
+<ol start="2">
+<li><strong>Clip a segment.</strong> Against the left clip plane <span class="math-inline">\(w+x=0\)</span>, clip the segment from <span class="math-inline">\(A=(-3,0,0,1)\)</span> to <span class="math-inline">\(B=(0,2,0,2)\)</span>. Give the intersection and its screen <span class="math-inline">\(y\)</span> in NDC.</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>The signed values are <span class="math-inline">\(g(A)=-2\)</span> and <span class="math-inline">\(g(B)=2\)</span>, giving <span class="math-inline">\(t=1/2\)</span>. The intersection is <span class="math-inline">\((-1.5,1,0,1.5)\)</span>, whose normalized <span class="math-inline">\(y\)</span> is <span class="math-inline">\(2/3\)</span>. Interpolating the already-divided <span class="math-inline">\(y\)</span> values at the same parameter would give <span class="math-inline">\(1/2\)</span> and the wrong geometry.</p>
+</details>
+
+<ol start="3">
+<li><strong>Separate ordinary and scale-invariant depth errors.</strong> The target depths are <span class="math-inline">\((1,2,4)\)</span> and predictions are <span class="math-inline">\((2,4,4)\)</span>. Compute the optimal multiplicative correction and scale-invariant loss.</li>
+</ol>
+<details>
+<summary>Answer</summary>
+
+<p>The log discrepancies are <span class="math-inline">\((\log 2,\log 2,0)\)</span> with mean <span class="math-inline">\(2\log 2/3\)</span>. The scale correction is <span class="math-inline">\(2^{-2/3}\)</span>, and the remaining variance is <span class="math-inline">\(2(\log 2)^2/9\)</span>.</p>
+</details>
+
+<h2 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h2><p>Li Yi, <em>Advanced Computer Graphics</em>, Lecture 4, “Learning + Geometry,” October 17, 2026, slides 3–32 for projection, 37–60 for datasets, 61–106 for analysis, and 107–144 for synthesis.</p>
 <hr>
-<p><a href="/notes/acg/03/">上一讲</a> · <a href="/notes/">课程笔记</a> · <a href="/notes/acg/05/">下一讲</a></p>
+<p><a href="/notes/acg/03/">Previous lecture</a> · <a href="/notes/#acg">Course notes</a> · <a href="/notes/acg/05/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/acg/04/" data-id="cuidie_DPYkAfTxYg8paXM3x1" data-title="「ACG 04」投影与三维学习：从相机视锥到点云" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
-<span>分享</span></button>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/acg/04/" data-id="cuidWJB434-MEET3fVd4aAE7y" data-title="ACG 04: Projection and Learning on 3D Geometry" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+<span>Share</span></button>
       
       
       
@@ -313,18 +340,18 @@ s/a&amp;0&amp;0&amp;0\\0&amp;s&amp;0&amp;0\\
 <nav id="article-nav">
   
     <a href="/notes/ml/05/" id="article-nav-newer" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">前一篇</strong>
+      <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          机器学习 05｜PAC 学习与 VC 维
+          ML 05: PAC Learning and VC Dimension
         
       </div>
     </a>
   
   
     <a href="/notes/ml/04/" id="article-nav-older" class="article-nav-link-wrap">
-      <strong class="article-nav-caption">后一篇</strong>
-      <div class="article-nav-title">机器学习 04｜矩阵补全、核范数与鞍点</div>
+      <strong class="article-nav-caption">Older</strong>
+      <div class="article-nav-title">ML 04: Matrix Completion and Nonconvex Geometry</div>
     </a>
   
 </nav>

@@ -4,18 +4,18 @@
   <meta charset="utf-8">
   
   
-  <title>机器学习 03｜SGD、SVRG 与镜像下降 | Mars Dingdang</title>
+  <title>ML 03: SGD, SVRG, and Mirror Descent | Mars Dingdang</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <meta name="description" content="把随机梯度的噪声写入收敛证明，再用控制变量降低方差，并把下降几何推广到概率单纯形。">
+  <meta name="description" content="Prove a convergence bound for averaged SGD, derive SVRG’s epoch contraction, and extend descent to the geometry of a probability simplex.">
 <meta property="og:type" content="article">
-<meta property="og:title" content="机器学习 03｜SGD、SVRG 与镜像下降">
+<meta property="og:title" content="ML 03: SGD, SVRG, and Mirror Descent">
 <meta property="og:url" content="https://mars-dingdang.github.io/notes/ml/03/index.html">
 <meta property="og:site_name" content="Mars Dingdang">
-<meta property="og:description" content="把随机梯度的噪声写入收敛证明，再用控制变量降低方差，并把下降几何推广到概率单纯形。">
+<meta property="og:description" content="Prove a convergence bound for averaged SGD, derive SVRG’s epoch contraction, and extend descent to the geometry of a probability simplex.">
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-03/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:03:00.000Z">
-<meta property="article:modified_time" content="2026-11-13T18:10:55.524Z">
+<meta property="article:modified_time" content="2026-11-14T02:31:23.698Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Lecture Notes">
 <meta property="article:tag" content="Mirror Descent">
@@ -86,7 +86,9 @@
       <div class="mobile-rail-backdrop" hidden></div>
       <div class="site-shell">
         <aside id="site-rail" class="site-rail">
-          <a class="rail-avatar" href="/" aria-label="Mars Dingdang"></a>
+          <a class="rail-avatar" href="/" aria-label="Mars Dingdang">
+            <img src="/images/avatar.jpg" alt="">
+          </a>
           <div class="rail-username">Mars-Dingdang</div>
           <div class="rail-tagline">Learning in public. Notes on code, systems, and building.</div>
           <div class="rail-stats">
@@ -180,9 +182,8 @@
             </button>
           </div>
           <div class="rail-search">
-            <form class="search-form" action="https://www.google.com/search" method="get" role="search">
-              <input type="hidden" name="sitesearch" value="mars-dingdang.github.io">
-              <input class="search-form-input" type="search" name="q" placeholder="Search the site" aria-label="Search the site" required>
+            <form class="search-form" action="/search/" role="search">
+              <input class="search-form-input" type="search" name="q" placeholder="Search posts" aria-label="Search posts from sidebar" required>
               <button class="search-form-submit" type="submit" aria-label="Search"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#search"></use></svg>
 </button>
             </form>
@@ -216,7 +217,7 @@
         
   
     <h1 class="p-name article-title" itemprop="headline name">
-      机器学习 03｜SGD、SVRG 与镜像下降
+      ML 03: SGD, SVRG, and Mirror Descent
     </h1>
   
 
@@ -224,69 +225,72 @@
     
     <div class="e-content article-entry" itemprop="articleBody" lang="en">
       
-        <p>把随机梯度的噪声写入收敛证明，再用控制变量降低方差，并把下降几何推广到概率单纯形。</p>
+        <p>Prove a convergence bound for averaged SGD, derive SVRG’s epoch contraction, and extend descent to the geometry of a probability simplex.</p>
 <span id="more"></span>
 
-<p><img src="/images/posts/ml-03/figure.png" alt="一维二次有限和上 SGD 与 SVRG 的收敛轨迹"></p>
-<p><em>两项的曲率与最优点各不相同。随机梯度在总体最优点仍有波动，SVRG 的修正项随迭代点靠近快照而减小。图中的横轴为累计分量梯度计算次数。</em></p>
-<h2 id="SGD-控制了哪个输出"><a href="#SGD-控制了哪个输出" class="headerlink" title="SGD 控制了哪个输出"></a>SGD 控制了哪个输出</h2><p>设 <span class="math-inline">\(f\)</span> 是 <span class="math-inline">\(L\)</span> 光滑凸函数，<span class="math-inline">\(w^\star\)</span> 是其最优点。更新 <span class="math-inline">\(w_{t+1}=w_t-\eta G_t\)</span>。给定抽取本步随机样本之前的历史 <span class="math-inline">\(\mathcal F_t\)</span>，假设</p>
-<div class="math-display">\[\mathbb E[G_t\mid\mathcal F_t]=g_t=\nabla f(w_t),\qquad
-v_t=\mathbb E[\|G_t-g_t\|^2\mid\mathcal F_t]\le\sigma^2.\]</div>
-<p>条件无偏性允许把依赖 <span class="math-inline">\(w_t\)</span> 的内积里的 <span class="math-inline">\(G_t\)</span> 换成 <span class="math-inline">\(g_t\)</span>。直接展开距离平方得到</p>
-<div class="math-display">\[\mathbb E[\|w_{t+1}-w^\star\|^2\mid\mathcal F_t]
+<p><img src="/images/posts/ml-03/figure.png" alt="SGD and SVRG on a two-term quadratic finite sum"></p>
+<p><em>The horizontal axis counts component-gradient evaluations, including the full gradient at each SVRG snapshot. The illustrated snapshots use the last inner iterate.</em></p>
+<h2 id="Which-iterate-does-SGD-control"><a href="#Which-iterate-does-SGD-control" class="headerlink" title="Which iterate does SGD control?"></a>Which iterate does SGD control?</h2><p>Let <span class="math-inline">\(f\)</span> be convex and <span class="math-inline">\(L\)</span>-smooth with minimizer <span class="math-inline">\(w^\star\)</span>, and set <span class="math-inline">\(w_{t+1}=w_t-\eta G_t\)</span>. Conditional on the history <span class="math-inline">\(\mathcal F_t\)</span> before sampling the next direction, assume <span class="math-inline">\(\mathbb E_tG_t=g_t=\nabla f(w_t)\)</span> and <span class="math-inline">\(\mathbb E_t\|G_t-g_t\|^2=v_t\le\sigma^2\)</span>. Then</p>
+<div class="math-display">\[\mathbb E_t\|w_{t+1}-w^\star\|^2
 =\|w_t-w^\star\|^2-2\eta\langle g_t,w_t-w^\star\rangle+\eta^2(\|g_t\|^2+v_t).\]</div>
-<p>用光滑性给 <span class="math-inline">\(f(w_{t+1})\)</span> 上界，并用凸性给 <span class="math-inline">\(f(w_t)-f(w^\star)\)</span> 上界。当 <span class="math-inline">\(\eta\le 1/L\)</span>，</p>
+<p>Smoothness gives <span class="math-inline">\(\mathbb E_t f(w_{t+1})\le f(w_t)-\eta\|g_t\|^2+(L\eta^2/2)(\|g_t\|^2+v_t)\)</span>. Combine this with convexity and use <span class="math-inline">\(\eta\le1/L\)</span>:</p>
 <div class="math-display">\[\begin{aligned}
-\mathbb E[f(w_{t+1})-f(w^\star)\mid\mathcal F_t]
-&amp;\le \langle g_t,w_t-w^\star\rangle-\frac\eta2\|g_t\|^2+\frac\eta2v_t\\
-&amp;=\frac{\|w_t-w^\star\|^2-\mathbb E[\|w_{t+1}-w^\star\|^2\mid\mathcal F_t]}{2\eta}+\eta v_t.
+\mathbb E_t[f(w_{t+1})-f^\star]
+&amp;\le \langle g_t,w_t-w^\star\rangle-\tfrac\eta2\|g_t\|^2+\tfrac\eta2v_t\\
+&amp;=\frac{\|w_t-w^\star\|^2-\mathbb E_t\|w_{t+1}-w^\star\|^2}{2\eta}+\eta v_t.
 \end{aligned}\]</div>
-<p>取全期望并求和。对 <span class="math-inline">\(\bar w_T=T^{-1}\sum_{t=1}^T w_t\)</span> 用 Jensen 不等式，得</p>
-<div class="math-display">\[\mathbb E[f(\bar w_T)-f(w^\star)]
-\le \frac{\|w_0-w^\star\|^2}{2\eta T}+\eta\sigma^2.\]</div>
-<p>取 <span class="math-inline">\(\eta\)</span> 与 <span class="math-inline">\(T^{-1/2}\)</span> 同阶可平衡两项。这个推导也适用于均匀随机选择某步作为输出。随机误差会破坏每步单调性，末次迭代需要独立论证。大小为 <span class="math-inline">\(b\)</span> 的独立同分布 mini-batch 平均可把条件方差缩小为单样本的 <span class="math-inline">\(1/b\)</span>。</p>
-<h2 id="SVRG-的控制变量"><a href="#SVRG-的控制变量" class="headerlink" title="SVRG 的控制变量"></a>SVRG 的控制变量</h2><p>对 <span class="math-inline">\(f(w)=n^{-1}\sum_i f_i(w)\)</span>，每一轮在快照 <span class="math-inline">\(\tilde w\)</span> 算一次全梯度 <span class="math-inline">\(g(\tilde w)\)</span>。内循环均匀选 <span class="math-inline">\(i\)</span>，使用</p>
-<div class="math-display">\[V=\nabla f_i(w)-\nabla f_i(\tilde w)+g(\tilde w).\]</div>
-<p>固定历史后，后两项在期望中抵消，因此 <span class="math-inline">\(\mathbb E[V\mid w,\tilde w]=\nabla f(w)\)</span>。让 <span class="math-inline">\(A_i=\nabla f_i(w)-\nabla f_i(\tilde w)\)</span>。条件方差就是 <span class="math-inline">\(\mathbb E\|A_i-\mathbb EA_i\|^2\)</span>，不超过 <span class="math-inline">\(\mathbb E\|A_i\|^2\)</span>。若每个 <span class="math-inline">\(f_i\)</span> 都 <span class="math-inline">\(L\)</span> 光滑，立刻得到 <span class="math-inline">\(L^2\|w-\tilde w\|^2\)</span>。同一个 <span class="math-inline">\(i\)</span> 的两次计算在这里至关重要。</p>
-<p>若每个 <span class="math-inline">\(f_i\)</span> 还凸，可以用更适合分析收敛的函数值上界。对 <span class="math-inline">\(h_i(u)=f_i(u)-\langle\nabla f_i(w^\star),u\rangle\)</span>，<span class="math-inline">\(w^\star\)</span> 是它的最优点。对 <span class="math-inline">\(h_i\)</span> 执行一步步长 <span class="math-inline">\(1/L\)</span> 的 GD，下降量至多为当前点到最优值的差，故</p>
-<div class="math-display">\[\|\nabla f_i(u)-\nabla f_i(w^\star)\|^2
-\le 2L\,[f_i(u)-f_i(w^\star)-\langle\nabla f_i(w^\star),u-w^\star\rangle].\]</div>
-<p>将 <span class="math-inline">\(A_i\)</span> 通过 <span class="math-inline">\(\nabla f_i(w^\star)\)</span> 拆成两项，平方范数用 <span class="math-inline">\(\|a+b\|^2\le2\|a\|^2+2\|b\|^2\)</span>，并利用 <span class="math-inline">\(\nabla f(w^\star)=0\)</span>。</p>
-<div class="math-display">\[\operatorname{Var}(V\mid w,\tilde w)
-\le 4L[f(w)-f^\star+f(\tilde w)-f^\star].\]</div>
-<p>当当前点和快照都接近最优时，这个上界趋零。重新计算快照全梯度有成本，适合以一个内循环分摊。使用分量梯度评估次数比较算法时，快照计算也计入横轴。</p>
-<p>若 <span class="math-inline">\(f\)</span> 还 <span class="math-inline">\(\mu\)</span> 强凸，可看出怎样从方差界得到每轮收缩。写 <span class="math-inline">\(\Delta(w)=f(w)-f^\star\)</span>。利用同一个分量梯度差不等式，可以将 <span class="math-inline">\(\mathbb E\|V\|^2\)</span> 也上界为 <span class="math-inline">\(4L(\Delta(w)+\Delta(\tilde w))\)</span>。具体地，把 <span class="math-inline">\(V\)</span> 写成 <span class="math-inline">\(\nabla f_i(w)-\nabla f_i(w^\star)\)</span> 减去 <span class="math-inline">\(\nabla f_i(\tilde w)-\nabla f_i(w^\star)\)</span> 的中心化版本，再分别界两个平方范数。对更新展开距离并用凸性，</p>
-<div class="math-display">\[\mathbb E[\|w^+-w^\star\|^2\mid w,\tilde w]
-\;2\eta(1-2L\eta)\Delta(w)
-\le \|w-w^\star\|^2+4L\eta^2\Delta(\tilde w).\]</div>
-<p>从 <span class="math-inline">\(w_0=\tilde w\)</span> 开始，内循环 <span class="math-inline">\(m\)</span> 步后，从 <span class="math-inline">\(w_0,\ldots,w_{m-1}\)</span> 均匀选新快照 <span class="math-inline">\(\tilde w^+\)</span>。求和并用 <span class="math-inline">\(\|w_0-w^\star\|^2\le 2\Delta(\tilde w)/\mu\)</span> 得</p>
-<div class="math-display">\[\mathbb E[\Delta(\tilde w^+)\mid\tilde w]\le
-\frac{1/(m\mu\eta)+2L\eta}{1-2L\eta}\Delta(\tilde w).\]</div>
-<p>例如取 <span class="math-inline">\(\eta=1/(8L)\)</span>，<span class="math-inline">\(m\ge32L/\mu\)</span>，收缩因子至多 <span class="math-inline">\(2/3\)</span>。每轮成本为 <span class="math-inline">\(n+2m\)</span> 次分量梯度计算，故该版本达到期望误差 <span class="math-inline">\(\varepsilon\)</span> 的计算次数是 <span class="math-inline">\(O((n+L/\mu)\log(\Delta(\tilde w_0)/\varepsilon))\)</span>。图中为突出轨迹对比，每轮取末次内迭代作快照，图示和上述收缩证明使用不同的输出规则。</p>
-<h2 id="镜像下降：更新发生在哪个空间"><a href="#镜像下降：更新发生在哪个空间" class="headerlink" title="镜像下降：更新发生在哪个空间"></a>镜像下降：更新发生在哪个空间</h2><p>取严格凸可微的势函数 <span class="math-inline">\(\psi\)</span>，定义 Bregman 散度</p>
+<p>Take total expectations, sum over <span class="math-inline">\(T\)</span> steps, and apply Jensen’s inequality at <span class="math-inline">\(\bar w_T=T^{-1}\sum_{t=1}^T w_t\)</span>:</p>
+<div class="math-display">\[\mathbb E[f(\bar w_T)-f^\star]\le \frac{\|w_0-w^\star\|^2}{2\eta T}+\eta\sigma^2.\]</div>
+<p>A step proportional to <span class="math-inline">\(T^{-1/2}\)</span> balances the terms. A uniform random output iterate has the same objective bound. The proof does not imply a bound for the last iterate because stochastic losses need not decrease monotonically. An average of <span class="math-inline">\(b\)</span> conditionally independent sample gradients has variance <span class="math-inline">\(\sigma^2/b\)</span> when the individual variance is bounded by <span class="math-inline">\(\sigma^2\)</span>.</p>
+<h2 id="SVRG-as-a-control-variate"><a href="#SVRG-as-a-control-variate" class="headerlink" title="SVRG as a control variate"></a>SVRG as a control variate</h2><p>Take <span class="math-inline">\(f=n^{-1}\sum_i f_i\)</span>, where each <span class="math-inline">\(f_i\)</span> is convex and <span class="math-inline">\(L\)</span>-smooth. At an epoch snapshot <span class="math-inline">\(\tilde w\)</span>, compute its full gradient. Sample <span class="math-inline">\(i\)</span> uniformly and use</p>
+<div class="math-display">\[V_i=\nabla f_i(w)-\nabla f_i(\tilde w)+\nabla f(\tilde w).\]</div>
+<p>Its conditional expectation is <span class="math-inline">\(\nabla f(w)\)</span>. If <span class="math-inline">\(A_i=\nabla f_i(w)-\nabla f_i(\tilde w)\)</span>, its variance is <span class="math-inline">\(\mathbb E\|A_i-\mathbb EA_i\|^2\le\mathbb E\|A_i\|^2\le L^2\|w-\tilde w\|^2\)</span>. The same index in both evaluations makes this cancellation possible.</p>
+<p>For an objective-gap bound, define <span class="math-inline">\(a_i(u)=\nabla f_i(u)-\nabla f_i(w^\star)\)</span>. The function <span class="math-inline">\(h_i(u)=f_i(u)-\nabla f_i(w^\star)^\top u\)</span> is minimized at <span class="math-inline">\(w^\star\)</span>. A <span class="math-inline">\(1/L\)</span> gradient step on <span class="math-inline">\(h_i\)</span> cannot improve more than its current gap, so</p>
+<div class="math-display">\[\|a_i(u)\|^2\le 2L[f_i(u)-f_i(w^\star)-\langle\nabla f_i(w^\star),u-w^\star\rangle].\]</div>
+<p>Averaging gives <span class="math-inline">\(\mathbb E_i\|a_i(u)\|^2\le2L\Delta(u)\)</span>, where <span class="math-inline">\(\Delta(u)=f(u)-f^\star\)</span>. Write <span class="math-inline">\(V_i=a_i(w)-(a_i(\tilde w)-\mathbb Ea_i(\tilde w))\)</span> and bound the squared sum by twice each squared term. It follows that</p>
+<div class="math-display">\[\mathbb E_i\|V_i\|^2\le4L(\Delta(w)+\Delta(\tilde w)).\]</div>
+<p>By expansion of the next squared distance and convexity,</p>
+<div class="math-display">\[\mathbb E_i\|w^+-w^\star\|^2+2\eta(1-2L\eta)\Delta(w)
+\le\|w-w^\star\|^2+4L\eta^2\Delta(\tilde w).\]</div>
+<p>If <span class="math-inline">\(f\)</span> is <span class="math-inline">\(\mu\)</span>-strongly convex, start <span class="math-inline">\(w_0=\tilde w\)</span>, sum this bound over <span class="math-inline">\(m\)</span> updates, and choose <span class="math-inline">\(\tilde w^+\)</span> uniformly from <span class="math-inline">\(w_0,\ldots,w_{m-1}\)</span>. The starting squared distance is at most <span class="math-inline">\(2\Delta(\tilde w)/\mu\)</span>, so</p>
+<div class="math-display">\[\mathbb E[\Delta(\tilde w^+)\mid\tilde w]
+\le \frac{1/(m\mu\eta)+2L\eta}{1-2L\eta}\Delta(\tilde w).\]</div>
+<p>Choosing <span class="math-inline">\(\eta=1/(8L)\)</span> and <span class="math-inline">\(m\ge32L/\mu\)</span> gives a factor at most <span class="math-inline">\(2/3\)</span>. An epoch costs <span class="math-inline">\(n+2m\)</span> component evaluations. For a composite objective <span class="math-inline">\(P=f+R\)</span>, with a proper convex regularizer <span class="math-inline">\(R\)</span>, the optimality condition <span class="math-inline">\(-\nabla f(w^\star)\in\partial R(w^\star)\)</span> implies <span class="math-inline">\(\Delta_P(u)\ge\Delta_f(u)-\langle\nabla f(w^\star),u-w^\star\rangle\)</span>. The same argument therefore bounds the second moment of the <strong>error</strong> <span class="math-inline">\(V_i-\nabla f(w^\star)\)</span> by <span class="math-inline">\(4L(\Delta_P(w)+\Delta_P(\tilde w))\)</span>.</p>
+<h2 id="Mirror-descent-and-the-simplex"><a href="#Mirror-descent-and-the-simplex" class="headerlink" title="Mirror descent and the simplex"></a>Mirror descent and the simplex</h2><p>A differentiable convex potential <span class="math-inline">\(\psi\)</span> defines the Bregman divergence</p>
 <div class="math-display">\[D_\psi(u,w)=\psi(u)-\psi(w)-\langle\nabla\psi(w),u-w\rangle.\]</div>
-<p>在凸域 <span class="math-inline">\(\mathcal C\)</span> 上的镜像下降选择</p>
-<div class="math-display">\[w_{t+1}\in\arg\min_{u\in\mathcal C}
-\{\eta\langle g_t,u\rangle+D_\psi(u,w_t)\}.\]</div>
-<p>无约束且解在定义域内部时，<span class="math-inline">\(\nabla\psi(w_{t+1})=\nabla\psi(w_t)-\eta g_t\)</span>，即在对偶坐标中做加法。若 <span class="math-inline">\(\psi(w)=\|w\|^2/2\)</span>，这个步骤就是欧氏投影梯度下降。</p>
-<p>对任意 <span class="math-inline">\(u\in\mathcal C\)</span>，把最优性条件和 Bregman 三点恒等式相乘展开，得到</p>
-<div class="math-display">\[\eta\langle g_t,w_{t+1}-u\rangle
-\le D_\psi(u,w_t)-D_\psi(u,w_{t+1})-D_\psi(w_{t+1},w_t).\]</div>
-<p>若 <span class="math-inline">\(\psi\)</span> 对选定范数是 1 强凸，将 <span class="math-inline">\(\eta\langle g_t,w_t-w_{t+1}\rangle\)</span> 用对偶范数的 Young 不等式上界，便得到</p>
+<p>The update minimizes <span class="math-inline">\(\eta\langle g_t,u\rangle+D_\psi(u,w_t)\)</span> on a convex set. In the interior of an unconstrained domain the equation is <span class="math-inline">\(\nabla\psi(w_{t+1})=\nabla\psi(w_t)-\eta g_t\)</span>. A squared-Euclidean potential gives projected gradient descent.</p>
+<p>The variational inequality for the constrained update and direct expansion of the three Bregman terms yield</p>
+<div class="math-display">\[\eta\langle g_t,w_{t+1}-u\rangle\le
+D_\psi(u,w_t)-D_\psi(u,w_{t+1})-D_\psi(w_{t+1},w_t).\]</div>
+<p>For a 1-strongly convex potential, adding <span class="math-inline">\(\eta\langle g_t,w_t-w_{t+1}\rangle\)</span> and applying Young’s inequality in the primal and dual norms cancels the last divergence. Sum over <span class="math-inline">\(t\)</span> to get</p>
 <div class="math-display">\[\sum_{t=0}^{T-1}\langle g_t,w_t-u\rangle
-\le \frac{D_\psi(u,w_0)}{\eta}
-+\frac{\eta}{2}\sum_{t=0}^{T-1}\|g_t\|_*^2.\]</div>
-<p>取 <span class="math-inline">\(\psi(w)=\sum_j w_j\log w_j\)</span> 且 <span class="math-inline">\(w\)</span> 为概率向量，驻点方程加上归一化约束给出</p>
+\le D_\psi(u,w_0)/\eta+\tfrac\eta2\sum_{t=0}^{T-1}\|g_t\|_\ast^2.\]</div>
+<p>On the probability simplex, use <span class="math-inline">\(\psi(w)=\sum_j w_j\log w_j\)</span>. With positive initial coordinates, the gradient components are <span class="math-inline">\(1+\log w_j\)</span>. The equality constraint introduces a common additive term, removed by normalization:</p>
 <div class="math-display">\[w_{t+1,j}=\frac{w_{t,j}e^{-\eta g_{t,j}}}{\sum_k w_{t,k}e^{-\eta g_{t,k}}}.\]</div>
-<p>这是乘法权重更新。若初始为均匀分布，<span class="math-inline">\(D_\psi(u,w_0)\le\log d\)</span>，对偶范数是 <span class="math-inline">\(\ell_\infty\)</span>。维数以 <span class="math-inline">\(\log d\)</span> 进入初始距离项。</p>
-<h2 id="自测"><a href="#自测" class="headerlink" title="自测"></a>自测</h2><p>两个分量为 <span class="math-inline">\(f_1(w)=\tfrac12(w-1)^2\)</span> 与 <span class="math-inline">\(f_2(w)=\tfrac12(w+1)^2\)</span>。在 <span class="math-inline">\(w^\star=0\)</span>，SGD 梯度取 <span class="math-inline">\(\pm1\)</span>，方差为 1。SVRG 修正后无论抽到哪项都等于 <span class="math-inline">\(w\)</span>，方差为 0。原因是两项 Hessian 完全一致。</p>
-<h2 id="资料与延伸阅读"><a href="#资料与延伸阅读" class="headerlink" title="资料与延伸阅读"></a>资料与延伸阅读</h2><p>课程依据：杨元《机器学习》2026 年第 3 讲。SVRG 的有限和收敛分析参见 <a target="_blank" rel="noopener" href="https://proceedings.neurips.cc/paper/2013/hash/ac1dd209cbcc5e5d1c6e28598e8cbbe8-Abstract.html">Johnson 与 Zhang，NeurIPS 2013</a>。</p>
-<p><a href="/notes/ml/02/">← 第 2 讲</a> · <a href="/notes/">课程目录</a> · <a href="/notes/ml/04/">第 4 讲 →</a></p>
+<p>On the simplex interior the Hessian is diagonal with entries <span class="math-inline">\(1/w_j\)</span>. For a displacement <span class="math-inline">\(v\)</span>, Cauchy–Schwarz gives <span class="math-inline">\((\sum_j|v_j|)^2\le(\sum_jw_j)(\sum_jv_j^2/w_j)=v^\top\nabla^2\psi(w)v\)</span>. Integrating along a segment yields <span class="math-inline">\(\ell_1\)</span> strong convexity, extended by continuity to boundary targets. The dual norm is <span class="math-inline">\(\ell_\infty\)</span>. For uniform <span class="math-inline">\(w_0\)</span>, <span class="math-inline">\(D_\psi(u,w_0)\le\log d\)</span>. If <span class="math-inline">\(\|g_t\|_\infty\le\rho\)</span>, optimizing the step in the regret bound gives average regret at most <span class="math-inline">\(\rho\sqrt{2\log d/T}\)</span>. With Euclidean projected descent the uniform-start squared diameter is at most 1, but gradients can have <span class="math-inline">\(\ell_2\)</span> norm <span class="math-inline">\(\rho\sqrt d\)</span>, giving average regret at most <span class="math-inline">\(\rho\sqrt{d/T}\)</span>. The corresponding iteration bounds at accuracy <span class="math-inline">\(\varepsilon\)</span> scale as <span class="math-inline">\(\rho^2\log d/\varepsilon^2\)</span> and <span class="math-inline">\(\rho^2d/\varepsilon^2\)</span>.</p>
+<h2 id="Mirror-descent-and-cumulative-linearization"><a href="#Mirror-descent-and-cumulative-linearization" class="headerlink" title="Mirror descent and cumulative linearization"></a>Mirror descent and cumulative linearization</h2><p>In the unconstrained interior setting, initialize at a differentiable minimizer <span class="math-inline">\(w_0\)</span> of <span class="math-inline">\(\psi\)</span>, so <span class="math-inline">\(\nabla\psi(w_0)=0\)</span>. Unrolling the dual update gives <span class="math-inline">\(\nabla\psi(w_{t+1})=-\eta\sum_{j=0}^t g_j\)</span>. This is also the optimality equation for minimizing <span class="math-inline">\(\psi(u)+\eta\langle\sum_{j=0}^t g_j,u\rangle\)</span>. Strict convexity makes each minimizer unique. Induction from the common initialization therefore makes the two trajectories identical under these hypotheses.</p>
+<p>Projection adds a normal-cone term. For example, take <span class="math-inline">\([-1,1]\)</span>, <span class="math-inline">\(\psi(w)=w^2/2\)</span>, step 1, and <span class="math-inline">\(f(w)=3w^2/2+2w\)</span>. Both methods start at zero and have <span class="math-inline">\(w_1=-1\)</span>. The next gradient is <span class="math-inline">\(-1\)</span>, so projected descent moves to <span class="math-inline">\(0\)</span>. The cumulative linearized objective instead minimizes <span class="math-inline">\(u^2/2+(2-1)u\)</span> over the interval and stays at <span class="math-inline">\(-1\)</span>.</p>
+<h2 id="Challenges"><a href="#Challenges" class="headerlink" title="Challenges"></a>Challenges</h2><h3 id="Problem-1"><a href="#Problem-1" class="headerlink" title="Problem 1"></a>Problem 1</h3><p>Let <span class="math-inline">\(a_i\)</span> be a stored gradient for component <span class="math-inline">\(i\)</span> before the update and let <span class="math-inline">\(\bar a=n^{-1}\sum_i a_i\)</span>. Derive the conditional means of SAG’s direction <span class="math-inline">\(\bar a+(\nabla f_i(w)-a_i)/n\)</span> and SAGA’s direction <span class="math-inline">\(\bar a+\nabla f_i(w)-a_i\)</span>. Give a state where the first direction vanishes while the true gradient is nonzero.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>Under a uniform fresh choice of <span class="math-inline">\(i\)</span>, the mean of the replacement difference is <span class="math-inline">\(\nabla f(w)-\bar a\)</span>. The SAG mean is <span class="math-inline">\((1-1/n)\bar a+\nabla f(w)/n\)</span> and the SAGA mean is <span class="math-inline">\(\nabla f(w)\)</span>. For <span class="math-inline">\(n=2\)</span> let both components equal <span class="math-inline">\(u^2/2\)</span>, set <span class="math-inline">\(w=1\)</span>, and let both stored gradients equal <span class="math-inline">\(-1\)</span>, as obtained at <span class="math-inline">\(u=-1\)</span>. The SAG direction after one replacement is zero for either sampled component, while the full gradient is 1. The example concerns the estimator conditional on the stored state.</p>
+</details>
+
+<h3 id="Problem-2"><a href="#Problem-2" class="headerlink" title="Problem 2"></a>Problem 2</h3><p>Build unbiased SVRG for nonuniform probabilities <span class="math-inline">\(p_i&gt;0\)</span>. If component <span class="math-inline">\(i\)</span> is <span class="math-inline">\(L_i\)</span>-smooth, choose the probabilities to minimize the bound based only on these positive constants.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>Set <span class="math-inline">\(a_i=\nabla f_i(w)-\nabla f_i(\tilde w)\)</span> and use <span class="math-inline">\(a_i/(np_i)+\nabla f(\tilde w)\)</span>. Its variance is at most <span class="math-inline">\(n^{-2}\sum_i\|a_i\|^2/p_i\le n^{-2}\|w-\tilde w\|^2\sum_iL_i^2/p_i\)</span>. Cauchy–Schwarz gives <span class="math-inline">\(\sum_i L_i^2/p_i\ge(\sum_iL_i)^2\)</span> with equality when <span class="math-inline">\(p_i=L_i/\sum_jL_j\)</span>.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning (2026), Lecture 3 and Problem Set 2. <a target="_blank" rel="noopener" href="https://proceedings.neurips.cc/paper/2013/hash/ac1dd209cbcc5e5d1c6e28598e8cbbe8-Abstract.html">Johnson and Zhang, Accelerating Stochastic Gradient Descent using Predictive Variance Reduction</a>.</p>
+<p><a href="/notes/ml/02/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/04/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/03/" data-id="cuidj8Ka5Bt-iY8Q44vLwQrzk" data-title="机器学习 03｜SGD、SVRG 与镜像下降" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/03/" data-id="cuidMSoAb2A6RCv0OSpnCyPG3" data-title="ML 03: SGD, SVRG, and Mirror Descent" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -303,7 +307,7 @@ v_t=\mathbb E[\|G_t-g_t\|^2\mid\mathcal F_t]\le\sigma^2.\]</div>
       <strong class="article-nav-caption">Newer</strong>
       <div class="article-nav-title">
         
-          「ACG 03」空间变换：齐次坐标、旋转与相机
+          ACG 03: Transformations, Rotations, and Camera Frames
         
       </div>
     </a>
@@ -311,7 +315,7 @@ v_t=\mathbb E[\|G_t-g_t\|^2\mid\mathcal F_t]\le\sigma^2.\]</div>
   
     <a href="/notes/acg/02/" id="article-nav-older" class="article-nav-link-wrap">
       <strong class="article-nav-caption">Older</strong>
-      <div class="article-nav-title">「ACG 02」几何表示：Bézier、网格与隐式曲面</div>
+      <div class="article-nav-title">ACG 02: Curves, Meshes, and Implicit Surfaces</div>
     </a>
   
 </nav>
