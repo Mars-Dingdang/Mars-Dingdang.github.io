@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-09/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:09:00.000Z">
-<meta property="article:modified_time" content="2026-11-14T02:30:25.068Z">
+<meta property="article:modified_time" content="2026-11-14T03:15:15.310Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Lecture Notes">
 <meta property="article:tag" content="Metric Learning">
@@ -58,12 +58,14 @@
           inlineMath: [['$', '$'], ['\\(', '\\)']],
           displayMath: [['$$', '$$'], ['\\[', '\\]']],
           processEscapes: true,
-          processEnvironments: true
+          processEnvironments: true,
+          tags: 'all'
         },
         options: {
           skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
         },
         svg: {
+          displayAlign: 'center',
           fontCache: 'global'
         }
       };
@@ -72,7 +74,7 @@
   
 <meta name="generator" content="Hexo 8.1.2"></head>
 
-<body class="is-inner">
+<body class="is-inner is-post">
   
   <div id="container">
     <div id="wrap">
@@ -191,7 +193,9 @@
         </aside>
         <main class="site-main">
           <div class="outer">
-            <div id="main"><article id="post-ml-09" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+            <div id="main"><div class="article-reader" data-article-reader>
+  <div class="article-reader-body">
+    <article id="post-ml-09" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   
     <nav class="course-breadcrumb" aria-label="Course">
@@ -234,18 +238,22 @@
 <div class="math-display">\[n^{-1}\sum_i\|x_i-vv^\top x_i\|^2=\operatorname{tr}(C)-v^\top Cv.\]</div>
 <p>Writing <span class="math-inline">\(v=\sum_j a_j u_j\)</span> in the eigenbasis gives <span class="math-inline">\(v^\top Cv=\sum_j\lambda_j a_j^2\)</span> with <span class="math-inline">\(\sum_j a_j^2=1\)</span>. The maximum is the largest eigenvalue. More generally, for <span class="math-inline">\(k\)</span> orthonormal columns <span class="math-inline">\(V\)</span>, the retained variance is <span class="math-inline">\(\sum_j\lambda_j\|V^\top u_j\|^2\)</span>. Each weight is in <span class="math-inline">\([0,1]\)</span> and their sum is <span class="math-inline">\(k\)</span>, so the largest <span class="math-inline">\(k\)</span> eigenvalues give the best possible total. The omitted eigenvalues sum to the minimum residual.</p>
 <p>For <span class="math-inline">\(\lambda_1&gt;\lambda_2\)</span> and initial <span class="math-inline">\(v_0\)</span> with nonzero first eigencoordinate, the normalized power iteration gives a vector parallel to <span class="math-inline">\(C^tv_0\)</span>. Each eigencoordinate relative to the first is multiplied by <span class="math-inline">\((\lambda_j/\lambda_1)^t\)</span>, establishing convergence to the leading eigendirection. Orthogonal projection away from an exactly known leading eigenvector preserves the other eigendirections, which permits orthogonal deflation. Scaling features changes the covariance geometry, so the units of the data affect the principal directions.</p>
+<p>More quantitatively, write <span class="math-inline">\(v_0=\sum_j a_j u_j\)</span> with <span class="math-inline">\(a_1\ne0\)</span>. The tangent of the angle from <span class="math-inline">\(u_1\)</span> to the <span class="math-inline">\(t\)</span>th iterate, ignoring its sign, is at most <span class="math-inline">\((\lambda_2/\lambda_1)^t\sqrt{\sum_{j\ge2}a_j^2}/|a_1|\)</span>. This follows by taking the ratio between the perpendicular component and the <span class="math-inline">\(u_1\)</span> projection of <span class="math-inline">\(C^tv_0\)</span>. If <span class="math-inline">\(a_1=0\)</span> and <span class="math-inline">\(a_2\ne0\)</span>, the iteration remains in <span class="math-inline">\(u_1^\perp\)</span> and can converge to <span class="math-inline">\(u_2\)</span> when <span class="math-inline">\(\lambda_2\)</span> is the simple largest eigenvalue in that subspace. With a repeated top eigenvalue it converges to the direction of the initial projection onto the whole top eigenspace, assuming that projection is nonzero.</p>
+<p>Slides 12–23 illustrate compression using <span class="math-inline">\(12\times12\)</span> image patches. Treat each patch as a vector in <span class="math-inline">\(\mathbb R^{144}\)</span>, subtract the mean patch, and keep coefficients along the chosen <span class="math-inline">\(k\)</span> principal directions. At reconstruction, multiply the coefficients by the basis and add back the mean. The relative squared reconstruction error is <span class="math-inline">\(\sum_{j&gt;k}\lambda_j/\sum_j\lambda_j\)</span>, provided total centered variance is positive. The displayed PCA basis resembles several low-frequency cosine patterns, whereas a DCT basis is fixed before seeing the image. Gaussian Johnson–Lindenstrauss projection, discussed in <a href="/notes/ml/06/">Lecture 6</a>, instead preserves a finite set’s pairwise distances with high probability at dimension <span class="math-inline">\(O(\varepsilon^{-2}\log n)\)</span>.</p>
 <h2 id="From-neighbor-search-to-locality-sensitive-hashing"><a href="#From-neighbor-search-to-locality-sensitive-hashing" class="headerlink" title="From neighbor search to locality-sensitive hashing"></a>From neighbor search to locality-sensitive hashing</h2><p>The <span class="math-inline">\(k\)</span> nearest labeled examples vote in a kNN classifier. Search is the separate problem of finding candidates quickly. In the <span class="math-inline">\((R,cR)\)</span> decision version, if there is an item within <span class="math-inline">\(R\)</span> of a query, an item within <span class="math-inline">\(cR\)</span> qualifies. Every returned candidate can be checked using its actual distance.</p>
+<p>The slide sequences on Iris data (26–45) and overlapping Gaussian classes (46–68) vary <span class="math-inline">\(k\)</span> while holding the training sample fixed. With a small neighborhood, a single unusual point can create a separate decision region. A larger neighborhood stabilizes the votes in these examples, but it can also erase a small genuine cluster. A simple model explains the variance side: if the <span class="math-inline">\(k\)</span> selected labels were conditionally independent Bernoulli draws with common probability <span class="math-inline">\(p\)</span>, their class proportion would have variance <span class="math-inline">\(p(1-p)/k\)</span>. The common-<span class="math-inline">\(p\)</span> approximation gets worse as the neighborhood crosses regions where the true class probabilities differ.</p>
+<p>Exact nearest-neighbor search answers an exact radius query by one distance comparison. In the other direction, suppose positive nearest distance <span class="math-inline">\(r_\star\)</span> is bracketed by known positive scales. Query independent approximate radius structures at a geometric sequence with ratio <span class="math-inline">\(1+\zeta&gt;1\)</span> and return the smallest-distance verified answer. The first tested radius <span class="math-inline">\(R\)</span> with <span class="math-inline">\(R\ge r_\star\)</span> is at most <span class="math-inline">\((1+\zeta)r_\star\)</span>, so successful analysis at that radius yields a <span class="math-inline">\(c(1+\zeta)\)</span> approximation. An earlier valid return after testing increasing radii has the same guarantee. An exact point lookup handles distance zero. The radius search in slide 72 uses doubling, which gives a factor <span class="math-inline">\(2c\)</span>. Repetition over independently drawn structures reduces the per-query failure probability geometrically.</p>
 <p>An <span class="math-inline">\((R,cR,p_1,p_2)\)</span>-sensitive hash family offers collision probability at least <span class="math-inline">\(p_1\)</span> for near points and at most <span class="math-inline">\(p_2&lt;p_1\)</span> for far points. For Hamming distance, a uniformly chosen coordinate agrees with probability <span class="math-inline">\(1-d_H(x,y)/d\)</span>. Concatenate <span class="math-inline">\(k\)</span> independent hashes so the near and far collision probabilities become at least <span class="math-inline">\(p_1^k\)</span> and at most <span class="math-inline">\(p_2^k\)</span>. Then use <span class="math-inline">\(L\)</span> independent tables. A fixed near point is missed with probability at most <span class="math-inline">\((1-p_1^k)^L\le e^{-Lp_1^k}\)</span>.</p>
-<p>Take <span class="math-inline">\(k=\lceil\log_{1/p_2}n\rceil\)</span> and <span class="math-inline">\(L=\lceil p_1^{-k}\rceil\)</span>. Each table contributes at most one far collision in expectation, so at most <span class="math-inline">\(L\)</span> far collisions are expected across all tables. Markov bounds the probability of more than <span class="math-inline">\(aL\)</span> far collisions by <span class="math-inline">\(1/a\)</span>. A budgeted scan of at least <span class="math-inline">\(\lceil aL\rceil+1\)</span> candidates guarantees a qualifying point on the event that the fixed near point appears and there are at most <span class="math-inline">\(aL\)</span> far collisions. A union bound gives success at least <span class="math-inline">\(1-e^{-1}-1/a\)</span>. Hash evaluation, distance comparisons, and table space are additional costs. The number of tables is of order <span class="math-inline">\(n^\rho\)</span> for <span class="math-inline">\(\rho=\log(1/p_1)/\log(1/p_2)\)</span>.</p>
-<p>A Euclidean design takes <span class="math-inline">\(h(x)=\lfloor(a^\top x+b)/w\rfloor\)</span>, where <span class="math-inline">\(a\sim N(0,I)\)</span> and <span class="math-inline">\(b\)</span> is uniform in <span class="math-inline">\([0,w)\)</span>. Conditional on projected distance <span class="math-inline">\(t\)</span>, the fraction of offsets putting the two points in the same bucket is <span class="math-inline">\((1-t/w)_+\)</span>. Since <span class="math-inline">\(t\)</span> is distributed as <span class="math-inline">\(\|x-y\||Z|\)</span> with <span class="math-inline">\(Z\sim N(0,1)\)</span>, the unconditional collision rate decreases as their original distance increases.</p>
+<p>The tables store <span class="math-inline">\(O(nL)\)</span> point references. The success proof combines the probability of seeing a distinguished near neighbor with a budget on how many far collisions the query can examine.</p>
 <h2 id="Learning-a-useful-metric"><a href="#Learning-a-useful-metric" class="headerlink" title="Learning a useful metric"></a>Learning a useful metric</h2><p>A linear representation <span class="math-inline">\(Ax\)</span> gives squared distance <span class="math-inline">\((x_i-x_j)^\top A^\top A(x_i-x_j)\)</span>. Neighborhood Components Analysis (NCA) replaces a hard neighbor choice by</p>
 <div class="math-display">\[p_{ij}=\frac{e^{-\|A(x_i-x_j)\|^2}}{\sum_{k\ne i}e^{-\|A(x_i-x_k)\|^2}},\quad j\ne i,\qquad p_{ii}=0.\]</div>
 <p>The expected number of correct leave-one-out predictions is <span class="math-inline">\(\sum_i\sum_{j:y_j=y_i}p_{ij}\)</span>. Excluding self-neighbors ensures that training fits relationships between distinct examples. Another approach uses a triplet objective to prefer a positive neighbor over a negative one by a margin. Under a matrix metric <span class="math-inline">\(M\succeq0\)</span>, a fixed triplet yields the hinge of an affine function of <span class="math-inline">\(M\)</span>, hence a convex penalty in that variable.</p>
-<h3 id="Euclidean-locality-sensitive-hashing"><a href="#Euclidean-locality-sensitive-hashing" class="headerlink" title="Euclidean locality-sensitive hashing"></a>Euclidean locality-sensitive hashing</h3><p>For the <span class="math-inline">\(p\)</span>-stable construction at <span class="math-inline">\(p=2\)</span>, let <span class="math-inline">\(a\sim N(0,I_d)\)</span> and <span class="math-inline">\(b\)</span> be uniform on <span class="math-inline">\([0,w)\)</span>, independently, and hash <span class="math-inline">\(h_{a,b}(x)=\lfloor(a^\top x+b)/w\rfloor\)</span>. Conditional on projection separation <span class="math-inline">\(t=|a^\top(x-z)|\)</span>, the random shift places a bin boundary between the projections with probability <span class="math-inline">\(\min(1,t/w)\)</span>. This follows because a boundary lies between them for exactly <span class="math-inline">\(t\)</span> out of <span class="math-inline">\(w\)</span> shift values when <span class="math-inline">\(t&lt;w\)</span>, and at least one boundary always lies between them when <span class="math-inline">\(t\ge w\)</span>. Since <span class="math-inline">\(t\overset{d}{=}\|x-z\|_2|Z|\)</span> for <span class="math-inline">\(Z\sim N(0,1)\)</span>, the collision probability at distance <span class="math-inline">\(r\)</span> is</p>
-<div class="math-display">\[p(r)=\mathbb E\!\left[(1-r|Z|/w)_+\right].\]</div>
-<p>For <span class="math-inline">\(0\le r_1&lt;r_2\)</span>, use the same <span class="math-inline">\(|Z|\)</span> in both expectations. The integrand for <span class="math-inline">\(r_1\)</span> is larger on the positive-probability event <span class="math-inline">\(0&lt;|Z|&lt;w/r_2\)</span>, and never smaller. Thus the <span class="math-inline">\((R,cR)\)</span> near and far probabilities satisfy <span class="math-inline">\(p(R)&gt;p(cR)\)</span> for <span class="math-inline">\(R&gt;0,c&gt;1\)</span>.</p>
+<h3 id="Euclidean-locality-sensitive-hashing"><a href="#Euclidean-locality-sensitive-hashing" class="headerlink" title="Euclidean locality-sensitive hashing"></a>Euclidean locality-sensitive hashing</h3><p>For the <span class="math-inline">\(p\)</span>-stable construction at <span class="math-inline">\(p=2\)</span>, let <span class="math-inline">\(a\sim N(0,I_d)\)</span> and <span class="math-inline">\(b\)</span> be uniform on <span class="math-inline">\([0,w)\)</span>, independently, and hash <span class="math-inline">\(h_{a,b}(x)=\lfloor(a^\top x+b)/w\rfloor\)</span>. Conditional on projection separation <span class="math-inline">\(t=|a^\top(x-z)|\)</span>, the random shift places a bin boundary between the projections with probability <span class="math-inline">\(\min(1,t/w)\)</span>. This follows because a boundary lies between them for exactly <span class="math-inline">\(t\)</span> out of <span class="math-inline">\(w\)</span> shift values when <span class="math-inline">\(t&lt;w\)</span>, and at least one boundary always lies between them when <span class="math-inline">\(t\ge w\)</span>. The variance of <span class="math-inline">\(a^\top(x-z)\)</span> is <span class="math-inline">\(\sum_i(x_i-z_i)^2\)</span>, so <span class="math-inline">\(t\overset{d}{=}\|x-z\|_2|Z|\)</span> for <span class="math-inline">\(Z\sim N(0,1)\)</span>. The collision probability at distance <span class="math-inline">\(r&gt;0\)</span> is</p>
+<div class="math-display">\[p(r)=\mathbb E\!\left[(1-r|Z|/w)_+\right]
+=\int_0^w \left(1-\frac tw\right)\frac2r\,\phi(t/r)\,dt,\]</div>
+<p>where <span class="math-inline">\(\phi\)</span> is the standard Gaussian density. The second expression is the scaling calculation from slides 86–87. The same offset proof works with a symmetric <span class="math-inline">\(p\)</span>-stable random projection and <span class="math-inline">\(r=\|x-z\|_p\)</span>, replacing the Gaussian density by its <span class="math-inline">\(p\)</span>-stable counterpart.<br>For <span class="math-inline">\(0\le r_1&lt;r_2\)</span>, use the same <span class="math-inline">\(|Z|\)</span> in both expectations. The integrand for <span class="math-inline">\(r_1\)</span> is larger on the positive-probability event <span class="math-inline">\(0&lt;|Z|&lt;w/r_2\)</span>, and never smaller. Thus the <span class="math-inline">\((R,cR)\)</span> near and far probabilities satisfy <span class="math-inline">\(p(R)&gt;p(cR)\)</span> for <span class="math-inline">\(R&gt;0,c&gt;1\)</span>.</p>
 <h3 id="Why-the-LMNN-objective-is-convex-in-the-metric"><a href="#Why-the-LMNN-objective-is-convex-in-the-metric" class="headerlink" title="Why the LMNN objective is convex in the metric"></a>Why the LMNN objective is convex in the metric</h3><p>Fix the same-class target neighbors in advance and put <span class="math-inline">\(D_{ij}=(x_i-x_j)(x_i-x_j)^\top\)</span>. A positive semidefinite matrix <span class="math-inline">\(M\)</span> gives squared distance <span class="math-inline">\(d_M(i,j)=\operatorname{tr}(MD_{ij})\)</span>. The large-margin nearest neighbor objective combines the sum of target-neighbor distances and a hinge penalty <span class="math-inline">\(\max(0,1+d_M(i,j)-d_M(i,k))\)</span> on differently labeled <span class="math-inline">\(k\)</span>. Both distance expressions are affine in <span class="math-inline">\(M\)</span>. The maximum of two affine functions is convex, sums with nonnegative weights preserve convexity, and the positive semidefinite cone is convex since each inequality <span class="math-inline">\(z^\top Mz\ge0\)</span> is linear in <span class="math-inline">\(M\)</span>. Factoring <span class="math-inline">\(M=T^\top T\)</span> gives the resulting Euclidean embedding.</p>
-<h3 id="A-bounded-work-query-guarantee"><a href="#A-bounded-work-query-guarantee" class="headerlink" title="A bounded-work query guarantee"></a>A bounded-work query guarantee</h3><p>For a fixed query, suppose at least one data point is within <span class="math-inline">\(R\)</span>. Let <span class="math-inline">\(k=\lceil\log n/\log(1/p_2)\rceil\)</span>, concatenate <span class="math-inline">\(k\)</span> independent hashes per table, and let <span class="math-inline">\(\rho=\log(1/p_1)/\log(1/p_2)\)</span>. A far point collides in one table with probability at most <span class="math-inline">\(p_2^k\le1/n\)</span>. Linearity of expectation bounds the total number of far candidate occurrences in <span class="math-inline">\(L\)</span> tables by <span class="math-inline">\(L\)</span>, whether or not collisions for different data points are independent. By Markov, more than <span class="math-inline">\(4L\)</span> far occurrences has probability at most <span class="math-inline">\(1/4\)</span>. The distinguished near point collides per table with probability at least <span class="math-inline">\(p_1^k\ge p_1n^{-\rho}\)</span>. Independence across tables bounds the probability of missing it by <span class="math-inline">\(\exp(-Lp_1n^{-\rho})\)</span>, at most <span class="math-inline">\(1/4\)</span> when <span class="math-inline">\(L\ge n^\rho\log(4)/p_1\)</span>. If both good events occur, scanning up to <span class="math-inline">\(4L+1\)</span> candidates and checking their distances must find a point within <span class="math-inline">\(cR\)</span>. This succeeds with probability at least <span class="math-inline">\(1/2\)</span> by the union bound.</p>
+<h3 id="A-bounded-work-query-guarantee"><a href="#A-bounded-work-query-guarantee" class="headerlink" title="A bounded-work query guarantee"></a>A bounded-work query guarantee</h3><p>For a fixed query, suppose at least one data point is within <span class="math-inline">\(R\)</span>. Let <span class="math-inline">\(k=\lceil\log n/\log(1/p_2)\rceil\)</span>, concatenate <span class="math-inline">\(k\)</span> independent hashes per table, and let <span class="math-inline">\(\rho=\log(1/p_1)/\log(1/p_2)\)</span>. A far point collides in one table with probability at most <span class="math-inline">\(p_2^k\le1/n\)</span>. Linearity of expectation bounds the number of far candidate occurrences across <span class="math-inline">\(L\)</span> tables by <span class="math-inline">\(L\)</span>, whether or not different data points collide independently. With <span class="math-inline">\(L=\lceil p_1^{-k}\rceil=O(n^\rho/p_1)\)</span>, independence across tables makes the distinguished near point absent with probability at most <span class="math-inline">\(e^{-1}\)</span>. By Markov, the probability of more than <span class="math-inline">\(2L\)</span> far occurrences is at most <span class="math-inline">\(1/2\)</span>. On the complement of both bad events, testing <span class="math-inline">\(2L+1\)</span> candidates suffices to return a point within <span class="math-inline">\(cR\)</span>. A union bound gives the lecture’s <span class="math-inline">\(1/2-e^{-1}\)</span> success rate. For success at least <span class="math-inline">\(1/2\)</span>, use <span class="math-inline">\(L=\lceil p_1^{-k}\log 4\rceil\)</span> and a budget <span class="math-inline">\(4L+1\)</span>: each of the two failure probabilities is now at most <span class="math-inline">\(1/4\)</span>. Duplicates can count as occurrences in this argument. Any scanned point within <span class="math-inline">\(cR\)</span> already qualifies, whether it is the designated near point or another candidate.</p>
 <h2 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h2><p>Find the behavior of Gaussian bucket hashing when the projected spacing parameter <span class="math-inline">\(w\)</span> is tiny compared with the original distance <span class="math-inline">\(d=\|x-y\|\)</span>. Show <span class="math-inline">\(P(h(x)=h(y))\sim w/(d\sqrt{2\pi})\)</span>.</p>
 <details>
 <summary>Show solution</summary>
@@ -262,13 +270,32 @@
 <p>For a query with a near neighbor, each fresh copy fails with probability at most <span class="math-inline">\(1/2\)</span>. Trying <span class="math-inline">\(r\)</span> copies independently reduces this to <span class="math-inline">\(2^{-r}\)</span>. A union bound over queries gives at most <span class="math-inline">\(Q2^{-r}\)</span> even though different queries reuse the copies. It suffices to take <span class="math-inline">\(r=\lceil\log_2(Q/\delta)\rceil\)</span>. This argument assumes the queries are fixed independently of the randomized tables.</p>
 </details>
 
-<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 9 from the archived slides. <a target="_blank" rel="noopener" href="https://doi.org/10.1145/276698.276876">Indyk and Motwani, Approximate Nearest Neighbors</a>. <a target="_blank" rel="noopener" href="https://graphics.stanford.edu/courses/cs468-06-fall/Papers/12%20lsh04.pdf">Datar et al., p-stable LSH</a>.</p>
+<h3 id="Paper-challenge-·-Derive-NCA’s-gradient-and-test-a-collapse"><a href="#Paper-challenge-·-Derive-NCA’s-gradient-and-test-a-collapse" class="headerlink" title="Paper challenge · Derive NCA’s gradient and test a collapse"></a>Paper challenge · Derive NCA’s gradient and test a collapse</h3><p>For the NCA objective <span class="math-inline">\(F(A)=\sum_i p_i\)</span>, where <span class="math-inline">\(p_i=\sum_{j:y_j=y_i}p_{ij}\)</span>, derive the exact matrix gradient. Show that the fully collapsed map <span class="math-inline">\(A=0\)</span> is stationary by parameterization. Then suppose there is a feature direction along which all examples in each class project to their class constant and all class constants are distinct. If there are two or more classes and at least one class has more than one point, prove that collapse is locally improvable. <a target="_blank" rel="noopener" href="https://proceedings.neurips.cc/paper/2004/file/42fe880812925e520249e808937738d2-Paper.pdf">Goldberger et al., “Neighbourhood Components Analysis,” §2</a></p>
+<details>
+<summary>Show paper solution</summary>
+
+<p>Let <span class="math-inline">\(D_{ij}=(x_i-x_j)(x_i-x_j)^\top\)</span>, <span class="math-inline">\(s_{ij}=-\operatorname{tr}(A D_{ij}A^\top)\)</span>, and <span class="math-inline">\(C_i=\{j\ne i:y_j=y_i\}\)</span>. Differentiating the softmax gives <span class="math-inline">\(dp_{ij}=p_{ij}(ds_{ij}-\sum_{k\ne i}p_{ik}ds_{ik})\)</span>. The score derivative is <span class="math-inline">\(\nabla_A s_{ij}=-2AD_{ij}\)</span>. Summing first over <span class="math-inline">\(j\in C_i\)</span>, then over <span class="math-inline">\(i\)</span>, yields</p>
+<div class="math-display">\[\nabla_A F=
+2A\sum_i\left(
+p_i\sum_{j\ne i}p_{ij}D_{ij}-\sum_{j\in C_i}p_{ij}D_{ij}
+\right).\]</div>
+<p>In particular it vanishes at <span class="math-inline">\(A=0\)</span>. This conclusion does not say whether the point optimizes the objective.</p>
+<p>Let <span class="math-inline">\(v\)</span> be the stated feature direction and choose <span class="math-inline">\(A=t v^\top\)</span> in one embedding dimension. For anchor <span class="math-inline">\(i\)</span> in class <span class="math-inline">\(c\)</span>, the numerator of <span class="math-inline">\(p_i\)</span> is <span class="math-inline">\(|C_i|\)</span> because all its correct neighbors are at zero distance. The denominator is <span class="math-inline">\(|C_i|+\sum_{j:y_j\ne c}\exp(-t^2(\mu_c-\mu_{y_j})^2)\)</span> with distinct class constants <span class="math-inline">\(\mu\)</span>. At any nonzero <span class="math-inline">\(t\)</span>, each cross-class term strictly decreases relative to <span class="math-inline">\(t=0\)</span>. Thus <span class="math-inline">\(p_i\)</span> strictly increases for every anchor with at least one correct neighbor, while the singleton-class probabilities remain zero. Arbitrarily small nonzero <span class="math-inline">\(t\)</span> therefore improves <span class="math-inline">\(F\)</span>. The claim in slide 91 relies on a separable perturbation of this kind. With identical features and conflicting labels, such a direction need not exist.</p>
+</details>
+
+<p>The metric-learning references also discuss learned search embeddings. A spherical embedding can separate relevant pairs while spreading all items across directions to reduce crowding in an index. A triplet margin, a leave-one-out classification score, and an embedding-uniformity term optimize different objectives. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1806.03198">Sablayrolles et al., “Spreading Vectors for Similarity Search”</a></p>
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><ul>
+<li>Yang Yuan, <em>Machine Learning</em>, legacy Lecture 9, slides 4–11 for PCA and power iteration, 12–23 for patch compression, 24–69 for nearest-neighbor classification examples, 70–84 for the search reduction and LSH query proof, 85–87 for Gaussian collision probabilities, and 88–94 for NCA and LMNN.</li>
+<li>Piotr Indyk and Rajeev Motwani, <em>Approximate Nearest Neighbors</em>, and Alexandr Andoni and Piotr Indyk, <em>Near-Optimal Hashing Algorithms for Approximate Nearest Neighbor in High Dimensions</em>. <a target="_blank" rel="noopener" href="https://doi.org/10.1145/276698.276876">Original ANN paper</a></li>
+<li>Mayur Datar, Nicole Immorlica, Piotr Indyk, and Vahab Mirrokni, <em>Locality-Sensitive Hashing Scheme Based on p-Stable Distributions</em>, §3. <a target="_blank" rel="noopener" href="https://immorlica.com/pubs/pstable.pdf">Paper</a></li>
+<li>Jacob Goldberger, Sam Roweis, Geoff Hinton, and Ruslan Salakhutdinov, <em>Neighbourhood Components Analysis</em>, §2. Kilian Weinberger and Lawrence Saul, <em>Distance Metric Learning for Large Margin Nearest Neighbor Classification</em>, §3. <a target="_blank" rel="noopener" href="https://proceedings.neurips.cc/paper/2004/file/42fe880812925e520249e808937738d2-Paper.pdf">NCA</a> · <a target="_blank" rel="noopener" href="https://www.jmlr.org/papers/volume10/weinberger09a/weinberger09a.pdf">LMNN</a></li>
+</ul>
 <p><a href="/notes/ml/08/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/10/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/09/" data-id="cuiddiTrb1uhZM5o9n_3ycHHJ" data-title="ML 09: PCA, Nearest Neighbors, and Metric Learning" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/09/" data-id="cuidDC7Aiuy8-YsBBZ7SB9yUT" data-title="ML 09: PCA, Nearest Neighbors, and Metric Learning" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -330,6 +357,44 @@
   
 </section>
 
+
+  </div>
+  <aside class="article-reader-side" aria-label="Article navigation" hidden>
+    <div class="article-outline tex2jax_ignore" id="article-outline">
+      <header>
+        <h2>On this page</h2>
+        <button type="button" class="outline-collapse" aria-label="Collapse article navigation" aria-controls="article-outline-content" aria-expanded="true">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+        </button>
+        <button type="button" class="outline-close" aria-label="Close contents">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+
+        </button>
+      </header>
+      <div class="outline-jump" aria-label="Jump within article navigation" role="group" hidden></div>
+      <div class="article-outline-content" id="article-outline-content">
+        <nav aria-label="Section headings">
+          <ol class="outline-headings"></ol>
+        </nav>
+        <section class="outline-media" data-outline-media="figures" hidden>
+          <h3>Figures</h3>
+          <ol></ol>
+        </section>
+        <section class="outline-media" data-outline-media="tables" hidden>
+          <h3>Tables</h3>
+          <ol></ol>
+        </section>
+      </div>
+    </div>
+  </aside>
+  <button type="button" class="outline-trigger" aria-controls="article-outline-dialog" aria-expanded="false" hidden>
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+<span>Contents</span>
+  </button>
+  <dialog class="article-outline-dialog" id="article-outline-dialog" aria-label="Article contents"></dialog>
+</div>
+<script defer src="/js/article-outline.js"></script>
 </div>
           </div>
           <footer id="footer">

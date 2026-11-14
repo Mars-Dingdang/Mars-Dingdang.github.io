@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-01/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:01:00.000Z">
-<meta property="article:modified_time" content="2026-11-14T02:31:23.063Z">
+<meta property="article:modified_time" content="2026-11-14T03:03:33.035Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Generalization">
 <meta property="article:tag" content="Lecture Notes">
@@ -57,12 +57,14 @@
           inlineMath: [['$', '$'], ['\\(', '\\)']],
           displayMath: [['$$', '$$'], ['\\[', '\\]']],
           processEscapes: true,
-          processEnvironments: true
+          processEnvironments: true,
+          tags: 'all'
         },
         options: {
           skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
         },
         svg: {
+          displayAlign: 'center',
           fontCache: 'global'
         }
       };
@@ -71,7 +73,7 @@
   
 <meta name="generator" content="Hexo 8.1.2"></head>
 
-<body class="is-inner">
+<body class="is-inner is-post">
   
   <div id="container">
     <div id="wrap">
@@ -190,7 +192,9 @@
         </aside>
         <main class="site-main">
           <div class="outer">
-            <div id="main"><article id="post-ml-01" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+            <div id="main"><div class="article-reader" data-article-reader>
+  <div class="article-reader-body">
+    <article id="post-ml-01" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   
     <nav class="course-breadcrumb" aria-label="Course">
@@ -241,11 +245,15 @@
 R(h^\star)=\mathbb E\min\{\eta(X),1-\eta(X)\}.\]</div>
 <p>With false-positive cost <span class="math-inline">\(c_{\rm FP}\)</span> and false-negative cost <span class="math-inline">\(c_{\rm FN}\)</span>, compare <span class="math-inline">\(c_{\rm FP}(1-\eta)\)</span> and <span class="math-inline">\(c_{\rm FN}\eta\)</span>. The optimal positive threshold is <span class="math-inline">\(c_{\rm FP}/(c_{\rm FP}+c_{\rm FN})\)</span>.</p>
 <h2 id="Choosing-a-model-and-estimating-its-performance"><a href="#Choosing-a-model-and-estimating-its-performance" class="headerlink" title="Choosing a model and estimating its performance"></a>Choosing a model and estimating its performance</h2><p>The training set determines parameters. A validation set chooses polynomial degree, regularization strength, or training duration. Once these choices are fixed, an independent test set estimates performance. In <span class="math-inline">\(k\)</span>-fold cross-validation, fit on <span class="math-inline">\(k-1\)</span> folds and predict on the omitted fold, repeating until every example has a held-out prediction. Fit standardization and feature selection inside each training fold. Group related measurements by entity and split forecasting data by time. Otherwise the evaluation can reuse information that would be unavailable at prediction time.</p>
+<p>For equal-size folds and a fixed learning rule, the expectation of the cross-validation score equals the expected risk of that rule trained on <span class="math-inline">\(n(1-1/k)\)</span> examples. To see this, condition on the complementary training data for each fold. Its held-out mean is then an unbiased estimate of the fitted predictor’s population risk. The complement itself is an independent training sample of the stated size. Linearity gives the risk identity after averaging. Different fitted models reuse training cases, so their scores are generally dependent. Selecting the learning rule based on those scores also changes the interpretation of the selected score.</p>
 <p>Increasing polynomial degree enlarges the hypothesis class, so training error cannot increase: the previous solution remains feasible. Test error can rise as the model becomes more sensitive to sample noise. An explicit tradeoff is <span class="math-inline">\(\min_w\widehat R_S(h_w)+\lambda\|w\|_2^2\)</span>. The optimizer and the statistical guarantees for such objectives are developed in <a href="/notes/ml/02/">Lecture 2</a> and <a href="/notes/ml/05/">Lecture 5</a>.</p>
 <h2 id="Dataset-construction-and-unlabeled-data"><a href="#Dataset-construction-and-unlabeled-data" class="headerlink" title="Dataset construction and unlabeled data"></a>Dataset construction and unlabeled data</h2><p>Labeling pipelines can separate candidate selection, annotation, and verification. For object masks, a disagreement between annotators can reflect ambiguity in the target definition. The sampling plan should reflect the deployment distribution, including entities and acquisition conditions. Clustering, PCA, and generative modeling infer structure from <span class="math-inline">\(X\)</span>. Semi-supervised methods add information when a relationship between <span class="math-inline">\(P_X\)</span> and <span class="math-inline">\(P(Y\mid X)\)</span> is assumed. For example, a decision boundary might pass through regions of low input density. Holding <span class="math-inline">\(P_X\)</span> fixed leaves many possible label rules, all consistent with the same unlabeled observations.</p>
-<h2 id="A-Chernoff-calculation-for-demand"><a href="#A-Chernoff-calculation-for-demand" class="headerlink" title="A Chernoff calculation for demand"></a>A Chernoff calculation for demand</h2><p>If <span class="math-inline">\(X_i\)</span> are independent Bernoulli variables and <span class="math-inline">\(Z=\sum_i X_i\)</span> has mean <span class="math-inline">\(\mu\)</span>, then for <span class="math-inline">\(t&gt;0\)</span>,</p>
-<div class="math-display">\[\mathbb E e^{tZ}=\prod_i (1+p_i(e^t-1))\le \exp(\mu(e^t-1)).\]</div>
-<p>By Markov’s inequality, <span class="math-inline">\(P(Z\ge(1+a)\mu)\le e^{\mu(e^t-1)-t(1+a)\mu}\)</span>. The minimizing <span class="math-inline">\(t=\log(1+a)\)</span> gives <span class="math-inline">\(\exp(-\mu[(1+a)\log(1+a)-a])\)</span>. This controls the probability that independent requests exceed a capacity set above the mean.</p>
+<p>ImageNet begins with WordNet synonym sets, retrieves candidate images using search terms and translations, then calibrates worker consensus against validation examples. The consensus threshold can differ between categories because ambiguous synsets elicit different vote distributions. COCO instead recruits ordinary scenes with multiple objects and separates category-presence labeling, instance spotting, mask tracing, and verification. Pooling presence votes by union is useful for recall: if an object is independently missed with probability <span class="math-inline">\(q\)</span> by each of <span class="math-inline">\(m\)</span> annotators, everyone misses it with probability <span class="math-inline">\(q^m\)</span>. The same union also admits an independently generated false positive with probability <span class="math-inline">\(1-(1-p)^m\)</span>, where <span class="math-inline">\(p\)</span> is the per-worker false-positive probability. The arithmetic explains why independent verification has a different function from candidate discovery. <a target="_blank" rel="noopener" href="https://www.image-net.org/static_files/papers/imagenet_cvpr09.pdf">Deng et al., ImageNet, §3 and Fig. 3</a>, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1405.0312">Lin et al., Microsoft COCO, §4 and Figs. 3–4</a>.</p>
+<h3 id="When-can-unlabeled-inputs-help"><a href="#When-can-unlabeled-inputs-help" class="headerlink" title="When can unlabeled inputs help?"></a>When can unlabeled inputs help?</h3><p>Let <span class="math-inline">\(X\)</span> be uniform on two disjoint regions <span class="math-inline">\(A,B\)</span> and suppose labels are constant on each region. From one labeled point in <span class="math-inline">\(A\)</span>, the same <span class="math-inline">\(P_X\)</span> and observed label are compatible with either choice of label on <span class="math-inline">\(B\)</span>. For a learner given arbitrary unlabeled data, average its conditional errors on <span class="math-inline">\(B\)</span> over these two indistinguishable labelings. At each point in <span class="math-inline">\(B\)</span>, one of the two labels disagrees with its prediction, so the mean error contribution from <span class="math-inline">\(B\)</span> alone is <span class="math-inline">\(P_X(B)/2\)</span>. If an extra assumption says the two regions must have opposite labels, the observation in <span class="math-inline">\(A\)</span> determines the label throughout <span class="math-inline">\(B\)</span>. The drawings comparing two labeled points with two labeled points plus many unlabeled ones illustrate the latter kind of information, with the cluster geometry inferred from the unlabeled sample.</p>
+<h2 id="A-worked-sampling-model"><a href="#A-worked-sampling-model" class="headerlink" title="A worked sampling model"></a>A worked sampling model</h2><p>The course’s exam-design example estimates a student’s mean success probability across a pool of possible questions. For a uniform independent draw of questions and independent responses conditional on the chosen questions, the observed scores <span class="math-inline">\(B_i\)</span> are Bernoulli with marginal mean <span class="math-inline">\(p=\mathbb E_q p(q)\)</span>. Thus <span class="math-inline">\(\widehat p=n^{-1}\sum_iB_i\)</span> has expectation <span class="math-inline">\(p\)</span> and variance <span class="math-inline">\(p(1-p)/n\)</span>. If question selection places unequal weight on topics, that mean changes accordingly. This is the same sampling issue as evaluating a predictor under a shifted input distribution. The accompanying preference survey converts each respondent’s five ratings <span class="math-inline">\(v_i\)</span> to proportions <span class="math-inline">\(r_i=(v_i-1)/\sum_j(v_j-1)\)</span> before averaging. For any respondent with at least one rating above one, these coordinates sum to one. This gives respondents equal total weight. Normalizing only after summing gives respondent <span class="math-inline">\(j\)</span> weight proportional to <span class="math-inline">\(\sum_i(v_{ji}-1)\)</span>, a different statistic.</p>
+<h2 id="A-Chernoff-calculation-for-demand"><a href="#A-Chernoff-calculation-for-demand" class="headerlink" title="A Chernoff calculation for demand"></a>A Chernoff calculation for demand</h2><p>For independent <span class="math-inline">\(X_i\in[0,1]\)</span>, let <span class="math-inline">\(p_i=\mathbb E X_i\)</span> and <span class="math-inline">\(Z=\sum_iX_i\)</span> with mean <span class="math-inline">\(\mu\)</span>. By convexity, <span class="math-inline">\(e^{tx}\le 1+x(e^t-1)\)</span> on <span class="math-inline">\([0,1]\)</span>, with equality at both endpoints. Therefore, for <span class="math-inline">\(t&gt;0\)</span>,</p>
+<div class="math-display">\[\mathbb E e^{tZ}\le\prod_i(1+p_i(e^t-1))\le \exp(\mu(e^t-1)).\]</div>
+<p>By Markov’s inequality, <span class="math-inline">\(P(Z\ge(1+a)\mu)\le e^{\mu(e^t-1)-t(1+a)\mu}\)</span>. The minimizing <span class="math-inline">\(t=\log(1+a)\)</span> gives <span class="math-inline">\(\exp(-\mu[(1+a)\log(1+a)-a])\)</span>. For <span class="math-inline">\(a\in[0,1]\)</span>, <span class="math-inline">\(\log(1+a)\ge 2a/(2+a)\ge 2a/3\)</span>. The first inequality follows by differentiating the difference, whose derivative is <span class="math-inline">\(a^2/((1+a)(2+a)^2)\ge0\)</span>, and using equality at zero. Integrating gives <span class="math-inline">\((1+a)\log(1+a)-a\ge a^2/3\)</span>. For 15 independent servers with total mean 6, each receives a request with probability <span class="math-inline">\(0.4\)</span>. Overload at 10 requests corresponds to <span class="math-inline">\(a=2/3\)</span>, so <span class="math-inline">\(P(Z\ge10)\le e^{-8/9}\approx0.411\)</span>.</p>
 <h2 id="Challenges"><a href="#Challenges" class="headerlink" title="Challenges"></a>Challenges</h2><h3 id="Problem-1"><a href="#Problem-1" class="headerlink" title="Problem 1"></a>Problem 1</h3><p>Show that the excess 0–1 risk of a plug-in classifier <span class="math-inline">\(\widehat h=\mathbf1\{\widehat\eta\ge1/2\}\)</span> is at most <span class="math-inline">\(2\mathbb E|\widehat\eta(X)-\eta(X)|\)</span>. If <span class="math-inline">\(\|\widehat\eta-\eta\|_\infty\le a\)</span> and <span class="math-inline">\(P(|\eta(X)-1/2|\le t)\le Ct^\kappa\)</span>, strengthen the rate.</p>
 <details>
 <summary>Show solution</summary>
@@ -260,13 +268,24 @@ R(h^\star)=\mathbb E\min\{\eta(X),1-\eta(X)\}.\]</div>
 <p>Conditioned on the candidates, Hoeffding and a union bound put all empirical risks within <span class="math-inline">\(\varepsilon/2\)</span> of their true risks except with probability <span class="math-inline">\(2M e^{-n\varepsilon^2/2}\)</span>. The selected function then has excess risk at most <span class="math-inline">\(\varepsilon\)</span> by two applications of the deviation bound and empirical optimality. Thus <span class="math-inline">\(n\ge 2\log(2M/\delta)/\varepsilon^2\)</span> suffices. Adaptive candidate construction changes the law of the validation sample conditional on those functions, so the fixed-candidate concentration need not apply.</p>
 </details>
 
-<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning (2026), Lecture 1, supervised learning and dataset construction. The Chernoff calculation also follows the setup in Problem Set 1.</p>
+<h3 id="Problem-3-From-pointwise-estimation-to-fast-classification-rates"><a href="#Problem-3-From-pointwise-estimation-to-fast-classification-rates" class="headerlink" title="Problem 3. From pointwise estimation to fast classification rates"></a>Problem 3. From pointwise estimation to fast classification rates</h3><p>Let <span class="math-inline">\(D(x)=|\eta(x)-1/2|\)</span>. Suppose <span class="math-inline">\(P_X(0&lt;D(X)\le t)\le Ct^\kappa\)</span> and a random regression estimator obeys <span class="math-inline">\(P_{\rm train}(|\widehat\eta(x)-\eta(x)|\ge t)\le A e^{-bt^2}\)</span> for <span class="math-inline">\(P_X\)</span>-almost every fixed <span class="math-inline">\(x\)</span> and <span class="math-inline">\(0&lt;t\le1/2\)</span>, with <span class="math-inline">\(b\ge4\)</span>. Prove that the expected excess risk of the plug-in classifier is <span class="math-inline">\(O(b^{-(\kappa+1)/2})\)</span>. This is the regression-to-classification step in the fast rates for plug-in rules. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/0708.2321">Audibert and Tsybakov, <em>Fast Learning Rates for Plug-in Classifiers</em>, Lemma 3.1</a>.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>Conditional on <span class="math-inline">\(x\)</span>, disagreement with the Bayes rule contributes <span class="math-inline">\(2D(x)\)</span> and requires estimation error at least <span class="math-inline">\(D(x)\)</span>. The set <span class="math-inline">\(D=0\)</span> contributes zero. Put <span class="math-inline">\(r=b^{-1/2}\)</span> and split the remaining inputs into <span class="math-inline">\(0&lt;D\le r\)</span> and shells <span class="math-inline">\(2^{j-1}r&lt;D\le2^jr\)</span>, <span class="math-inline">\(j\ge1\)</span>. The first region contributes at most <span class="math-inline">\(2Cr^{\kappa+1}\)</span>. On shell <span class="math-inline">\(j\)</span>, the probability of disagreement is at most <span class="math-inline">\(A e^{-4^{j-1}}\)</span> and the shell’s mass is at most <span class="math-inline">\(C(2^jr)^\kappa\)</span>. The contribution is bounded by <span class="math-inline">\(2ACr^{\kappa+1}2^{j(\kappa+1)}e^{-4^{j-1}}\)</span>. For every nonempty shell its lower threshold is at most <span class="math-inline">\(1/2\)</span>, so the stated tail assumption suffices. The exponential makes the shell series summable for each fixed <span class="math-inline">\(\kappa\)</span>. Substituting <span class="math-inline">\(r\)</span> proves the rate, without a uniform-in-<span class="math-inline">\(x\)</span> concentration assumption.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><ul>
+<li>Yang Yuan, <em>Machine Learning</em>, 2026 Lecture 1, slides 18–19 (sampling and preference normalization), 29–45 (risk and evaluation), 47–52 (data collection), and 53–62 (unlabeled data).</li>
+<li>Archived Lecture 1, slides 22 (sampling), 32–44 (history), 45–63 (risk, validation, and regularization), and 65–71 (data collection). Archived Lecture 2, slides 2–11, contains the unlabeled-data material moved into Lecture 1 in 2026.</li>
+<li>Problem Set 1, question 2, for the server-capacity calculation. The other readings appear beside the relevant arguments.</li>
+</ul>
 <p><a href="/notes/">Course notes</a> · <a href="/notes/ml/02/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/01/" data-id="cuidc3Lc1p8PU7UKM01qm9KO1" data-title="ML 01: Supervised Learning, Risk, and Data" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/01/" data-id="cuidawLPLCXPTIvZmXGUglaxQ" data-title="ML 01: Supervised Learning, Risk, and Data" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -328,6 +347,44 @@ R(h^\star)=\mathbb E\min\{\eta(X),1-\eta(X)\}.\]</div>
   
 </section>
 
+
+  </div>
+  <aside class="article-reader-side" aria-label="Article navigation" hidden>
+    <div class="article-outline tex2jax_ignore" id="article-outline">
+      <header>
+        <h2>On this page</h2>
+        <button type="button" class="outline-collapse" aria-label="Collapse article navigation" aria-controls="article-outline-content" aria-expanded="true">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+        </button>
+        <button type="button" class="outline-close" aria-label="Close contents">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+
+        </button>
+      </header>
+      <div class="outline-jump" aria-label="Jump within article navigation" role="group" hidden></div>
+      <div class="article-outline-content" id="article-outline-content">
+        <nav aria-label="Section headings">
+          <ol class="outline-headings"></ol>
+        </nav>
+        <section class="outline-media" data-outline-media="figures" hidden>
+          <h3>Figures</h3>
+          <ol></ol>
+        </section>
+        <section class="outline-media" data-outline-media="tables" hidden>
+          <h3>Tables</h3>
+          <ol></ol>
+        </section>
+      </div>
+    </div>
+  </aside>
+  <button type="button" class="outline-trigger" aria-controls="article-outline-dialog" aria-expanded="false" hidden>
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+<span>Contents</span>
+  </button>
+  <dialog class="article-outline-dialog" id="article-outline-dialog" aria-label="Article contents"></dialog>
+</div>
+<script defer src="/js/article-outline.js"></script>
 </div>
           </div>
           <footer id="footer">

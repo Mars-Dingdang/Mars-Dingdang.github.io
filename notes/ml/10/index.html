@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-10/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:10:00.000Z">
-<meta property="article:modified_time" content="2026-11-14T02:30:25.329Z">
+<meta property="article:modified_time" content="2026-11-14T03:11:23.135Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Clustering">
 <meta property="article:tag" content="Graph Laplacian">
@@ -57,12 +57,14 @@
           inlineMath: [['$', '$'], ['\\(', '\\)']],
           displayMath: [['$$', '$$'], ['\\[', '\\]']],
           processEscapes: true,
-          processEnvironments: true
+          processEnvironments: true,
+          tags: 'all'
         },
         options: {
           skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
         },
         svg: {
+          displayAlign: 'center',
           fontCache: 'global'
         }
       };
@@ -71,7 +73,7 @@
   
 <meta name="generator" content="Hexo 8.1.2"></head>
 
-<body class="is-inner">
+<body class="is-inner is-post">
   
   <div id="container">
     <div id="wrap">
@@ -190,7 +192,9 @@
         </aside>
         <main class="site-main">
           <div class="outer">
-            <div id="main"><article id="post-ml-10" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+            <div id="main"><div class="article-reader" data-article-reader>
+  <div class="article-reader-body">
+    <article id="post-ml-10" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   
     <nav class="course-breadcrumb" aria-label="Course">
@@ -232,16 +236,19 @@
 <h2 id="Lloyd’s-alternating-updates"><a href="#Lloyd’s-alternating-updates" class="headerlink" title="Lloyd’s alternating updates"></a>Lloyd’s alternating updates</h2><p>K-means minimizes <span class="math-inline">\(\sum_i\|x_i-\mu_{c_i}\|^2\)</span> over assignments and centers. With centers fixed, each point chooses its closest center independently. For a fixed nonempty cluster <span class="math-inline">\(S\)</span>, expansion about its mean gives</p>
 <div class="math-display">\[\sum_{i\in S}\|x_i-\mu\|^2
 =\sum_{i\in S}\|x_i-\bar x_S\|^2+|S|\|\mu-\bar x_S\|^2.\]</div>
-<p>The cross term vanishes because the centered points sum to zero. Therefore the optimal center is the cluster mean. Exact alternating updates cannot increase the objective. If assignments change only on strict improvements and empty centers are held fixed, the finite number of partitions ensures eventual stability. The solution can depend on initialization. In Euclidean space, nearest centers induce convex Voronoi cells, which need not follow a curved cluster.</p>
+<p>The cross term vanishes because the centered points sum to zero. Therefore the optimal center is the cluster mean. Exact alternating updates cannot increase the objective. With ties assigned to the previous cluster whenever possible, every changed assignment strictly decreases the cost at the current centers. Reoptimizing the nonempty centers decreases it further or leaves it unchanged. The value after optimizing centers depends only on the partition, since empty centers contribute zero. A strict decrease cannot revisit a partition, so the algorithm stabilizes after finitely many assignment changes. If empty centers are needed for later assignments, one possible choice is to leave them at their previous positions.</p>
+<p>Slides 14–15 illustrate how a stable Lloyd partition can have arbitrarily poor cost. Consider the six points <span class="math-inline">\((\pm M,j)\)</span> for <span class="math-inline">\(j=0,1,2\)</span> and <span class="math-inline">\(M&gt;0\)</span>. Initialize three centers at <span class="math-inline">\((0,0),(0,1),(0,2)\)</span>. Each point is uniquely closest to the center in its own row and each center is already its row mean, so Lloyd is at a fixed point of cost <span class="math-inline">\(6M^2\)</span>. Partition by vertical columns, splitting one column into a singleton and an adjacent pair to use three centers. That cost is <span class="math-inline">\(2+1/2\)</span>, independent of <span class="math-inline">\(M\)</span>, giving an unbounded approximation ratio. Nearest centers partition Euclidean space into convex Voronoi cells, which are also a poor fit for the concentric rings on slide 18.</p>
 <h2 id="Graph-Laplacian-energy-and-null-space"><a href="#Graph-Laplacian-energy-and-null-space" class="headerlink" title="Graph Laplacian energy and null space"></a>Graph Laplacian energy and null space</h2><p>Let <span class="math-inline">\(W\)</span> be a symmetric nonnegative weight matrix, <span class="math-inline">\(D_{ii}=\sum_jW_{ij}\)</span>, and <span class="math-inline">\(L=D-W\)</span>. Symmetry gives</p>
 <div class="math-display">\[u^\top Lu=\sum_iD_{ii}u_i^2-\sum_{ij}W_{ij}u_iu_j
 =\tfrac12\sum_{ij}W_{ij}(u_i-u_j)^2.\]</div>
 <p>Thus <span class="math-inline">\(L\)</span> is positive semidefinite. The energy is zero exactly when every edge of positive weight joins two equal coordinates. This means <span class="math-inline">\(u\)</span> is constant on each connected component, so the multiplicity of eigenvalue zero is the number of components. In particular, <span class="math-inline">\(L\mathbf1=0\)</span>.</p>
+<p>The graph can use an <span class="math-inline">\(\varepsilon\)</span>-neighborhood rule, a symmetrized <span class="math-inline">\(k\)</span>-nearest-neighbor rule, or a dense similarity function. For the nearest-neighbor construction on slide 20, include an edge if either endpoint appears in the other’s neighbor list. If a point belongs to a different connected component, the corresponding entry of <span class="math-inline">\(W\)</span> is zero, so after ordering vertices by component the Laplacian becomes block diagonal with exactly one constant null vector on each block. Zero-degree vertices count as singleton components.</p>
+<h3 id="Compute-the-smallest-eigenspace-by-shifting"><a href="#Compute-the-smallest-eigenspace-by-shifting" class="headerlink" title="Compute the smallest eigenspace by shifting"></a>Compute the smallest eigenspace by shifting</h3><p>If <span class="math-inline">\(A\)</span> is symmetric with eigenvalues <span class="math-inline">\(\lambda_1\le\cdots\le\lambda_n\)</span>, any upper bound <span class="math-inline">\(c\ge\lambda_n\)</span> makes <span class="math-inline">\(B=A-cI\)</span> share its eigenvectors and have only nonpositive eigenvalues. The negative eigenvalue <span class="math-inline">\(\lambda_1-c\)</span> has greatest magnitude. Thus power iteration on <span class="math-inline">\(B\)</span> finds a direction in the smallest eigenspace of <span class="math-inline">\(A\)</span>, given a nonzero initial projection onto it. Apply the Rayleigh quotient to recover the signed shifted eigenvalue, then add <span class="math-inline">\(c\)</span>. For a simple smallest eigenvalue and <span class="math-inline">\(c&gt;\lambda_1\)</span>, the relative error decays with ratio <span class="math-inline">\((c-\lambda_2)/(c-\lambda_1)\)</span>. Because the dominant shifted eigenvalue is negative, the signed iterates can alternate while their spans converge. To find subsequent vectors, use orthogonal deflation or a block eigensolver. This is the shift argument of slide 29.</p>
 <h2 id="RatioCut-as-a-relaxation"><a href="#RatioCut-as-a-relaxation" class="headerlink" title="RatioCut as a relaxation"></a>RatioCut as a relaxation</h2><p>Define <span class="math-inline">\(W(A,B)=\sum_{i\in A,j\in B}W_{ij}\)</span>. For a partition <span class="math-inline">\(A,B\)</span>, take <span class="math-inline">\(u_i=\sqrt{|B|/(n|A|)}\)</span> on <span class="math-inline">\(A\)</span> and <span class="math-inline">\(u_i=-\sqrt{|A|/(n|B|)}\)</span> on <span class="math-inline">\(B\)</span>. Then <span class="math-inline">\(\|u\|=1\)</span> and <span class="math-inline">\(u\perp\mathbf1\)</span>. All internal edges have zero energy. A crossing edge contributes its weight times <span class="math-inline">\((1/|A|+1/|B|)\)</span>, so <span class="math-inline">\(u^\top Lu=\operatorname{RatioCut}(A,B)\)</span>. Removing the two-level constraint permits any unit vector perpendicular to <span class="math-inline">\(\mathbf1\)</span>. Expand in an eigenbasis with <span class="math-inline">\(\mathbf1/\sqrt n\)</span> first. The minimum is <span class="math-inline">\(\lambda_2(L)\)</span>, achieved by a Fiedler vector, and is a lower bound on the discrete optimum. A threshold or one-dimensional two-means converts its real coordinates into a cut.</p>
 <p>For <span class="math-inline">\(k\)</span> nonempty groups, set <span class="math-inline">\(H_{ij}=\mathbf1\{i\in A_j\}/\sqrt{|A_j|}\)</span>. Then <span class="math-inline">\(H^\top H=I\)</span> and</p>
 <div class="math-display">\[\operatorname{tr}(H^\top LH)=\sum_j\frac{W(A_j,\overline{A_j})}{|A_j|}.\]</div>
 <p>To solve the relaxation over all <span class="math-inline">\(H^\top H=I\)</span>, let <span class="math-inline">\(u_i\)</span> be Laplacian eigenvectors and write the trace as <span class="math-inline">\(\sum_i\lambda_i c_i\)</span> where <span class="math-inline">\(c_i=\|H^\top u_i\|^2\)</span>. Since <span class="math-inline">\(HH^\top\)</span> is a rank-<span class="math-inline">\(k\)</span> orthogonal projector, <span class="math-inline">\(0\le c_i\le1\)</span> and <span class="math-inline">\(\sum_i c_i=k\)</span>. Moving weight from a larger eigenvalue to a smaller one until the smallest <span class="math-inline">\(k\)</span> have weight one gives the lower bound <span class="math-inline">\(\sum_{i=1}^k\lambda_i\)</span>. Taking their eigenvectors as columns attains it. This is the trace minimization proof used for the spectral embedding; each row is a node’s embedding, and k-means rounds the points to clusters. The same trace argument, applied to the largest eigenvalues, gives the PCA characterization from <a href="/notes/ml/09/">Lecture 9</a>.</p>
-<p>Replacing the size of a group by its total degree gives normalized cut. Its relaxed matrix on positive-degree vertices is <span class="math-inline">\(I-D^{-1/2}WD^{-1/2}\)</span>, obtained by substituting <span class="math-inline">\(D^{1/2}u\)</span> into a Rayleigh quotient with denominator <span class="math-inline">\(u^\top Du\)</span>. Neighborhood definition and edge weights determine the graph; their scale affects both connectedness and the distinction between weak and strong edges.</p>
+<p>Replacing the size of a group by its total degree <span class="math-inline">\(\operatorname{vol}(A_j)=\sum_{i\in A_j}D_{ii}\)</span> gives normalized cut. For positive degrees, define <span class="math-inline">\(H_{ij}=\mathbf1\{i\in A_j\}/\sqrt{\operatorname{vol}(A_j)}\)</span>. Direct expansion gives <span class="math-inline">\(H^\top DH=I\)</span> and <span class="math-inline">\(\operatorname{tr}(H^\top LH)=\sum_j W(A_j,\overline{A_j})/\operatorname{vol}(A_j)\)</span>. Substitute <span class="math-inline">\(U=D^{1/2}H\)</span> to get the orthogonality constraint <span class="math-inline">\(U^\top U=I\)</span> and minimize the trace of <span class="math-inline">\(U^\top L_{\rm sym}U\)</span>, where <span class="math-inline">\(L_{\rm sym}=I-D^{-1/2}WD^{-1/2}\)</span>. Its bottom <span class="math-inline">\(k\)</span> eigenvectors solve the relaxation. The equivalent generalized equation is <span class="math-inline">\(L H = DH\Lambda\)</span>, or <span class="math-inline">\(D^{-1}LH=H\Lambda\)</span>. In a random walk with transition matrix <span class="math-inline">\(P=D^{-1}W\)</span>, the stationary probability of vertex <span class="math-inline">\(i\)</span> is proportional to its degree by detailed balance. Conditional on starting in group <span class="math-inline">\(A\)</span> with that distribution, the probability of stepping out is <span class="math-inline">\(W(A,\overline A)/\operatorname{vol}(A)\)</span>. This gives each normalized cut term a transition interpretation. <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/0711.0189">Von Luxburg, “A Tutorial on Spectral Clustering,” §§5–6</a></p>
 <h3 id="The-Birkhoff-proof-in-the-lecture"><a href="#The-Birkhoff-proof-in-the-lecture" class="headerlink" title="The Birkhoff proof in the lecture"></a>The Birkhoff proof in the lecture</h3><p>Complete <span class="math-inline">\(H\)</span> to an orthogonal basis and express its columns in an eigenbasis of <span class="math-inline">\(L\)</span>, obtaining an orthogonal matrix <span class="math-inline">\(Q\)</span>. The matrix <span class="math-inline">\(B\)</span> with entries <span class="math-inline">\(Q_{ij}^2\)</span> is doubly stochastic because each row and column of <span class="math-inline">\(Q\)</span> has squared norm one. By Birkhoff’s theorem, <span class="math-inline">\(B\)</span> is a convex combination of permutation matrices. The objective is the linear expression <span class="math-inline">\(\sum_i\lambda_i\sum_{j\le k}B_{ij}\)</span>. At each permutation this is the sum of some <span class="math-inline">\(k\)</span> distinct eigenvalues, at least <span class="math-inline">\(\lambda_1+\cdots+\lambda_k\)</span>. The same is true of their convex combination. The first <span class="math-inline">\(k\)</span> eigenvectors give equality.</p>
 <h2 id="Two-supplementary-proofs-of-the-trace-minimum"><a href="#Two-supplementary-proofs-of-the-trace-minimum" class="headerlink" title="Two supplementary proofs of the trace minimum"></a>Two supplementary proofs of the trace minimum</h2><p><strong>PCA and best low-rank approximation.</strong> Choose <span class="math-inline">\(c&gt;\lambda_{\max}(L)\)</span> and set <span class="math-inline">\(A=cI-L=XX^\top\)</span> using the symmetric square root. Minimizing <span class="math-inline">\(\operatorname{tr}(H^\top LH)\)</span> over <span class="math-inline">\(H^\top H=I_k\)</span> is equivalent to maximizing <span class="math-inline">\(\operatorname{tr}(H^\top XX^\top H)\)</span>, since their sum is <span class="math-inline">\(ck\)</span>. For a fixed column subspace, the best approximation of <span class="math-inline">\(X\)</span> in that subspace is the projection <span class="math-inline">\(HH^\top X\)</span>. Its squared error is <span class="math-inline">\(\|X\|_F^2-\operatorname{tr}(H^\top XX^\top H)\)</span>. Every matrix of rank at most <span class="math-inline">\(k\)</span> has columns in such a subspace, so the problem is exactly best rank-<span class="math-inline">\(k\)</span> approximation.</p>
 <p>Here is the singular value argument from Zeyang Zhang’s supplement. For <span class="math-inline">\(n\)</span>-column matrices <span class="math-inline">\(B,C\)</span>, take the subspaces orthogonal to the leading <span class="math-inline">\(i-1\)</span> right singular vectors of <span class="math-inline">\(B\)</span> and leading <span class="math-inline">\(j-1\)</span> of <span class="math-inline">\(C\)</span>. Their intersection has dimension at least <span class="math-inline">\(n-i-j+2\)</span>, and <span class="math-inline">\(\|(B+C)v\|\le(\sigma_i(B)+\sigma_j(C))\|v\|\)</span> there. The variational formula for singular values, which minimizes the maximal stretch over subspaces of this dimension, gives <span class="math-inline">\(\sigma_{i+j-1}(B+C)\le\sigma_i(B)+\sigma_j(C)\)</span>. This variational formula follows by choosing the trailing right singular vectors for the upper bound and intersecting any candidate subspace with the span of the first <span class="math-inline">\(i+j-1\)</span> right singular vectors for the lower bound. Set <span class="math-inline">\(B=X-M\)</span>, <span class="math-inline">\(C=M\)</span>, and <span class="math-inline">\(j=k+1\)</span>. Since <span class="math-inline">\(\sigma_{k+1}(M)=0\)</span> for rank at most <span class="math-inline">\(k\)</span>, summing squares gives</p>
@@ -263,13 +270,32 @@
 <p>For <span class="math-inline">\(v=D^{-1/2}u\)</span>, the energy is <span class="math-inline">\(\tfrac12\sum_{ij}W_{ij}(v_i-v_j)^2\)</span>. The bound <span class="math-inline">\((a-b)^2\le2(a^2+b^2)\)</span> makes it at most <span class="math-inline">\(2\sum_iD_{ii}v_i^2=2\|u\|^2\)</span>. Equality requires <span class="math-inline">\(v_i=-v_j\)</span> on every positive-weight edge, so a connected graph has a nonzero equality vector exactly when its edges respect a bipartition. On a bipartite graph take <span class="math-inline">\(v=1\)</span> on one side and <span class="math-inline">\(-1\)</span> on the other.</p>
 </details>
 
-<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 10 from the archived slides and its trace minimization supplements. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/0711.0189">Von Luxburg, A Tutorial on Spectral Clustering</a>.</p>
+<h3 id="Paper-challenge-·-Recover-two-clusters-after-a-weak-bridge"><a href="#Paper-challenge-·-Recover-two-clusters-after-a-weak-bridge" class="headerlink" title="Paper challenge · Recover two clusters after a weak bridge"></a>Paper challenge · Recover two clusters after a weak bridge</h3><p>Develop the perturbation argument in <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/0711.0189">von Luxburg, “A Tutorial on Spectral Clustering,” §7.1</a>. Let <span class="math-inline">\(L_0\)</span> be the unnormalized Laplacian of two disconnected, internally connected components of sizes <span class="math-inline">\(a,b\)</span>. Its third eigenvalue is <span class="math-inline">\(\gamma&gt;0\)</span>. Add one bridge of weight <span class="math-inline">\(\varepsilon\)</span> between them. Prove an angle bound for the new unit Fiedler vector and give a sufficient condition for its signs to recover both components exactly.</p>
+<details>
+<summary>Show paper solution</summary>
+
+<p>Write <span class="math-inline">\(L=L_0+E\)</span>, with <span class="math-inline">\(E=\varepsilon(e_i-e_j)(e_i-e_j)^\top\)</span> for the bridge endpoints. The rank-one update satisfies <span class="math-inline">\(\|E\|_{\rm op}=2\varepsilon\)</span>. Let <span class="math-inline">\(u\)</span> be the unit two-level null vector of <span class="math-inline">\(L_0\)</span> perpendicular to <span class="math-inline">\(\mathbf1\)</span>, with entries <span class="math-inline">\(\sqrt{b/(a(a+b))}\)</span> on one component and <span class="math-inline">\(-\sqrt{a/(b(a+b))}\)</span> on the other. If <span class="math-inline">\(v\)</span> is a unit Fiedler eigenvector of <span class="math-inline">\(L\)</span> perpendicular to <span class="math-inline">\(\mathbf1\)</span>, its eigenvalue satisfies</p>
+<div class="math-display">\[\lambda_2(L)\le u^\top Lu=\varepsilon(1/a+1/b)\le2\varepsilon .\]</div>
+<p>Let <span class="math-inline">\(P\)</span> project orthogonally onto the complement of <span class="math-inline">\(\ker L_0\)</span>. Since <span class="math-inline">\(P\)</span> commutes with <span class="math-inline">\(L_0\)</span>, projecting <span class="math-inline">\(Lv=\lambda_2v\)</span> gives <span class="math-inline">\((L_0-\lambda_2 I)Pv=-PEv\)</span>. For <span class="math-inline">\(2\varepsilon&lt;\gamma\)</span>, the restriction of <span class="math-inline">\(L_0-\lambda_2I\)</span> on this space has eigenvalues at least <span class="math-inline">\(\gamma-\lambda_2&gt;0\)</span>. Therefore</p>
+<div class="math-display">\[\|Pv\|_2\le\frac{2\varepsilon}{\gamma-\varepsilon(1/a+1/b)}.\]</div>
+<p>Choose the sign of <span class="math-inline">\(v\)</span> with <span class="math-inline">\(u^\top v\ge0\)</span>. Since both are orthogonal to <span class="math-inline">\(\mathbf1\)</span>, <span class="math-inline">\(\|Pv\|_2\)</span> is the sine of their angle and <span class="math-inline">\(\|v-u\|_\infty\le\|v-u\|_2\le\sqrt2\|Pv\|_2\)</span>. Every coordinate retains its sign when</p>
+<div class="math-display">\[\frac{2\sqrt2\varepsilon}{\gamma-\varepsilon(1/a+1/b)}
+&lt;
+\min\left\{\sqrt{\frac{b}{a(a+b)}},\sqrt{\frac{a}{b(a+b)}}\right\}.\]</div>
+<p>The sufficient bound deteriorates when the smallest magnitude of the ideal coordinate shrinks. The spectral gap alone bounds the angle, while an entrywise margin is needed to conclude exact sign recovery.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><ul>
+<li>Yang Yuan, <em>Machine Learning</em>, legacy Lecture 10, slides 5–17 for Lloyd’s algorithm and the bad fixed-point geometry, 18–26 for graph construction and the null-space proof, 29 for the spectral shift, 30–37 for RatioCut and its relaxation, and 38–40 for Birkhoff’s proof and the two supplement pointers.</li>
+<li>Wenjie Huang, <em>A Linear Algebra Optimization Problem</em>, pp. 1–2 in the local Cramer supplement. Zeyang Zhang, local PCA derivation and Eckart–Young–Mirsky proof. The two arguments appear in the trace-minimization section above.</li>
+<li>Ulrike von Luxburg, <em>A Tutorial on Spectral Clustering</em>, §§3, 5–7. <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/0711.0189">Paper</a></li>
+</ul>
 <p><a href="/notes/ml/09/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/11/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/10/" data-id="cuid_pBNISPpKo5e9tmuKVGwK" data-title="ML 10: K-means and Spectral Clustering" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/10/" data-id="cuid5nhdM6ITVW6NFQG_bWth4" data-title="ML 10: K-means and Spectral Clustering" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -331,6 +357,44 @@
   
 </section>
 
+
+  </div>
+  <aside class="article-reader-side" aria-label="Article navigation" hidden>
+    <div class="article-outline tex2jax_ignore" id="article-outline">
+      <header>
+        <h2>On this page</h2>
+        <button type="button" class="outline-collapse" aria-label="Collapse article navigation" aria-controls="article-outline-content" aria-expanded="true">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+        </button>
+        <button type="button" class="outline-close" aria-label="Close contents">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+
+        </button>
+      </header>
+      <div class="outline-jump" aria-label="Jump within article navigation" role="group" hidden></div>
+      <div class="article-outline-content" id="article-outline-content">
+        <nav aria-label="Section headings">
+          <ol class="outline-headings"></ol>
+        </nav>
+        <section class="outline-media" data-outline-media="figures" hidden>
+          <h3>Figures</h3>
+          <ol></ol>
+        </section>
+        <section class="outline-media" data-outline-media="tables" hidden>
+          <h3>Tables</h3>
+          <ol></ol>
+        </section>
+      </div>
+    </div>
+  </aside>
+  <button type="button" class="outline-trigger" aria-controls="article-outline-dialog" aria-expanded="false" hidden>
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+<span>Contents</span>
+  </button>
+  <dialog class="article-outline-dialog" id="article-outline-dialog" aria-label="Article contents"></dialog>
+</div>
+<script defer src="/js/article-outline.js"></script>
 </div>
           </div>
           <footer id="footer">

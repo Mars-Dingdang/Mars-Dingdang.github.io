@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-12/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:12:00.000Z">
-<meta property="article:modified_time" content="2026-11-14T02:30:25.850Z">
+<meta property="article:modified_time" content="2026-11-14T03:09:58.653Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Lecture Notes">
 <meta property="article:tag" content="Randomized Smoothing">
@@ -57,12 +57,14 @@
           inlineMath: [['$', '$'], ['\\(', '\\)']],
           displayMath: [['$$', '$$'], ['\\[', '\\]']],
           processEscapes: true,
-          processEnvironments: true
+          processEnvironments: true,
+          tags: 'all'
         },
         options: {
           skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
         },
         svg: {
+          displayAlign: 'center',
           fontCache: 'global'
         }
       };
@@ -71,7 +73,7 @@
   
 <meta name="generator" content="Hexo 8.1.2"></head>
 
-<body class="is-inner">
+<body class="is-inner is-post">
   
   <div id="container">
     <div id="wrap">
@@ -190,7 +192,9 @@
         </aside>
         <main class="site-main">
           <div class="outer">
-            <div id="main"><article id="post-ml-12" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+            <div id="main"><div class="article-reader" data-article-reader>
+  <div class="article-reader-body">
+    <article id="post-ml-12" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   
     <nav class="course-breadcrumb" aria-label="Course">
@@ -229,23 +233,31 @@
 
 <p><img src="/images/posts/ml-12/figure.png" alt="Gaussian densities centered at two inputs and a classification threshold"></p>
 <p><em>A shift in the input changes the probability assigned to either side of the classifier’s decision boundary.</em></p>
-<h2 id="Robust-risk-and-the-envelope-derivative"><a href="#Robust-risk-and-the-envelope-derivative" class="headerlink" title="Robust risk and the envelope derivative"></a>Robust risk and the envelope derivative</h2><p>A perturbation set <span class="math-inline">\(\Delta\)</span> models allowable input changes. The worst-case training objective is</p>
+<h2 id="Robust-risk-and-the-envelope-derivative"><a href="#Robust-risk-and-the-envelope-derivative" class="headerlink" title="Robust risk and the envelope derivative"></a>Robust risk and the envelope derivative</h2><p><em>Lecture 12, slides 4–21. The examples motivate measuring model behavior under bounded input changes as well as accuracy on unchanged inputs.</em></p>
+<p>A perturbation set <span class="math-inline">\(\Delta\)</span> models allowable input changes. The worst-case training objective is</p>
 <div class="math-display">\[\min_\theta\mathbb E_{X,Y}\!\left[\max_{\delta\in\Delta}\ell(f_\theta(X+\delta),Y)\right].\]</div>
 <p>An <span class="math-inline">\(\ell_\infty\)</span> ball bounds each coordinate change, whereas an <span class="math-inline">\(\ell_2\)</span> ball bounds total squared magnitude. Robustness depends on the selected input metric.</p>
+<p>For a differentiable inner loss <span class="math-inline">\(g_\theta(\delta)=\ell(f_\theta(x+\delta),y)\)</span>, its first-order change is <span class="math-inline">\(\nabla_\delta g_\theta(0)^\top\delta\)</span>. On the box <span class="math-inline">\(\|\delta\|_\infty\le r\)</span>, each coordinate contributes at most <span class="math-inline">\(r|\partial_i g_\theta(0)|\)</span>, attained by choosing that coordinate’s sign to match the derivative. This derives the first-order sign rule on slide 11. Its value is exact for the linearized loss. Projected ascent updates a current <span class="math-inline">\(\delta\)</span> and projects it back to <span class="math-inline">\(\Delta\)</span>. For the box, the squared Euclidean projection objective separates by coordinates, and each minimizer is a clipping operation. With a nonconcave loss, this generally solves only a local problem.</p>
 <p>Let <span class="math-inline">\(F(\theta)=\max_{z\in\Delta}g(\theta,z)\)</span>, with <span class="math-inline">\(\Delta\)</span> compact and <span class="math-inline">\(g,\nabla_\theta g\)</span> continuous. Write <span class="math-inline">\(M(\theta)\)</span> for its set of maximizers. For any <span class="math-inline">\(z\in M(\theta)\)</span>, evaluating it at <span class="math-inline">\(\theta+tv\)</span> gives the lower bound <span class="math-inline">\(\liminf_{t\downarrow0}(F(\theta+tv)-F(\theta))/t\ge \nabla_\theta g(\theta,z)^\top v\)</span>. For the upper bound choose a maximizer <span class="math-inline">\(z_t\)</span> at <span class="math-inline">\(\theta+tv\)</span>. Since <span class="math-inline">\(F(\theta)\ge g(\theta,z_t)\)</span>, the difference quotient is bounded above by the directional change in <span class="math-inline">\(g\)</span> at <span class="math-inline">\(z_t\)</span>. Compactness gives a convergent subsequence of maximizers, continuity puts its limit in <span class="math-inline">\(M(\theta)\)</span>, and the uniform first-order remainder yields</p>
 <div class="math-display">\[F'(\theta;v)=\max_{z\in M(\theta)}\nabla_\theta g(\theta,z)^\top v.\]</div>
-<p>With a unique maximizer this gives the gradient through the outer parameters. A numerical lower bound on the maximum loss can reveal failures, while a certificate needs an upper bound on the maximum or a direct invariance argument.</p>
+<p>For a unique maximizer <span class="math-inline">\(z_\star\)</span>, the gradient of <span class="math-inline">\(F\)</span> is <span class="math-inline">\(\nabla_\theta g(\theta,z_\star)\)</span>. For differentiability, take <span class="math-inline">\(h\to0\)</span>. By compactness and uniqueness every maximizing sequence <span class="math-inline">\(z_{\theta+h}\)</span> tends to <span class="math-inline">\(z_\star\)</span>. The first-order expansions at <span class="math-inline">\(z_\star\)</span> and <span class="math-inline">\(z_{\theta+h}\)</span> sandwich <span class="math-inline">\(F(\theta+h)-F(\theta)\)</span> between two linear terms differing by <span class="math-inline">\(o(\|h\|)\)</span>. Several maximizers can make the directional derivative nonlinear in <span class="math-inline">\(v\)</span>, as for <span class="math-inline">\(\max(\theta,-\theta)\)</span> at zero.</p>
+<p>For a minibatch, compute an approximate inner maximizer for each example and differentiate the outer average at the selected inputs. The exact envelope identity is a statement about true inner maximizers. Each feasible input evaluated during a numerical search gives a lower bound on worst-case loss. In accuracy, a finite check gives an upper bound on worst-case accuracy, while prediction invariance gives the lower bound used for certification. If unlike labels have overlapping perturbation sets, one deterministic classifier cannot give the correct label throughout both sets. For instance, two points at <span class="math-inline">\(\ell_p\)</span> distance at most <span class="math-inline">\(2r\)</span> share their midpoint inside both radius-<span class="math-inline">\(r\)</span> sets.</p>
 <h2 id="Linear-robust-margins-are-exact"><a href="#Linear-robust-margins-are-exact" class="headerlink" title="Linear robust margins are exact"></a>Linear robust margins are exact</h2><p>For a linear score <span class="math-inline">\(w^\top x+b\)</span> and <span class="math-inline">\(y\in\{-1,1\}\)</span>, let <span class="math-inline">\(m=y(w^\top x+b)\)</span>. The dual-norm identity gives</p>
 <div class="math-display">\[\min_{\|\delta\|_p\le r}y(w^\top(x+\delta)+b)=m-r\|w\|_q,\quad 1/p+1/q=1.\]</div>
 <p>Hölder’s inequality gives the lower bound, and compactness of the unit ball and the definition of the dual norm give equality. The whole closed ball is classified correctly when <span class="math-inline">\(m&gt;r\|w\|_q\)</span>. At <span class="math-inline">\(p=2\)</span> the limiting radius agrees with the geometric distance from <a href="/notes/ml/07/">the SVM lecture</a>.</p>
-<h2 id="The-Gaussian-smoothing-proof"><a href="#The-Gaussian-smoothing-proof" class="headerlink" title="The Gaussian smoothing proof"></a>The Gaussian smoothing proof</h2><p>For base classifier <span class="math-inline">\(f\)</span>, smooth by class probabilities <span class="math-inline">\(p_c(x)=P(f(x+Z)=c)\)</span> with <span class="math-inline">\(Z\sim N(0,\sigma^2 I)\)</span> and choose the most likely class. Suppose the leading class <span class="math-inline">\(A\)</span> has probability at least <span class="math-inline">\(\underline p_A\)</span> at <span class="math-inline">\(x\)</span> and any other class has probability at most <span class="math-inline">\(\overline p_B&lt;\underline p_A\)</span>.</p>
-<p>Let <span class="math-inline">\(P=N(x,\sigma^2I)\)</span>, <span class="math-inline">\(Q=N(x+\delta,\sigma^2I)\)</span> and <span class="math-inline">\(L(z)=dQ/dP(z)\)</span>. Given fixed <span class="math-inline">\(P\)</span>-mass, a set of low likelihood ratio minimizes <span class="math-inline">\(Q\)</span>-mass. To prove it, choose <span class="math-inline">\(H=\{L\le c\}\)</span> with the desired mass, and compare any set <span class="math-inline">\(E\)</span> of equal mass:</p>
+<h2 id="Evaluating-robustness-with-nonsmooth-or-random-components"><a href="#Evaluating-robustness-with-nonsmooth-or-random-components" class="headerlink" title="Evaluating robustness with nonsmooth or random components"></a>Evaluating robustness with nonsmooth or random components</h2><p><em>Lecture 12, slides 19–28. Athalye et al., Sections 2–4.</em></p>
+<p>An inaccurate or uninformative gradient can make a numerical lower bound particularly loose. The slides distinguish shattered gradients from nonsmooth computations, stochastic gradients from randomized transformations, and badly scaled gradients through long chains of operations. A bounded prediction check measures the full forward model. In a differentiable approximation to a composition, every replaced derivative changes the product of Jacobians. Through randomness, differentiating an expected loss gives the expected derivative when a local integrable bound justifies differentiation under the integral. A single random gradient need not characterize the expected model.</p>
+<h2 id="The-Gaussian-smoothing-proof"><a href="#The-Gaussian-smoothing-proof" class="headerlink" title="The Gaussian smoothing proof"></a>The Gaussian smoothing proof</h2><p><em>Lecture 12, slides 29–37. Cohen, Rosenfeld, and Kolter, Section 3 and Appendix A.</em></p>
+<p>For base classifier <span class="math-inline">\(f\)</span>, smooth by class probabilities <span class="math-inline">\(p_c(x)=P(f(x+Z)=c)\)</span> with <span class="math-inline">\(Z\sim N(0,\sigma^2 I)\)</span> and choose the most likely class. Suppose the leading class <span class="math-inline">\(A\)</span> has probability at least <span class="math-inline">\(\underline p_A\)</span> at <span class="math-inline">\(x\)</span> and any other class has probability at most <span class="math-inline">\(\overline p_B&lt;\underline p_A\)</span>.</p>
+<h3 id="Greedy-filling-for-a-general-noise-kernel"><a href="#Greedy-filling-for-a-general-noise-kernel" class="headerlink" title="Greedy filling for a general noise kernel"></a>Greedy filling for a general noise kernel</h3><p>The slides start with a binary problem. Let <span class="math-inline">\(E=\{z:f(z)=A\}\)</span> be the region assigned to the leading class, and let <span class="math-inline">\(P,Q\)</span> be the laws of noisy inputs at <span class="math-inline">\(x\)</span> and <span class="math-inline">\(x+\delta\)</span>. Given only the histogram entry <span class="math-inline">\(P(E)=a\)</span>, seek the smallest possible <span class="math-inline">\(Q(E)\)</span>. In a discretized space with cell weights <span class="math-inline">\(p_i,q_i\)</span>, choose fractions <span class="math-inline">\(0\le u_i\le1\)</span> of cells assigned to <span class="math-inline">\(A\)</span> to minimize <span class="math-inline">\(\sum_i q_i u_i\)</span> subject to <span class="math-inline">\(\sum_i p_i u_i=a\)</span>. A cell with <span class="math-inline">\(p_i=0&lt;q_i\)</span> can be left unfilled. Among the others, if a cell with ratio <span class="math-inline">\(q_i/p_i\)</span> larger than another is filled before that cheaper one is full, transfer a small amount of <span class="math-inline">\(P\)</span>-mass to the cheaper cell. The change in <span class="math-inline">\(Q\)</span>-mass is that amount times the difference of ratios, and is negative. Thus the optimum fills in increasing <span class="math-inline">\(Q/P\)</span> order, taking a fraction of a threshold cell if necessary. Slide 36 uses the reciprocal <span class="math-inline">\(P/Q\)</span> in decreasing order.</p>
+<p>For the uniform ball illustration, write <span class="math-inline">\(C\)</span> for the overlap of the two equal-volume balls, and <span class="math-inline">\(t=P(C)=Q(C)\)</span>. The region exclusive to the first ball contributes up to <span class="math-inline">\(1-t\)</span> units of <span class="math-inline">\(P\)</span>-mass and zero <span class="math-inline">\(Q\)</span>-mass. If <span class="math-inline">\(a&gt;1-t\)</span>, the remaining <span class="math-inline">\(a-1+t\)</span> must come from the overlap, where the densities agree. The smallest possible <span class="math-inline">\(Q(E)\)</span> is <span class="math-inline">\(\max\{0,a+t-1\}\)</span>. A binary guarantee based on this histogram requires that lower bound to exceed <span class="math-inline">\(1/2\)</span>.</p>
+<h3 id="Gaussian-likelihood-ratios-and-the-certified-radius"><a href="#Gaussian-likelihood-ratios-and-the-certified-radius" class="headerlink" title="Gaussian likelihood ratios and the certified radius"></a>Gaussian likelihood ratios and the certified radius</h3><p>Let <span class="math-inline">\(P=N(x,\sigma^2I)\)</span>, <span class="math-inline">\(Q=N(x+\delta,\sigma^2I)\)</span> and <span class="math-inline">\(L(z)=dQ/dP(z)\)</span>. Given fixed <span class="math-inline">\(P\)</span>-mass, a set of low likelihood ratio minimizes <span class="math-inline">\(Q\)</span>-mass. To prove it, choose <span class="math-inline">\(H=\{L\le c\}\)</span> with the desired mass, and compare any set <span class="math-inline">\(E\)</span> of equal mass:</p>
 <div class="math-display">\[Q(E)-Q(H)=\int (\mathbf1_E-\mathbf1_H)(L-c)\,dP\ge0.\]</div>
 <p>Both products on the symmetric difference are nonnegative. Reversing the threshold proves the upper-bound version. For nonzero <span class="math-inline">\(\delta\)</span>, the logarithm of <span class="math-inline">\(L\)</span> is <span class="math-inline">\(\delta^\top(z-x)/\sigma^2-\|\delta\|^2/(2\sigma^2)\)</span>, monotone along <span class="math-inline">\(\delta\)</span>. Consequently the extremal sets are halfspaces in that direction. Projection onto <span class="math-inline">\(\delta/\|\delta\|\)</span> shifts the mean by <span class="math-inline">\(\|\delta\|\)</span> and preserves standard deviation <span class="math-inline">\(\sigma\)</span>. For any class <span class="math-inline">\(A\)</span> event with the stated lower bound, its <span class="math-inline">\(Q\)</span>-mass is at least</p>
 <div class="math-display">\[\Phi(\Phi^{-1}(\underline p_A)-\|\delta\|/\sigma),\]</div>
 <p>and every other class has <span class="math-inline">\(Q\)</span>-mass at most <span class="math-inline">\(\Phi(\Phi^{-1}(\overline p_B)+\|\delta\|/\sigma)\)</span>. Therefore the prediction is unchanged for</p>
 <div class="math-display">\[\|\delta\|&lt;\frac{\sigma}{2}\big(\Phi^{-1}(\underline p_A)-\Phi^{-1}(\overline p_B)\big).\]</div>
-<p>The guarantee applies to the smoothed classifier. If probabilities are estimated by sampling, substitute simultaneous valid confidence bounds into the formula. A larger <span class="math-inline">\(\sigma\)</span> increases the prefactor but may shrink the class-probability gap.</p>
+<p>Comparing the two bounds is equivalent, by strict monotonicity of <span class="math-inline">\(\Phi\)</span>, to the displayed strict radius inequality. When <span class="math-inline">\(P(E_A)&gt;\underline p_A\)</span>, the same threshold comparison has an extra term <span class="math-inline">\(c(P(E_A)-\underline p_A)\ge0\)</span>. For an upper bound on a rival, take the upper tail of <span class="math-inline">\(L\)</span>, reverse the signs, and use <span class="math-inline">\(P(E)\le\overline p_B\)</span>. A class boundary of the base model inside the radius is compatible with the guarantee because the certified output is the maximum of the smoothed probabilities. If estimates come from sampling, use valid confidence bounds. Selecting <span class="math-inline">\(A\)</span> on an independent batch and taking a one-sided exact binomial lower bound on a fresh batch permits the conservative bound <span class="math-inline">\(p_B\le1-p_A\)</span>. A larger <span class="math-inline">\(\sigma\)</span> increases the prefactor but may shrink the class-probability gap.</p>
 <h2 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h2><p>For a binary halfspace base classifier with nonzero normal <span class="math-inline">\(w\)</span> and a point at positive signed geometric distance <span class="math-inline">\(d\)</span>, derive its smoothed probability and show that the certified radius is exact.</p>
 <details>
 <summary>Show solution</summary>
@@ -260,13 +272,53 @@
 <p>Let <span class="math-inline">\(h(z)=\mathbf1\{w^\top z\ge b\}\)</span> and <span class="math-inline">\(w\ne0\)</span>. With isotropic Gaussian noise, the positive class probability at <span class="math-inline">\(x\)</span> is <span class="math-inline">\(p=\Phi((w^\top x-b)/(\sigma\|w\|))\)</span>. The runner-up has probability <span class="math-inline">\(1-p\)</span>, so on the positive side the certificate is <span class="math-inline">\(\sigma\Phi^{-1}(p)=(w^\top x-b)/\|w\|\)</span>. Moving against the unit normal reaches the hyperplane at exactly this distance. The averaged classifier retains the original boundary.</p>
 </details>
 
-<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 12 from the archived slides. <a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v97/cohen19c.html">Cohen, Rosenfeld, and Kolter, Certified Adversarial Robustness via Randomized Smoothing</a>.</p>
+<h2 id="Research-challenge-—-sharpness-of-certification-from-class-probabilities"><a href="#Research-challenge-—-sharpness-of-certification-from-class-probabilities" class="headerlink" title="Research challenge — sharpness of certification from class probabilities"></a>Research challenge — sharpness of certification from class probabilities</h2><p>Take <span class="math-inline">\(0&lt;p_B&lt;p_A&lt;1\)</span> and <span class="math-inline">\(p_A+p_B\le1\)</span>. Suppose there are enough classes to divide the leftover mass <span class="math-inline">\(1-p_A-p_B\)</span> into pieces at most <span class="math-inline">\(p_B\)</span>. Prove Cohen et al.’s Theorem 2 in this setting. If</p>
+<div class="math-display">\[r&gt;\frac{\sigma}{2}(\Phi^{-1}(p_A)-\Phi^{-1}(p_B)),\]</div>
+<p>construct a deterministic base classifier with leading mass <span class="math-inline">\(p_A\)</span> and runner-up mass <span class="math-inline">\(p_B\)</span> at <span class="math-inline">\(x\)</span> whose smoothed class at <span class="math-inline">\(x+ru\)</span> differs from <span class="math-inline">\(A\)</span>, for any unit direction <span class="math-inline">\(u\)</span>. Explain what the inequality says about a particular trained model.</p>
+<details>
+<summary>Show research challenge solution</summary>
+
+<p>Write <span class="math-inline">\(t(z)=u^\top(z-x)/\sigma\)</span>. Assign class <span class="math-inline">\(A\)</span> to the half-space <span class="math-inline">\(t(z)\le a\)</span>, with <span class="math-inline">\(a=\Phi^{-1}(p_A)\)</span>, and class <span class="math-inline">\(B\)</span> to <span class="math-inline">\(t(z)\ge b\)</span>, with <span class="math-inline">\(b=\Phi^{-1}(1-p_B)=-\Phi^{-1}(p_B)\)</span>. Under the noise law at <span class="math-inline">\(x\)</span>, <span class="math-inline">\(t\)</span> is standard normal. Since <span class="math-inline">\(p_A\le1-p_B\)</span>, we have <span class="math-inline">\(a\le b\)</span> and the two half-spaces are disjoint up to a null boundary. Divide <span class="math-inline">\((a,b)\)</span> by normal quantiles into the remaining classes, assigning each a mass at most <span class="math-inline">\(p_B\)</span>. The resulting classifier has the stated histogram and unique leading class <span class="math-inline">\(A\)</span> at <span class="math-inline">\(x\)</span>.</p>
+<p>At <span class="math-inline">\(x+ru\)</span>, <span class="math-inline">\(t\)</span> is normal with mean <span class="math-inline">\(r/\sigma\)</span> and variance one. Class <span class="math-inline">\(A\)</span> has mass <span class="math-inline">\(\Phi(a-r/\sigma)\)</span> and class <span class="math-inline">\(B\)</span> has mass <span class="math-inline">\(\Phi(r/\sigma-b)\)</span>. The second is strictly larger precisely when <span class="math-inline">\(2r/\sigma&gt;a+b\)</span>. The construction attains the likelihood-ratio lower and upper bounds simultaneously. Thus a certificate based only on this histogram cannot reach farther in general. A particular classifier can have a larger actual radius because its class regions may differ from these extremal half-spaces.</p>
+</details>
+
+<p>Challenge source: Cohen, Rosenfeld, and Kolter, Theorem 2 and Appendix A. <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1902.02918v2#page=15">Original paper</a></p>
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><table>
+<thead>
+<tr>
+<th>Derivation</th>
+<th>Lecture 12 slides</th>
+<th>Supplement</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Worst-case risk, projected optimization, exact linear margins, and the envelope identity</td>
+<td>11–21</td>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1706.06083">Madry et al., Sections 2–3</a></td>
+</tr>
+<tr>
+<td>Gradient obfuscation and expected derivatives</td>
+<td>23–28</td>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1802.00420">Athalye et al., Sections 2–4</a></td>
+</tr>
+<tr>
+<td>Greedy filling and the Gaussian certificate</td>
+<td>29–37</td>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v97/cohen19c.html">Cohen et al., Theorem 1 and Appendix A, Lemmas 3–4</a></td>
+</tr>
+<tr>
+<td>Sharpness at fixed class probabilities</td>
+<td>Paper exercise</td>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1902.02918v2#page=15">Cohen et al., Theorem 2 and Appendix A</a></td>
+</tr>
+</tbody></table>
+<p>Yang Yuan, <em>Machine Learning</em>, Lecture 12, slides 4–10 (motivation), 11–21 (robust risk, projected optimization, and Danskin’s theorem), 23–28 (gradient obfuscation), and 29–37 (randomized smoothing and greedy likelihood-ratio filling). <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1706.06083">Madry et al., Sections 2–3</a>, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1802.00420">Athalye et al., Sections 2–4</a>, and <a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v97/cohen19c.html">Cohen, Rosenfeld, and Kolter, Section 3 and Appendix A</a>.</p>
 <p><a href="/notes/ml/11/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/13/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/12/" data-id="cuidVaA6zAun_Bi7Dwohvm488" data-title="ML 12: Robust Learning and Randomized Smoothing" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/12/" data-id="cuidzY0DmnX9WWyawWbEG_xai" data-title="ML 12: Robust Learning and Randomized Smoothing" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -328,6 +380,44 @@
   
 </section>
 
+
+  </div>
+  <aside class="article-reader-side" aria-label="Article navigation" hidden>
+    <div class="article-outline tex2jax_ignore" id="article-outline">
+      <header>
+        <h2>On this page</h2>
+        <button type="button" class="outline-collapse" aria-label="Collapse article navigation" aria-controls="article-outline-content" aria-expanded="true">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+        </button>
+        <button type="button" class="outline-close" aria-label="Close contents">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+
+        </button>
+      </header>
+      <div class="outline-jump" aria-label="Jump within article navigation" role="group" hidden></div>
+      <div class="article-outline-content" id="article-outline-content">
+        <nav aria-label="Section headings">
+          <ol class="outline-headings"></ol>
+        </nav>
+        <section class="outline-media" data-outline-media="figures" hidden>
+          <h3>Figures</h3>
+          <ol></ol>
+        </section>
+        <section class="outline-media" data-outline-media="tables" hidden>
+          <h3>Tables</h3>
+          <ol></ol>
+        </section>
+      </div>
+    </div>
+  </aside>
+  <button type="button" class="outline-trigger" aria-controls="article-outline-dialog" aria-expanded="false" hidden>
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+<span>Contents</span>
+  </button>
+  <dialog class="article-outline-dialog" id="article-outline-dialog" aria-label="Article contents"></dialog>
+</div>
+<script defer src="/js/article-outline.js"></script>
 </div>
           </div>
           <footer id="footer">

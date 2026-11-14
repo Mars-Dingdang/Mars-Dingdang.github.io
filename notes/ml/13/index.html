@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-13/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:13:00.000Z">
-<meta property="article:modified_time" content="2026-11-14T02:30:26.107Z">
+<meta property="article:modified_time" content="2026-11-14T03:10:51.406Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Bayesian Optimization">
 <meta property="article:tag" content="Hyperparameter Optimization">
@@ -57,12 +57,14 @@
           inlineMath: [['$', '$'], ['\\(', '\\)']],
           displayMath: [['$$', '$$'], ['\\[', '\\]']],
           processEscapes: true,
-          processEnvironments: true
+          processEnvironments: true,
+          tags: 'all'
         },
         options: {
           skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
         },
         svg: {
+          displayAlign: 'center',
           fontCache: 'global'
         }
       };
@@ -71,7 +73,7 @@
   
 <meta name="generator" content="Hexo 8.1.2"></head>
 
-<body class="is-inner">
+<body class="is-inner is-post">
   
   <div id="container">
     <div id="wrap">
@@ -190,7 +192,9 @@
         </aside>
         <main class="site-main">
           <div class="outer">
-            <div id="main"><article id="post-ml-13" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+            <div id="main"><div class="article-reader" data-article-reader>
+  <div class="article-reader-body">
+    <article id="post-ml-13" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   
     <nav class="course-breadcrumb" aria-label="Course">
@@ -229,11 +233,15 @@
 
 <p><img src="/images/posts/ml-13/figure.png" alt="Gaussian-process posterior mean, uncertainty band, observations, and next candidate"></p>
 <p><em>The synthetic example picks the unobserved location that maximizes Expected Improvement for a minimization problem.</em></p>
-<h2 id="Training-and-model-selection"><a href="#Training-and-model-selection" class="headerlink" title="Training and model selection"></a>Training and model selection</h2><p>The inner procedure produces weights <span class="math-inline">\(w_T(\lambda)\)</span> for hyperparameters <span class="math-inline">\(\lambda\)</span>. The outer optimization minimizes <span class="math-inline">\(F(\lambda)=L_{\rm val}(w_T(\lambda),\lambda)\)</span>. Fixed training time and full convergence can rank configurations differently. Random seeds make single runs noisy, so comparisons can use common seeds or repeated runs. Keep the final test set separate from the choice of hyperparameters.</p>
+<h2 id="Training-and-model-selection"><a href="#Training-and-model-selection" class="headerlink" title="Training and model selection"></a>Training and model selection</h2><p><em>Lecture 13, slides 4–11 and 33.</em></p>
+<p>The black-box setting allows discrete choices such as layer count and continuous choices such as learning rate. Each query can require a full training run. The lecture’s egg example has the same structure: the quality measurement comes after trying a combination of boiling time, cooling time, and seasoning. Grid search fixes a schedule, random search draws configurations independently, and Bayesian optimization conditions its next query on earlier outcomes. Hypergradients require a differentiable dependence on the hyperparameter. Bandit allocation can exploit cheaper partial evaluations.</p>
+<p>The inner procedure produces weights <span class="math-inline">\(w_T(\lambda)\)</span> for hyperparameters <span class="math-inline">\(\lambda\)</span>. The outer optimization minimizes <span class="math-inline">\(F(\lambda)=L_{\rm val}(w_T(\lambda),\lambda)\)</span>. Fixed training time and full convergence can rank configurations differently. Random seeds make single runs noisy, so comparisons can use common seeds or repeated runs. Keep the final test set separate from the choice of hyperparameters.</p>
 <p>A grid with <span class="math-inline">\(m\)</span> values per dimension uses <span class="math-inline">\(m^d\)</span> evaluations. If one coordinate dominates, it tests just <span class="math-inline">\(m\)</span> distinct values for that coordinate. Sampling <span class="math-inline">\(m^d\)</span> configurations from a continuous distribution generally tests a different value each time along that coordinate. Distributions on positive scales that span orders of magnitude are often defined in log space.</p>
-<h2 id="Gaussian-process-prediction"><a href="#Gaussian-process-prediction" class="headerlink" title="Gaussian-process prediction"></a>Gaussian-process prediction</h2><p>Let <span class="math-inline">\(F\sim\mathcal{GP}(m,k)\)</span> and observe <span class="math-inline">\(y_j=F(\lambda_j)+e_j\)</span>, where independent <span class="math-inline">\(e_j\sim N(0,\sigma_n^2)\)</span>. Define <span class="math-inline">\(K_{ij}=k(\lambda_i,\lambda_j)\)</span>, <span class="math-inline">\(\Sigma=K+\sigma_n^2I\)</span>, and <span class="math-inline">\(k_\star=(k(\lambda_i,\lambda_\star))_i\)</span>. Consider the residual</p>
+<h2 id="Gaussian-process-prediction"><a href="#Gaussian-process-prediction" class="headerlink" title="Gaussian-process prediction"></a>Gaussian-process prediction</h2><p><em>Lecture 13, slides 12 and 14–20. Rasmussen and Williams, Chapter 2.</em></p>
+<p>A Gaussian process is a consistent prior on function values: for any finite list of inputs, the corresponding values form a joint Gaussian vector, with mean given by the mean function and covariance given by the kernel. This finite-vector statement is enough for prediction.</p>
+<p>Let <span class="math-inline">\(F\sim\mathcal{GP}(m,k)\)</span> and observe <span class="math-inline">\(y_j=F(\lambda_j)+e_j\)</span>, where independent <span class="math-inline">\(e_j\sim N(0,\sigma_n^2)\)</span>. Define <span class="math-inline">\(K_{ij}=k(\lambda_i,\lambda_j)\)</span>, <span class="math-inline">\(\Sigma=K+\sigma_n^2I\)</span>, and <span class="math-inline">\(k_\star=(k(\lambda_i,\lambda_\star))_i\)</span>. Consider the residual</p>
 <div class="math-display">\[r=F(\lambda_\star)-m(\lambda_\star)-k_\star^\top\Sigma^{-1}(y-m_\Lambda).\]</div>
-<p>Its covariance with <span class="math-inline">\(y\)</span> is zero. Joint Gaussianity then makes it independent of <span class="math-inline">\(y\)</span>. Its variance is obtained by expanding the squared residual. This proves the conditional mean and variance</p>
+<p>The cross-covariance of <span class="math-inline">\(F(\lambda_\star)\)</span> with <span class="math-inline">\(y\)</span> is <span class="math-inline">\(k_\star^\top\)</span> and <span class="math-inline">\(\operatorname{Cov}(y)=\Sigma\)</span>. Hence <span class="math-inline">\(\operatorname{Cov}(r,y)=k_\star^\top-k_\star^\top\Sigma^{-1}\Sigma=0\)</span>. The jointly Gaussian pair <span class="math-inline">\((r,y)\)</span> has a block-diagonal covariance matrix, so its joint characteristic function factors and <span class="math-inline">\(r\)</span> is independent of <span class="math-inline">\(y\)</span>. The residual variance expansion subtracts <span class="math-inline">\(2k_\star^\top\Sigma^{-1}k_\star\)</span> through the cross term and adds <span class="math-inline">\(k_\star^\top\Sigma^{-1}\Sigma\Sigma^{-1}k_\star\)</span> through the predictor’s variance. This yields</p>
 <div class="math-display">\[\mu_\star=m(\lambda_\star)+k_\star^\top\Sigma^{-1}(y-m_\Lambda),\qquad
 s_\star^2=k(\lambda_\star,\lambda_\star)-k_\star^\top\Sigma^{-1}k_\star.\]</div>
 <p>To predict a future noisy observation, add <span class="math-inline">\(\sigma_n^2\)</span> to the latent variance.</p>
@@ -241,12 +249,29 @@ s_\star^2=k(\lambda_\star,\lambda_\star)-k_\star^\top\Sigma^{-1}k_\star.\]</div>
 <div class="math-display">\[\mathrm{EI}=\int_{-\infty}^z(b-\mu-su)\phi(u)\,du
 =(b-\mu)\Phi(z)+s\phi(z),\]</div>
 <p>because <span class="math-inline">\(\phi'(u)=-u\phi(u)\)</span>. When <span class="math-inline">\(s=0\)</span>, the limit is <span class="math-inline">\((b-\mu)_+\)</span>. Low mean and high uncertainty can both make a point worth evaluating. Noisy evaluations may favor basing <span class="math-inline">\(b\)</span> on predicted latent values.</p>
-<h2 id="Differentiating-through-the-training-trajectory"><a href="#Differentiating-through-the-training-trajectory" class="headerlink" title="Differentiating through the training trajectory"></a>Differentiating through the training trajectory</h2><p>For learning rate <span class="math-inline">\(\eta\)</span> and <span class="math-inline">\(w_{t+1}=w_t-\eta\nabla L_{\rm train}(w_t)\)</span>, assume <span class="math-inline">\(w_0\)</span> is independent of <span class="math-inline">\(\eta\)</span>. Differentiating both the multiplication by <span class="math-inline">\(\eta\)</span> and the gradient’s input gives</p>
+<p>The successive plots on slides 14–20 show this closed loop: evaluate the maximizer of the current acquisition function, insert the observation into the GP, then recompute the mean, uncertainty, and acquisition. Low posterior variance near evaluated points makes large improvement there less likely. Sequential conditioning is the reason the simplest version needs a different acquisition rule for parallel batches.</p>
+<h2 id="Differentiating-through-the-training-trajectory"><a href="#Differentiating-through-the-training-trajectory" class="headerlink" title="Differentiating through the training trajectory"></a>Differentiating through the training trajectory</h2><p><em>Lecture 13, slides 21–31. Maclaurin, Duvenaud, and Adams, Sections 2.1–2.3.</em></p>
+<p>For learning rate <span class="math-inline">\(\eta\)</span> and <span class="math-inline">\(w_{t+1}=w_t-\eta\nabla L_{\rm train}(w_t)\)</span>, assume <span class="math-inline">\(w_0\)</span> is independent of <span class="math-inline">\(\eta\)</span>. Differentiating both the multiplication by <span class="math-inline">\(\eta\)</span> and the gradient’s input gives</p>
 <div class="math-display">\[u_{t+1}=(I-\eta H_t)u_t-\nabla L_{\rm train}(w_t),\qquad
 u_t=\partial_\eta w_t,\quad H_t=\nabla^2 L_{\rm train}(w_t),\quad u_0=0.\]</div>
-<p>The outer derivative is <span class="math-inline">\(\nabla_wL_{\rm val}(w_T,\eta)^\top u_T+\partial_\eta L_{\rm val}(w_T,\eta)\)</span>. A momentum state can be included in the update map and differentiated as another part of the state. With many hyperparameters, reverse-mode differentiation propagates adjoints through the transposed update Jacobians, requiring intermediate states or recomputation. Hessian-vector products suffice.</p>
-<h2 id="Successive-halving-and-Hyperband"><a href="#Successive-halving-and-Hyperband" class="headerlink" title="Successive halving and Hyperband"></a>Successive halving and Hyperband</h2><p>Start <span class="math-inline">\(n\)</span> candidates with <span class="math-inline">\(r\)</span> units of resource. Rank their scores, retain roughly a fraction <span class="math-inline">\(1/\eta_{\mathrm{sh}}\)</span>, and multiply the resource per survivor by <span class="math-inline">\(\eta_{\mathrm{sh}}\)</span>. With 16 candidates, resource 1, and elimination factor 2, the round totals from scratch are <span class="math-inline">\(16,16,16,16,16\)</span> epochs. Continuing from checkpoints makes the increments <span class="math-inline">\(16,8,8,8,8\)</span>, totaling 48 epochs. The saving assumes earlier training can be reused. Learning curves that cross can eliminate a slow-starting eventual winner. Hyperband distributes its budget among brackets with different initial candidate counts and starting budgets.</p>
-<p>In a stationary best-arm model, each configuration <span class="math-inline">\(i\)</span> has reward mean <span class="math-inline">\(\mu_i\)</span>. If every arm is sampled <span class="math-inline">\(m\)</span> times with independent rewards in <span class="math-inline">\([0,1]\)</span> and the unique best mean exceeds the others by at least <span class="math-inline">\(\Delta\)</span>, Hoeffding bounds the chance of any empirical mean deviating by at least <span class="math-inline">\(\Delta/2\)</span> by <span class="math-inline">\(2n e^{-m\Delta^2/2}\)</span>. On the complementary event the empirical best is the genuine best. Early-training scores generally evolve with the allocation, so this stationary guarantee does not transfer automatically.</p>
+<p>The outer derivative is <span class="math-inline">\(\nabla_wL_{\rm val}(w_T,\eta)^\top u_T+\partial_\eta L_{\rm val}(w_T,\eta)\)</span>. For the slides’ two-step least-squares example <span class="math-inline">\(L(w)=\|Xw-y\|^2/2\)</span>, let <span class="math-inline">\(g_t=X^\top(Xw_t-y)\)</span> and <span class="math-inline">\(H=X^\top X\)</span>. Then <span class="math-inline">\(u_1=-g_0\)</span>, so <span class="math-inline">\(u_2=-g_0-g_1+\eta Hg_0\)</span>. If the outer objective is <span class="math-inline">\(L(w_2)\)</span> as in the example, the two-step hypergradient is <span class="math-inline">\(g_2^\top(-g_0-g_1+\eta Hg_0)\)</span>.</p>
+<h3 id="Reconstructing-momentum-SGD-and-reversing-its-derivatives"><a href="#Reconstructing-momentum-SGD-and-reversing-its-derivatives" class="headerlink" title="Reconstructing momentum SGD and reversing its derivatives"></a>Reconstructing momentum SGD and reversing its derivatives</h3><p>Use the fresh velocity in the position update. This convention is consistent with reversing the position before recomputing its gradient. Write <span class="math-inline">\(g_t=\nabla_w L_t(w_t,\theta)\)</span>, where <span class="math-inline">\(t\)</span> also fixes the batch and other training inputs. The forward map is</p>
+<div class="math-display">\[v_{t+1}=\gamma_t v_t-(1-\gamma_t)g_t,\qquad w_{t+1}=w_t+\alpha_t v_{t+1}.\]</div>
+<p>The update for <span class="math-inline">\(v_{t+1}\)</span> contains an exponentially weighted history of gradients. To recover the previous state in exact arithmetic, compute <span class="math-inline">\(w_t=w_{t+1}-\alpha_t v_{t+1}\)</span>, recompute <span class="math-inline">\(g_t\)</span> at <span class="math-inline">\(w_t\)</span>, and recover <span class="math-inline">\(v_t=(v_{t+1}+(1-\gamma_t)g_t)/\gamma_t\)</span> for <span class="math-inline">\(\gamma_t\ne0\)</span>.</p>
+<p>Let <span class="math-inline">\(a=\partial F/\partial w_{t+1}\)</span> and <span class="math-inline">\(b=\partial F/\partial v_{t+1}\)</span> be column adjoints arriving from future steps. The position update contributes <span class="math-inline">\(a^\top v_{t+1}\)</span> to the derivative with respect to <span class="math-inline">\(\alpha_t\)</span>, contributes <span class="math-inline">\(a\)</span> directly to the adjoint for <span class="math-inline">\(w_t\)</span>, and changes the velocity adjoint to <span class="math-inline">\(\widetilde b=b+\alpha_t a\)</span>. Differentiating the first equation gives the remaining updates:</p>
+<div class="math-display">\[\begin{aligned}
+\partial_{\gamma_t}F&amp;\mathrel{+}=\widetilde b^\top(v_t+g_t),\\
+\partial_\theta F&amp;\mathrel{+}=-(1-\gamma_t)(D_\theta g_t)^\top\widetilde b,\\
+a_t&amp;=a-(1-\gamma_t)(D_w g_t)^\top\widetilde b,\qquad b_t=\gamma_t\widetilde b.
+\end{aligned}\]</div>
+<p>Initialize with <span class="math-inline">\(a_T=\nabla_w F(w_T)\)</span> and <span class="math-inline">\(b_T=0\)</span> if <span class="math-inline">\(F\)</span> is independent of the final velocity. For shared hyperparameters, sum their contributions over steps. In particular, <span class="math-inline">\((D_w g_t)^\top\widetilde b\)</span> is a Hessian-vector product obtained by differentiating <span class="math-inline">\(g_t^\top\widetilde b\)</span> at fixed <span class="math-inline">\(\widetilde b\)</span>. A full Hessian is unnecessary.</p>
+<h3 id="Reversible-fixed-point-momentum-decay"><a href="#Reversible-fixed-point-momentum-decay" class="headerlink" title="Reversible fixed-point momentum decay"></a>Reversible fixed-point momentum decay</h3><p>Floating-point rounding breaks the exact inverse. Even when only a velocity rounding error is considered, a reverse decay multiplies it by <span class="math-inline">\(1/\gamma_t\)</span>. Repeating this for constant <span class="math-inline">\(0&lt;\gamma&lt;1\)</span> can magnify an existing error by <span class="math-inline">\(\gamma^{-T}\)</span>.</p>
+<p>In the paper’s fixed-point scheme, let <span class="math-inline">\(c\)</span> be an integer encoding a velocity coordinate, <span class="math-inline">\(B\ge0\)</span> an information buffer, and <span class="math-inline">\(\gamma=n/d\)</span> with positive integers <span class="math-inline">\(n&lt;d\)</span>. Euclidean division writes <span class="math-inline">\(c=dq+r\)</span> with <span class="math-inline">\(0\le r&lt;d\)</span>. Put <span class="math-inline">\(S=dB+r\)</span>, and divide it as <span class="math-inline">\(S=nB'+a\)</span> with <span class="math-inline">\(0\le a&lt;n\)</span>. The new pair is <span class="math-inline">\((c',B')=(nq+a,B')\)</span>. Inverting, first divide <span class="math-inline">\(c'\)</span> by <span class="math-inline">\(n\)</span> to recover <span class="math-inline">\(q,a\)</span>. Then recover <span class="math-inline">\(S=nB'+a\)</span>, divide by <span class="math-inline">\(d\)</span> to get <span class="math-inline">\(B,r\)</span>, and set <span class="math-inline">\(c=dq+r\)</span>. The final digit <span class="math-inline">\(a\)</span> uses the space left by multiplying <span class="math-inline">\(q\)</span> by <span class="math-inline">\(n\)</span>. It frees up roughly <span class="math-inline">\(\log_2 n\)</span> bits per step compared with storing the remainder without this transfer.</p>
+<p>For constant <span class="math-inline">\(n/d\)</span>, <span class="math-inline">\(B'\le(d/n)B+(d-1)/n\)</span>. Iterating that inequality gives <span class="math-inline">\(B_T=O((d/n)^T)\)</span>, so the buffer needs at most <span class="math-inline">\(T\log_2(d/n)+O(1)\)</span> bits for an integer coordinate, up to the fixed initial&#x2F;setup cost. At <span class="math-inline">\(\gamma=0.98\)</span>, <span class="math-inline">\(\log_2(1/\gamma)\approx0.0291\)</span>, compared with 32 bits for a full per-step snapshot of one coordinate. Practical overhead also depends on integer representation, overflow management, and whether the same gradient and batch can be reconstructed. The bit logic reverses the chosen discrete arithmetic. The adjoint equations describe the underlying real-valued training updates.</p>
+<h2 id="Successive-halving-and-Hyperband"><a href="#Successive-halving-and-Hyperband" class="headerlink" title="Successive halving and Hyperband"></a>Successive halving and Hyperband</h2><p><em>Lecture 13, slides 34–41. Jamieson and Talwalkar, Algorithm 1, and Li et al., Section 2.</em></p>
+<p>The fixed-budget stationary version in the slides begins with <span class="math-inline">\(S_0=[n]\)</span>, spends approximately <span class="math-inline">\(B/\log_2 n\)</span> pulls each round, and divides those pulls equally among active arms. It then retains the half with largest empirical reward. For eight arms, slides 36–41 show the first round retaining A3, A5, A6, and A7, the second retaining A5 and A7, and the third selecting A7. The shown fourth value is a check of the final arm, since the elimination algorithm terminates when one arm remains. Allocation in training uses resource levels rather than repeated draws from a fixed reward distribution.</p>
+<p>Start <span class="math-inline">\(n\)</span> candidates with <span class="math-inline">\(r\)</span> units of resource. Rank their scores, retain roughly a fraction <span class="math-inline">\(1/\eta_{\mathrm{sh}}\)</span>, and multiply the resource per survivor by <span class="math-inline">\(\eta_{\mathrm{sh}}\)</span>. With 16 candidates, resource 1, and elimination factor 2, the round totals from scratch are <span class="math-inline">\(16,16,16,16,16\)</span> epochs. Continuing from checkpoints makes the increments <span class="math-inline">\(16,8,8,8,8\)</span>, totaling 48 epochs. The saving assumes earlier training can be reused. Learning curves that cross can eliminate a slow-starting eventual winner. Hyperband distributes its budget among brackets with different initial candidate counts and starting budgets.</p>
+<p>In a stationary best-arm model, each configuration <span class="math-inline">\(i\)</span> has reward mean <span class="math-inline">\(\mu_i\)</span>. If every arm is sampled <span class="math-inline">\(m\)</span> times with independent rewards in <span class="math-inline">\([0,1]\)</span> and the unique best mean exceeds the others by at least <span class="math-inline">\(\Delta\)</span>, Hoeffding bounds the chance of any empirical mean deviating by at least <span class="math-inline">\(\Delta/2\)</span> by <span class="math-inline">\(2n e^{-m\Delta^2/2}\)</span>. On the complementary event the empirical best is the genuine best. The same argument yields a conservative guarantee for the slide’s fixed-budget elimination scheme with fresh independent samples. At round <span class="math-inline">\(r\)</span>, condition on the entire prior history and on the unique best arm surviving. With <span class="math-inline">\(m_r\)</span> new samples per remaining arm and gap at least <span class="math-inline">\(\Delta\)</span>, the probability of any current estimate deviating by at least <span class="math-inline">\(\Delta/2\)</span> is at most <span class="math-inline">\(2|S_r|e^{-m_r\Delta^2/2}\)</span> by a union bound. Otherwise the true best has a strictly higher estimate than every other arm and survives. Sum this bound over the possible round of its first elimination. This bound does not require independence across survival events, only fresh samples within the round. Early-training scores generally evolve with allocation, so a stationary gap guarantee does not transfer automatically.</p>
 <h2 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h2><p>Let the inner objective be <span class="math-inline">\(L_{\rm train}(w,\lambda)=\tfrac12(w-a)^2+\tfrac{\lambda}{2}w^2\)</span> and the outer objective <span class="math-inline">\(\tfrac12(w^\star(\lambda)-b)^2\)</span>, with <span class="math-inline">\(a&gt;b&gt;0\)</span> and <span class="math-inline">\(\lambda\ge0\)</span>. Derive the exact minimizing regularization and verify the derivative by implicit differentiation.</p>
 <details>
 <summary>Show solution</summary>
@@ -261,13 +286,64 @@ u_t=\partial_\eta w_t,\quad H_t=\nabla^2 L_{\rm train}(w_t),\quad u_0=0.\]</div>
 <p>Write <span class="math-inline">\(a\)</span> for the incumbent minus the mean in minimization, <span class="math-inline">\(z=a/s\)</span>, and <span class="math-inline">\(\mathrm{EI}(s)=a\Phi(z)+s\phi(z)\)</span>. Differentiate for <span class="math-inline">\(s&gt;0\)</span>. The derivatives through <span class="math-inline">\(z\)</span> cancel because <span class="math-inline">\(\phi'(z)=-z\phi(z)\)</span> and <span class="math-inline">\(a=sz\)</span>. Hence <span class="math-inline">\(\mathrm{EI}'(s)=\phi(z)&gt;0\)</span>. Continuity at <span class="math-inline">\(s=0\)</span> gives <span class="math-inline">\(\max(a,0)\)</span>, so uncertainty increases this acquisition value even at fixed predicted mean.</p>
 </details>
 
-<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 13 from the archived slides. <a target="_blank" rel="noopener" href="https://gaussianprocess.org/gpml/chapters/">Rasmussen and Williams, Gaussian Processes for Machine Learning</a>. <a target="_blank" rel="noopener" href="https://www.jmlr.org/papers/v18/16-558.html">Li et al., Hyperband</a>.</p>
+<h2 id="Research-challenge-—-GP-UCB-regret-from-information-gain"><a href="#Research-challenge-—-GP-UCB-regret-from-information-gain" class="headerlink" title="Research challenge — GP-UCB regret from information gain"></a>Research challenge — GP-UCB regret from information gain</h2><p>Let <span class="math-inline">\(D\)</span> be a finite domain of <span class="math-inline">\(N\)</span> configurations, and maximize <span class="math-inline">\(f\)</span> drawn from a known GP with <span class="math-inline">\(k(x,x)\le1\)</span>. At step <span class="math-inline">\(t\)</span> observe <span class="math-inline">\(y_t=f(x_t)+\epsilon_t\)</span>, with independent <span class="math-inline">\(\epsilon_t\sim N(0,\sigma^2)\)</span>, <span class="math-inline">\(\sigma^2&gt;0\)</span>. Let <span class="math-inline">\(x_t\)</span> maximize <span class="math-inline">\(\mu_{t-1}(x)+\sqrt{\beta_t}s_{t-1}(x)\)</span>, with <span class="math-inline">\(\beta_t=2\log(N\pi^2t^2/(3\delta))\)</span> for <span class="math-inline">\(0&lt;\delta&lt;1\)</span>. Define</p>
+<div class="math-display">\[\gamma_T=\max_{x_{1:T}\in D^T}\tfrac12\log\det(I+\sigma^{-2}K_T).\]</div>
+<p>Here <span class="math-inline">\(K_T\)</span> is the covariance matrix at a list of <span class="math-inline">\(T\)</span> points and repeats are allowed. Prove that with probability at least <span class="math-inline">\(1-\delta\)</span>, the cumulative regret satisfies</p>
+<div class="math-display">\[\sum_{t=1}^T[f(x^\star)-f(x_t)]
+\le\sqrt{\frac{8T\beta_T\gamma_T}{\log(1+\sigma^{-2})}}\]</div>
+<p>simultaneously for every <span class="math-inline">\(T\ge1\)</span>.</p>
+<details>
+<summary>Show research challenge solution</summary>
+
+<p>Conditional on the history, the residual at each fixed <span class="math-inline">\(x\)</span> has standard deviation <span class="math-inline">\(s_{t-1}(x)\)</span>. When this is positive, a Gaussian tail bounds violation of the interval <span class="math-inline">\(\mu_{t-1}(x)\pm\sqrt{\beta_t}s_{t-1}(x)\)</span> by <span class="math-inline">\(2e^{-\beta_t/2}\)</span>. At zero variance the interval is exact. This conditional bound also holds unconditionally. A union bound over <span class="math-inline">\(D\)</span> and all <span class="math-inline">\(t\)</span> sums to <span class="math-inline">\(\sum_t 6\delta/(\pi^2t^2)=\delta\)</span>. On the common event, optimism gives <span class="math-inline">\(f(x^\star)\le\mu_{t-1}(x_t)+\sqrt{\beta_t}s_{t-1}(x_t)\)</span> and <span class="math-inline">\(f(x_t)\ge\mu_{t-1}(x_t)-\sqrt{\beta_t}s_{t-1}(x_t)\)</span>. The instantaneous regret is at most <span class="math-inline">\(2\sqrt{\beta_t}s_{t-1}(x_t)\)</span>.</p>
+<p>Fix any realized list of query locations when forming its covariance matrix. Successive Schur complements of the noisy covariance <span class="math-inline">\(K_T+\sigma^2 I\)</span> give</p>
+<div class="math-display">\[\log\det(I+\sigma^{-2}K_T)
+=\sum_{t=1}^T\log(1+\sigma^{-2}s_{t-1}^2(x_t)).\]</div>
+<p>This is a deterministic matrix identity at each list, even though the list came from a random adaptive procedure. For a fixed list, half the determinant logarithm is also the mutual information between its latent values and observations, by subtracting the entropy of the independent noise from the entropy of the observations. Since <span class="math-inline">\(s_{t-1}^2(x_t)\in[0,1]\)</span>, concavity of <span class="math-inline">\(q\mapsto\log(1+\sigma^{-2}q)\)</span> places it above the chord <span class="math-inline">\(q\log(1+\sigma^{-2})\)</span>. Thus the sum of posterior variances is at most <span class="math-inline">\(2\gamma_T/\log(1+\sigma^{-2})\)</span>. Cauchy–Schwarz now bounds the squared cumulative regret by <span class="math-inline">\(4T\beta_T\sum_t s_{t-1}^2(x_t)\)</span>, proving the claim. Minimization follows by using a lower confidence bound or applying this result to <span class="math-inline">\(-f\)</span>.</p>
+</details>
+
+<p>Challenge source: Srinivas, Krause, Kakade, and Seeger, <em>Gaussian Process Optimization in the Bandit Setting</em>, Theorem 1 and Lemmas 5.1–5.4. <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/0912.3995">Original paper</a></p>
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><table>
+<thead>
+<tr>
+<th>Derivation</th>
+<th>Lecture 13 slides</th>
+<th>Supplement</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Gaussian conditioning and Expected Improvement</td>
+<td>11–12, 14–20</td>
+<td><a target="_blank" rel="noopener" href="https://gaussianprocess.org/gpml/chapters/">Rasmussen and Williams, Chapter 2</a>, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1206.2944">Snoek et al., Section 2</a></td>
+</tr>
+<tr>
+<td>Two-step learning-rate derivative and reverse-mode momentum</td>
+<td>21–29</td>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v37/maclaurin15.html">Maclaurin et al., Algorithms 1–2</a></td>
+</tr>
+<tr>
+<td>Fixed-point inversion, remainder buffer, and storage bound</td>
+<td>30–31</td>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v37/maclaurin15.html">Maclaurin et al., Section 2.3, Algorithm 3</a></td>
+</tr>
+<tr>
+<td>Best-arm confidence, Successive Halving, and Hyperband</td>
+<td>33–41</td>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v51/jamieson16.html">Jamieson and Talwalkar, Algorithm 1</a>, <a target="_blank" rel="noopener" href="https://www.jmlr.org/papers/v18/16-558.html">Li et al., Section 2</a></td>
+</tr>
+<tr>
+<td>GP-UCB information gain and regret</td>
+<td>Paper exercise</td>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/0912.3995">Srinivas et al., Theorem 1 and Lemmas 5.1–5.4</a></td>
+</tr>
+</tbody></table>
+<p>Yang Yuan, <em>Machine Learning</em>, Lecture 13, slides 4–12 (search and GP regression), 14–20 (sequential Expected Improvement), 21–31 (hypergradients, momentum, and exact reversal), and 33–41 (random search and Successive Halving). <a target="_blank" rel="noopener" href="https://gaussianprocess.org/gpml/chapters/">Rasmussen and Williams, Chapter 2</a>, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1206.2944">Snoek et al., Section 2</a>, <a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v37/maclaurin15.html">Maclaurin et al., Algorithms 1–3</a>, <a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v51/jamieson16.html">Jamieson and Talwalkar, Algorithm 1</a>, and <a target="_blank" rel="noopener" href="https://www.jmlr.org/papers/v18/16-558.html">Li et al., Section 2</a>.</p>
 <p><a href="/notes/ml/12/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/14/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/13/" data-id="cuidJpy6LpCWAN5oQGnCaScWo" data-title="ML 13: Hyperparameter Optimization and Resource Allocation" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/13/" data-id="cuidXiUbFdnyHW2zj0uQXbWbv" data-title="ML 13: Hyperparameter Optimization and Resource Allocation" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -329,6 +405,44 @@ u_t=\partial_\eta w_t,\quad H_t=\nabla^2 L_{\rm train}(w_t),\quad u_0=0.\]</div>
   
 </section>
 
+
+  </div>
+  <aside class="article-reader-side" aria-label="Article navigation" hidden>
+    <div class="article-outline tex2jax_ignore" id="article-outline">
+      <header>
+        <h2>On this page</h2>
+        <button type="button" class="outline-collapse" aria-label="Collapse article navigation" aria-controls="article-outline-content" aria-expanded="true">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+        </button>
+        <button type="button" class="outline-close" aria-label="Close contents">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+
+        </button>
+      </header>
+      <div class="outline-jump" aria-label="Jump within article navigation" role="group" hidden></div>
+      <div class="article-outline-content" id="article-outline-content">
+        <nav aria-label="Section headings">
+          <ol class="outline-headings"></ol>
+        </nav>
+        <section class="outline-media" data-outline-media="figures" hidden>
+          <h3>Figures</h3>
+          <ol></ol>
+        </section>
+        <section class="outline-media" data-outline-media="tables" hidden>
+          <h3>Tables</h3>
+          <ol></ol>
+        </section>
+      </div>
+    </div>
+  </aside>
+  <button type="button" class="outline-trigger" aria-controls="article-outline-dialog" aria-expanded="false" hidden>
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+<span>Contents</span>
+  </button>
+  <dialog class="article-outline-dialog" id="article-outline-dialog" aria-label="Article contents"></dialog>
+</div>
+<script defer src="/js/article-outline.js"></script>
 </div>
           </div>
           <footer id="footer">

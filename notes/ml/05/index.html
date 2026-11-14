@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-05/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:05:00.000Z">
-<meta property="article:modified_time" content="2026-11-14T02:31:24.327Z">
+<meta property="article:modified_time" content="2026-11-14T03:13:01.552Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Generalization">
 <meta property="article:tag" content="Learning Theory">
@@ -57,12 +57,14 @@
           inlineMath: [['$', '$'], ['\\(', '\\)']],
           displayMath: [['$$', '$$'], ['\\[', '\\]']],
           processEscapes: true,
-          processEnvironments: true
+          processEnvironments: true,
+          tags: 'all'
         },
         options: {
           skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
         },
         svg: {
+          displayAlign: 'center',
           fontCache: 'global'
         }
       };
@@ -71,7 +73,7 @@
   
 <meta name="generator" content="Hexo 8.1.2"></head>
 
-<body class="is-inner">
+<body class="is-inner is-post">
   
   <div id="container">
     <div id="wrap">
@@ -190,7 +192,9 @@
         </aside>
         <main class="site-main">
           <div class="outer">
-            <div id="main"><article id="post-ml-05" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+            <div id="main"><div class="article-reader" data-article-reader>
+  <div class="article-reader-body">
+    <article id="post-ml-05" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   
     <nav class="course-breadcrumb" aria-label="Course">
@@ -246,7 +250,28 @@
 <p>To see why this controls uniform convergence, add an independent ghost sample of size <span class="math-inline">\(n\)</span>. For <span class="math-inline">\(n\varepsilon^2\ge 2\)</span>, a hypothesis whose true and empirical risk differ by more than <span class="math-inline">\(\varepsilon\)</span> has at least a constant probability that its ghost error is within <span class="math-inline">\(\varepsilon/2\)</span> of the truth, by Chebyshev’s inequality for Bernoulli averages. The resulting two-sample event has a discrepancy above <span class="math-inline">\(\varepsilon/2\)</span>. Swap the two members of each independent sample pair with a fair coin. Conditional on the pooled data, the discrepancy for any fixed trace is an average of independent signed terms bounded in magnitude by 1. Hoeffding and a union bound over at most <span class="math-inline">\(\Pi_{\mathcal H}(2n)\)</span> pooled prediction traces give</p>
 <div class="math-display">\[P\!\left(\sup_h|\widehat R(h)-R(h)|&gt;\varepsilon\right)
 \le 4\Pi_{\mathcal H}(2n)e^{-n\varepsilon^2/8}\]</div>
-<p>under the usual measurability assumptions. This gives an order <span class="math-inline">\(\sqrt{(d\log(en/d)+\log(1/\delta))/n}\)</span> bound for the empirical-population gap. The quantitative fundamental theorem stated in the course gives agnostic sample complexity <span class="math-inline">\(\Theta((d+\log(1/\delta))/\varepsilon^2)\)</span> and the textbook realizable bounds <span class="math-inline">\(\Omega((d+\log(1/\delta))/\varepsilon)\)</span> and <span class="math-inline">\(O((d\log(1/\varepsilon)+\log(1/\delta))/\varepsilon)\)</span> in their usual nontrivial parameter range. The sharper agnostic bound uses more than the one-scale union bound above. Together with the shattered-set lower bound, finite VC dimension characterizes distribution-free PAC learnability for binary classes under the standard regularity conditions.</p>
+<p>under the usual measurability assumptions. This gives an order <span class="math-inline">\(\sqrt{(d\log(en/d)+\log(1/\delta))/n}\)</span> bound for the empirical-population gap. The quantitative theorem uses more structure. In the typical parameter range <span class="math-inline">\(0&lt;\varepsilon\le1/16\)</span>, <span class="math-inline">\(0&lt;\delta\le1/8\)</span>, agnostic sample complexity is <span class="math-inline">\(\Theta((d+\log(1/\delta))/\varepsilon^2)\)</span> for <span class="math-inline">\(d\ge1\)</span>. The course’s realizable bounds are <span class="math-inline">\(\Omega((d+\log(1/\delta))/\varepsilon)\)</span> and <span class="math-inline">\(O((d\log(1/\varepsilon)+\log(1/\delta))/\varepsilon)\)</span> for <span class="math-inline">\(d\ge2\)</span>. The additional dimension restriction in the realizable lower-bound proof below supplies a second point where two concepts agree. The upper bound applies to consistent ERM. More elaborate learners remove the realizable logarithm. <a target="_blank" rel="noopener" href="https://www.jmlr.org/papers/v17/15-389.html">Hanneke, <em>The Optimal Sample Complexity of PAC Learning</em>, Theorem 2</a>.</p>
+<h2 id="Why-the-realizable-sample-size-scales-as-the-inverse-of-the-error"><a href="#Why-the-realizable-sample-size-scales-as-the-inverse-of-the-error" class="headerlink" title="Why the realizable sample size scales as the inverse of the error"></a>Why the realizable sample size scales as the inverse of the error</h2><p>Fix a target <span class="math-inline">\(h^\star\)</span> and form the family of disagreement sets <span class="math-inline">\(\mathcal A=\{\{x:h(x)\ne h^\star(x)\}:h\in\mathcal H\}\)</span>. On any finite set, forming a disagreement pattern flips exactly the coordinates on which <span class="math-inline">\(h^\star\)</span> is positive. This is a bijection of traces, preserving VC dimension. A consistent learner fails if some set of probability greater than <span class="math-inline">\(\varepsilon\)</span> receives no sample point. Such a failure is absent when the sample is an <span class="math-inline">\(\varepsilon\)</span>-net for <span class="math-inline">\(\mathcal A\)</span>.</p>
+<p>For a second independent sample of size <span class="math-inline">\(n\)</span>, a fixed set of mass <span class="math-inline">\(p&gt;\varepsilon\)</span> receives at least <span class="math-inline">\(\varepsilon n/2\)</span> ghost points with probability at least <span class="math-inline">\(1/2\)</span> for <span class="math-inline">\(n\varepsilon\)</span> larger than an absolute constant, by the multiplicative Chernoff lower tail. Conditional on the first sample and a witnessed bad set, the ghost sample is still independent, so the original failure probability is at most twice the probability of a set avoided by the first sample and hit at least <span class="math-inline">\(\varepsilon n/2\)</span> times by the ghost sample. Pool the <span class="math-inline">\(2n\)</span> points and make a uniform split into two groups of size <span class="math-inline">\(n\)</span>. For a fixed trace with <span class="math-inline">\(k\)</span> hits on the pool, the probability all hits enter the ghost half is zero if <span class="math-inline">\(k&gt;n\)</span> and otherwise is <span class="math-inline">\((n)_k/(2n)_k\le2^{-k}\)</span>, where <span class="math-inline">\((n)_k=n(n-1)\cdots(n-k+1)\)</span>. The contributing traces have <span class="math-inline">\(k\ge\varepsilon n/2\)</span>, so</p>
+<div class="math-display">\[P(\text{a consistent }h\text{ has risk }&gt;\varepsilon)
+\le2\Pi_{\mathcal H}(2n)2^{-\varepsilon n/2}.\]</div>
+<p>Taking logarithms and applying Sauer–Shelah shows that <span class="math-inline">\(n\ge C(d\log(1/\varepsilon)+\log(1/\delta))/\varepsilon\)</span> suffices for an absolute <span class="math-inline">\(C\)</span>. To check this substitution, set <span class="math-inline">\(u=\log(1/\varepsilon)\)</span> and <span class="math-inline">\(v=\log(2/\delta)/d\)</span>. At <span class="math-inline">\(n=Cd(u+v)/\varepsilon\)</span>, the positive exponent per dimension is at most <span class="math-inline">\(u+\log(2eC)+\log(u+v)+v\)</span>, while the negative exponent per dimension is <span class="math-inline">\(C(u+v)\log2/2\)</span>. For large enough <span class="math-inline">\(C\)</span>, the latter dominates.</p>
+<p>For a dimension lower bound, choose a shattered set of <span class="math-inline">\(d\ge2\)</span> points, putting mass <span class="math-inline">\(p=8\varepsilon\)</span> uniformly on <span class="math-inline">\(d-1\)</span> rare points and the remaining mass on an anchor with a fixed label. Independently randomize the target labels on the rare points. If <span class="math-inline">\(n\le(d-1)/(2p)\)</span>, the expected number of unseen rare points is at least <span class="math-inline">\((d-1)/2\)</span> because <span class="math-inline">\((1-p/(d-1))^n\ge1-np/(d-1)\)</span>. Every unseen target bit is a fair coin conditional on the data, so the expected risk on just the rare points is at least <span class="math-inline">\(p/4\)</span>. This risk stays in <span class="math-inline">\([0,p]\)</span>, giving probability at least <span class="math-inline">\((p/4-\varepsilon)/(p-\varepsilon)=1/7\)</span> that it exceeds <span class="math-inline">\(\varepsilon\)</span>. Averaging guarantees such a deterministic target, so <span class="math-inline">\(n=\Omega(d/\varepsilon)\)</span> is necessary at constant confidence.</p>
+<p>For confidence, instead put mass <span class="math-inline">\(2\varepsilon\)</span> on one rare point and the rest on the anchor. Take two targets differing only on the rare point. When no rare point is observed, the data have identical distributions, and the average conditional probability of predicting its label incorrectly is <span class="math-inline">\(1/2\)</span>. Therefore some target gives error exceeding <span class="math-inline">\(\varepsilon\)</span> with probability at least <span class="math-inline">\(\tfrac12(1-2\varepsilon)^n\)</span>. Since <span class="math-inline">\(-\log(1-2\varepsilon)\le4\varepsilon\)</span> for <span class="math-inline">\(\varepsilon\le1/4\)</span>, this forces <span class="math-inline">\(n=\Omega(\log(1/\delta)/\varepsilon)\)</span>. The maximum of the two lower bounds is within a factor two of their sum.</p>
+<h2 id="Why-the-agnostic-dimension-term-needs-no-logarithm"><a href="#Why-the-agnostic-dimension-term-needs-no-logarithm" class="headerlink" title="Why the agnostic dimension term needs no logarithm"></a>Why the agnostic dimension term needs no logarithm</h2><p>The single union bound used above pays for all traces even when two traces differ on very few points. A sequence of increasingly fine covers controls these differences at their own scales. For a fixed sample, put the normalized Euclidean metric <span class="math-inline">\(\|a\|_n^2=n^{-1}\sum_i a_i^2\)</span> on its finite set of binary loss vectors.</p>
+<p>A set of <span class="math-inline">\(M\ge2\)</span> loss vectors separated by distance more than <span class="math-inline">\(r\)</span> has normalized Hamming distance more than <span class="math-inline">\(r^2\)</span> between each pair. Pick <span class="math-inline">\(s=\lceil 3\log M/r^2\rceil\)</span> sample coordinates independently and uniformly with replacement. Any pair agrees on every chosen coordinate with probability at most <span class="math-inline">\(e^{-sr^2}\)</span>. The union bound over pairs is less than one, so some coordinate sample distinguishes all <span class="math-inline">\(M\)</span>. Add more coordinates if needed to ensure <span class="math-inline">\(s\ge d\)</span>. Sauer–Shelah then implies</p>
+<div class="math-display">\[\log M\le d\log\!\left(C\left(1+\frac{\log M}{d r^2}\right)\right).\]</div>
+<p>To solve this, write <span class="math-inline">\(Y=\max(1,\log M/d)\)</span>. Since <span class="math-inline">\(r\le1\)</span>, the right side after division by <span class="math-inline">\(d\)</span> is at most <span class="math-inline">\(\log(C'/r^2)+\log Y\)</span>. The inequality <span class="math-inline">\(\log Y\le Y/2\)</span> for <span class="math-inline">\(Y\ge1\)</span> gives <span class="math-inline">\(\log M=O(d\log(C''/r))\)</span>. A maximal separated set covers the loss vectors within radius <span class="math-inline">\(r\)</span>, so the same logarithmic bound holds for covering numbers.</p>
+<p>Let <span class="math-inline">\(\sigma_i\)</span> be independent fair signs. For any finite family of vectors <span class="math-inline">\(A\)</span> with normalized norms at most <span class="math-inline">\(s\)</span>, the signed average of a fixed vector is sub-Gaussian with variance proxy <span class="math-inline">\(s^2/n\)</span>: its exponential moment is the product of <span class="math-inline">\(\cosh(t a_i/n)\le e^{t^2 a_i^2/(2n^2)}\)</span>. Bounding the exponential moment of the maximum by summing over the family and optimizing <span class="math-inline">\(t\)</span> gives <span class="math-inline">\(\mathbb E_\sigma\max_{a\in A}|n^{-1}\sum_i\sigma_i a_i|\le s\sqrt{2\log(2|A|)/n}\)</span>.</p>
+<p>Take a fixed reference vector at scale 1 and a cover at every radius <span class="math-inline">\(2^{-j}\)</span>. Approximate each vector by a nearest cover element at each scale. Consecutive approximations differ in norm by at most <span class="math-inline">\(2^{-j}+2^{-j+1}=3\cdot2^{-j}\)</span>. There are at most the products of the consecutive cover sizes possible differences. Apply the signed maximum bound to the allowable differences at each scale and sum. The remainder vanishes as the radius tends to zero because the signed average of a residual of norm <span class="math-inline">\(r\)</span> has magnitude at most <span class="math-inline">\(r\)</span> by Cauchy–Schwarz. The reference contributes at most <span class="math-inline">\(1/\sqrt n\)</span> in mean absolute value and the increments give</p>
+<div class="math-display">\[\mathbb E_\sigma\sup_h\left|n^{-1}\sum_i\sigma_i\mathbf1\{h(x_i)\ne y_i\}\right|
+\le \frac1{\sqrt n}+C\sqrt{\frac dn}\sum_{j\ge1}2^{-j}\sqrt{j+1}
+=O(\sqrt{d/n}).\]</div>
+<p>To pass to risks, move the ghost expectation outside the supremum by Jensen, swap the sample pairs with fair signs, and apply the triangle inequality to separate the two signed sums. This bounds the expected uniform gap by twice the signed complexity above. Changing one sample point changes the uniform gap by at most <span class="math-inline">\(1/n\)</span>, so bounded differences adds <span class="math-inline">\(\sqrt{\log(1/\delta)/(2n)}\)</span> with confidence <span class="math-inline">\(1-\delta\)</span>. Comparing two risks through their empirical versions costs at most twice the uniform gap. This gives the stated agnostic upper bound, using chaining in place of the single-scale argument.</p>
+<h2 id="Agnostic-lower-bounds-from-noisy-labels"><a href="#Agnostic-lower-bounds-from-noisy-labels" class="headerlink" title="Agnostic lower bounds from noisy labels"></a>Agnostic lower bounds from noisy labels</h2><p>For the dimension term, choose <span class="math-inline">\(d\)</span> shattered points uniformly. Index distributions by <span class="math-inline">\(\theta\in\{-1,+1\}^d\)</span> and let <span class="math-inline">\(P_\theta(Y=1\mid X=x_i)=(1+b\theta_i)/2\)</span> for <span class="math-inline">\(0&lt;b\le1/2\)</span>. The Bayes rule belongs to the restricted class. A predictor disagreeing with the signs on <span class="math-inline">\(k\)</span> points has excess risk <span class="math-inline">\(bk/d\)</span>. Flipping one bit of <span class="math-inline">\(\theta\)</span> changes the one-observation KL divergence by</p>
+<div class="math-display">\[\frac b d\log\frac{1+b}{1-b}\le \frac{4b^2}{d}.\]</div>
+<p>For <span class="math-inline">\(n\)</span> observations KL multiplies by <span class="math-inline">\(n\)</span>. By Pinsker, if <span class="math-inline">\(n\le d/(32b^2)\)</span> the total variation between those whole-sample laws is at most <span class="math-inline">\(1/4\)</span>. Under equal prior weights, the average probability of guessing their differing bit incorrectly is at least <span class="math-inline">\((1-\mathrm{TV})/2\ge3/8\)</span>: for any decision event the sum of the two errors is at least <span class="math-inline">\(1-\mathrm{TV}\)</span>. Pair the uniform prior on the hypercube along each coordinate and sum the resulting error probabilities. The expected excess is at least <span class="math-inline">\(3b/8\)</span>, while it is at most <span class="math-inline">\(b\)</span> on each trial. For <span class="math-inline">\(b=8\varepsilon\)</span>, the probability of excess greater than <span class="math-inline">\(\varepsilon=b/8\)</span> is at least <span class="math-inline">\(2/7\)</span>. Some deterministic sign vector attains this failure probability.</p>
+<p>For the confidence term use a single shattered point with competing label laws <span class="math-inline">\(p_\pm=(1\pm b)/2\)</span> and <span class="math-inline">\(b=2\varepsilon\)</span>. For two laws with densities <span class="math-inline">\(p,q\)</span> and affinity <span class="math-inline">\(S=\int\sqrt{pq}\)</span>, Cauchy–Schwarz applied to <span class="math-inline">\(\int|\sqrt p-\sqrt q|(\sqrt p+\sqrt q)\)</span> yields <span class="math-inline">\(\mathrm{TV}\le\sqrt{1-S^2}\)</span>. Thus any binary test has average error at least <span class="math-inline">\((1-\sqrt{1-S^2})/2\ge S^2/4\)</span>. The affinity of these Bernoulli distributions is <span class="math-inline">\(\sqrt{1-b^2}\)</span> and affinities multiply over independent observations, so the failure probability of at least one distribution is at least <span class="math-inline">\((1-b^2)^n/4\)</span>. As <span class="math-inline">\(-\log(1-b^2)\le2b^2\)</span> for <span class="math-inline">\(b\le1/2\)</span>, achieving confidence <span class="math-inline">\(1-\delta\)</span> requires <span class="math-inline">\(n=\Omega(\log(1/\delta)/\varepsilon^2)\)</span>. Combining with the dimension argument proves the agnostic lower bound against arbitrary learning rules.</p>
 <h2 id="Challenges"><a href="#Challenges" class="headerlink" title="Challenges"></a>Challenges</h2><h3 id="Problem-1"><a href="#Problem-1" class="headerlink" title="Problem 1"></a>Problem 1</h3><p>Find the VC dimension of all subsets of the real line that are unions of at most <span class="math-inline">\(k\)</span> intervals. Permit the empty set.</p>
 <details>
 <summary>Show solution</summary>
@@ -258,17 +283,30 @@
 <details>
 <summary>Show solution</summary>
 
-<p>The amplitude class has three distinct functions and can shatter one point, giving dimension 1. Phase shifts produce open semicircles of positives. The points <span class="math-inline">\(0,\pi/2\)</span> admit all four labels. Among three distinct points, either they cannot all fit in an open semicircle, or they can be ordered within one. In the latter case any open semicircle containing the two extremes contains the short arc between them, so the middle point cannot be negative. The dimension is 2.</p>
+<p>The amplitude class has three distinct functions and can shatter one point, giving dimension 1. Phase shifts produce open semicircles of positives. The points <span class="math-inline">\(0,\pi/2\)</span> admit all four labels. Two equal residues modulo <span class="math-inline">\(2\pi\)</span> cannot receive different labels. Among three distinct residues, either they cannot all fit in an open semicircle, or they can be ordered within one. In the latter case any open semicircle containing the two extremes contains the short arc between them, so the middle point cannot be negative. The dimension is 2.</p>
 <p>For frequency scaling use <span class="math-inline">\(x_i=2^{i-1}\)</span> for any <span class="math-inline">\(n\)</span>. Given labels <span class="math-inline">\(y_i\)</span>, put <span class="math-inline">\(b_i=1-y_i\)</span> and take <span class="math-inline">\(a=2\pi(\sum_{j=1}^n b_j2^{-j}+2^{-n-1})\)</span>. The fractional part of <span class="math-inline">\(ax_i/(2\pi)\)</span> is <span class="math-inline">\(b_i/2\)</span> plus a number strictly between 0 and <span class="math-inline">\(1/2\)</span>. Its sine is positive precisely when <span class="math-inline">\(b_i=0\)</span>. Hence these <span class="math-inline">\(n\)</span> points are shattered for arbitrary <span class="math-inline">\(n\)</span>.</p>
 </details>
 
-<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning (2026), Lecture 5 and Problem Sets 3–4. Shalev-Shwartz and Ben-David, Understanding Machine Learning: From Theory to Algorithms, chapters 3, 5, and 6.</p>
+<h3 id="Problem-3-Generalization-from-a-sample-compression-scheme"><a href="#Problem-3-Generalization-from-a-sample-compression-scheme" class="headerlink" title="Problem 3. Generalization from a sample compression scheme"></a>Problem 3. Generalization from a sample compression scheme</h3><p>Suppose a realizable learner keeps at most <span class="math-inline">\(k\)</span> labeled observations and a side message from a fixed alphabet of size <span class="math-inline">\(B\)</span>. A deterministic reconstruction function takes the retained observations in input order and the side message, and its prediction is consistent on the full sample. Prove a sample compression bound. Apply it to closed axis-aligned rectangles in <span class="math-inline">\(\mathbb R^d\)</span> by keeping examples that witness the extremes. <a target="_blank" rel="noopener" href="https://mwarmuth.bitbucket.io/pubs/J30.pdf">Floyd and Warmuth, <em>Sample Compression, Learnability, and the Vapnik–Chervonenkis Dimension</em>, §2</a>.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>Fix a subset of sample indices <span class="math-inline">\(I\)</span> and a side message. Condition on the observations at those indices. The reconstructed classifier is now fixed, while all remaining points are independent draws. If its risk exceeds <span class="math-inline">\(\varepsilon\)</span>, its chance of matching all omitted labels is at most <span class="math-inline">\((1-\varepsilon)^{n-|I|}\)</span>. This applies even though the actual compressor can choose its subset and message after seeing the omitted data, because we union bound over all fixed choices. The probability of a consistent reconstructed rule of risk above <span class="math-inline">\(\varepsilon\)</span> is at most</p>
+<div class="math-display">\[B\sum_{j=0}^{k}{n\choose j}(1-\varepsilon)^{n-j}
+\le B(en/k)^k e^{-\varepsilon(n-k)}\qquad(1\le k\le n).\]</div>
+<p>For a sample with positives, retain one positive point minimizing and one maximizing each coordinate, at most <span class="math-inline">\(2d\)</span> points. Reconstruction takes their coordinatewise bounding box. It contains every positive sample point and is contained in the target rectangle, so contains no negative sample point. When the retained set is empty, reconstruct the all-negative predictor. This gives compression with <span class="math-inline">\(k=2d\)</span> and <span class="math-inline">\(B=1\)</span>. In the plane the four extreme witnesses also explain the VC upper bound: on any five points, mark four points witnessing the extrema positive and an unneeded point negative, which no rectangle can realize. The four cardinal points of a diamond are shattered by bounding the chosen positive points, so the planar VC dimension is exactly four.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><ul>
+<li>Yang Yuan, <em>Machine Learning</em>, 2026 Lecture 5, slides 5–12 (no-free-lunch), 13–18 (finite classes), 22–27 (PAC, Bayes and risk decomposition), and 29–36 (thresholds, shattering and quantitative learning). Archived slides 5–18 and 21–35 contain the corresponding proofs.</li>
+<li>Shalev-Shwartz and Ben-David, <em>Understanding Machine Learning: From Theory to Algorithms</em>, Corollary 2.3, §§3.1–3.2, Theorem 5.1, Example 6.2, Corollary 6.4, and Theorems 6.6–6.8. The quantitative proofs follow the topics of §§28.1–28.3, with a multiscale argument for the sharper agnostic upper bound. Problem Sets 3–4 develop the threshold, VC-dimension, and no-free-lunch applications.</li>
+</ul>
 <p><a href="/notes/ml/04/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/06/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/05/" data-id="cuidqU77HyS0ypLZuSPbRdVkW" data-title="ML 05: PAC Learning and VC Dimension" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/05/" data-id="cuidd-unBz4P0f9DNCfjM7qw4" data-title="ML 05: PAC Learning and VC Dimension" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -330,6 +368,44 @@
   
 </section>
 
+
+  </div>
+  <aside class="article-reader-side" aria-label="Article navigation" hidden>
+    <div class="article-outline tex2jax_ignore" id="article-outline">
+      <header>
+        <h2>On this page</h2>
+        <button type="button" class="outline-collapse" aria-label="Collapse article navigation" aria-controls="article-outline-content" aria-expanded="true">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+        </button>
+        <button type="button" class="outline-close" aria-label="Close contents">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+
+        </button>
+      </header>
+      <div class="outline-jump" aria-label="Jump within article navigation" role="group" hidden></div>
+      <div class="article-outline-content" id="article-outline-content">
+        <nav aria-label="Section headings">
+          <ol class="outline-headings"></ol>
+        </nav>
+        <section class="outline-media" data-outline-media="figures" hidden>
+          <h3>Figures</h3>
+          <ol></ol>
+        </section>
+        <section class="outline-media" data-outline-media="tables" hidden>
+          <h3>Tables</h3>
+          <ol></ol>
+        </section>
+      </div>
+    </div>
+  </aside>
+  <button type="button" class="outline-trigger" aria-controls="article-outline-dialog" aria-expanded="false" hidden>
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+<span>Contents</span>
+  </button>
+  <dialog class="article-outline-dialog" id="article-outline-dialog" aria-label="Article contents"></dialog>
+</div>
+<script defer src="/js/article-outline.js"></script>
 </div>
           </div>
           <footer id="footer">

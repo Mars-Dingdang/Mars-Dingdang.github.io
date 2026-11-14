@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-08/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:08:00.000Z">
-<meta property="article:modified_time" content="2026-11-14T02:30:24.811Z">
+<meta property="article:modified_time" content="2026-11-14T03:08:27.351Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Decision Trees">
 <meta property="article:tag" content="Ensemble Learning">
@@ -57,12 +57,14 @@
           inlineMath: [['$', '$'], ['\\(', '\\)']],
           displayMath: [['$$', '$$'], ['\\[', '\\]']],
           processEscapes: true,
-          processEnvironments: true
+          processEnvironments: true,
+          tags: 'all'
         },
         options: {
           skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
         },
         svg: {
+          displayAlign: 'center',
           fontCache: 'global'
         }
       };
@@ -71,7 +73,7 @@
   
 <meta name="generator" content="Hexo 8.1.2"></head>
 
-<body class="is-inner">
+<body class="is-inner is-post">
   
   <div id="container">
     <div id="wrap">
@@ -190,7 +192,9 @@
         </aside>
         <main class="site-main">
           <div class="outer">
-            <div id="main"><article id="post-ml-08" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+            <div id="main"><div class="article-reader" data-article-reader>
+  <div class="article-reader-body">
+    <article id="post-ml-08" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   
     <nav class="course-breadcrumb" aria-label="Course">
@@ -231,23 +235,52 @@
 <p><em>The weighted post-split impurity is about 0.317, below the parent impurity of 0.480.</em></p>
 <h2 id="Greedy-splits-and-bagging"><a href="#Greedy-splits-and-bagging" class="headerlink" title="Greedy splits and bagging"></a>Greedy splits and bagging</h2><p>For class proportions <span class="math-inline">\(p_c\)</span>, Gini impurity is <span class="math-inline">\(I(p)=1-\sum_c p_c^2\)</span>, the chance of different labels in two independent draws. A split maximizes parent impurity minus the sample-count weighted impurity of its children. The illustrated root has 6 blue and 4 orange examples. Its left child has 5 blue and 1 orange, giving <span class="math-inline">\(5/18\)</span>, and its right child has 1 blue and 3 orange, giving <span class="math-inline">\(3/8\)</span>. The weighted child value is <span class="math-inline">\((6/10)(5/18)+(4/10)(3/8)=19/60\)</span>. Each node optimizes one split. Depth limits, minimum leaf counts, and pruning control the eventual tree size. Replacing Gini by entropy gives information gain.</p>
 <p>A bootstrap sample draws <span class="math-inline">\(n\)</span> times with replacement from <span class="math-inline">\(n\)</span> cases. A specific case is absent with probability <span class="math-inline">\((1-1/n)^n\to e^{-1}\)</span>, so the trees that leave it out can supply its out-of-bag prediction. A random forest also samples feature candidates at each split. For conditional prediction variance <span class="math-inline">\(\sigma^2\)</span> and pairwise correlation <span class="math-inline">\(\rho\)</span> in an ensemble model, expanding the variance of the mean over <span class="math-inline">\(B\)</span> trees gives <span class="math-inline">\(\sigma^2(\rho+(1-\rho)/B)\)</span>. The correlation term survives as the number of trees increases.</p>
+<p>For the ten observations on slides 6–9, the root’s up&#x2F;down counts are <span class="math-inline">\((4,6)\)</span> and its Gini impurity is <span class="math-inline">\(12/25\)</span>. The three candidates have the following root scores:</p>
+<table>
+<thead>
+<tr>
+<th>Split</th>
+<th>Child up&#x2F;down counts</th>
+<th>Weighted Gini</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Past trend</td>
+<td><span class="math-inline">\((4,2)\)</span> and <span class="math-inline">\((0,4)\)</span></td>
+<td><span class="math-inline">\(4/15\)</span></td>
+</tr>
+<tr>
+<td>Open interest</td>
+<td><span class="math-inline">\((2,2)\)</span> and <span class="math-inline">\((2,4)\)</span></td>
+<td><span class="math-inline">\(7/15\)</span></td>
+</tr>
+<tr>
+<td>Trading volume</td>
+<td><span class="math-inline">\((4,3)\)</span> and <span class="math-inline">\((0,3)\)</span></td>
+<td><span class="math-inline">\(12/35\)</span></td>
+</tr>
+</tbody></table>
+<p>Past trend therefore gives the lowest weighted impurity, equivalently the greatest gain. Its negative branch is pure. On the positive branch, open interest gives <span class="math-inline">\((2,0)\)</span> and <span class="math-inline">\((2,2)\)</span>, with weighted impurity <span class="math-inline">\(1/3\)</span>. Volume gives <span class="math-inline">\((4,0)\)</span> and <span class="math-inline">\((0,2)\)</span>, both pure. The finished tree predicts up exactly when trend is positive and volume high. Splitting on a continuous feature works similarly after sorting its distinct values and trying thresholds between successive values. For <span class="math-inline">\(C\)</span> classes, Gini is maximized at the uniform distribution with value <span class="math-inline">\(1-1/C\)</span>, by Cauchy–Schwarz.</p>
 <h2 id="AdaBoost-from-exponential-loss"><a href="#AdaBoost-from-exponential-loss" class="headerlink" title="AdaBoost from exponential loss"></a>AdaBoost from exponential loss</h2><p>For labels and weak predictions in <span class="math-inline">\(\{-1,1\}\)</span>, write <span class="math-inline">\(F_t=F_{t-1}+\alpha_t h_t\)</span>. At round <span class="math-inline">\(t\)</span>, set <span class="math-inline">\(D_t(i)\propto e^{-y_iF_{t-1}(x_i)}\)</span> and let <span class="math-inline">\(\epsilon_t\)</span> be the error of <span class="math-inline">\(h_t\)</span> under <span class="math-inline">\(D_t\)</span>. For fixed <span class="math-inline">\(h_t\)</span>, adding the new learner multiplies the empirical exponential loss by</p>
 <div class="math-display">\[Z_t(\alpha)=(1-\epsilon_t)e^{-\alpha}+\epsilon_t e^\alpha.\]</div>
 <p>Differentiation gives the minimum at <span class="math-inline">\(\alpha_t=\tfrac12\log((1-\epsilon_t)/\epsilon_t)\)</span> when <span class="math-inline">\(0&lt;\epsilon_t&lt;1/2\)</span>. Substituting gives <span class="math-inline">\(Z_t=2\sqrt{\epsilon_t(1-\epsilon_t)}\)</span>. The new sample weight is <span class="math-inline">\(D_{t+1}(i)=D_t(i)e^{-\alpha_t y_i h_t(x_i)}/Z_t\)</span>. A perfect weak rule can terminate boosting, and error <span class="math-inline">\(1/2\)</span> gives zero coefficient.</p>
-<p>With <span class="math-inline">\(F_0=0\)</span>, the empirical exponential loss after <span class="math-inline">\(T\)</span> rounds is <span class="math-inline">\(\prod_t Z_t\)</span>. Misclassification implies <span class="math-inline">\(y_iF_T(x_i)\le0\)</span>, and then its exponential term is at least 1. Writing <span class="math-inline">\(\epsilon_t=1/2-\gamma_t\)</span> gives</p>
+<p>With <span class="math-inline">\(F_0=0\)</span>, unrolling the weight recurrence gives <span class="math-inline">\(D_{T+1}(i)=e^{-y_iF_T(x_i)}/(n\prod_t Z_t)\)</span>, since the initial weight is <span class="math-inline">\(1/n\)</span>. Summing over <span class="math-inline">\(i\)</span> gives the empirical exponential loss <span class="math-inline">\(\prod_t Z_t\)</span>. Misclassification implies <span class="math-inline">\(y_iF_T(x_i)\le0\)</span>, and then its exponential term is at least 1. Writing <span class="math-inline">\(\epsilon_t=1/2-\gamma_t\)</span> gives</p>
 <div class="math-display">\[\widehat R(\operatorname{sign}F_T)\le\prod_t\sqrt{1-4\gamma_t^2}\le e^{-2\sum_t\gamma_t^2}.\]</div>
 <p>Moreover, for the normalized margin <span class="math-inline">\(m_i=y_iF_T(x_i)/\sum_t\alpha_t\)</span>, a threshold <span class="math-inline">\(\theta\)</span> gives</p>
 <div class="math-display">\[\widehat P(m_i\le\theta)
 \le e^{\theta\sum_t\alpha_t}\prod_t Z_t
 =\prod_t 2\,\epsilon_t^{(1-\theta)/2}(1-\epsilon_t)^{(1+\theta)/2}.\]</div>
-<p>The first inequality is the same exponential comparison at a positive margin threshold. For a finite base class, the reason a positive margin helps generalization can be seen by sampling weak rules independently from the normalized vote weights. At any example with margin above <span class="math-inline">\(\theta\)</span>, an <span class="math-inline">\(N\)</span>-rule sampled vote has error at most <span class="math-inline">\(e^{-N\theta^2/2}\)</span> by Hoeffding. Likewise a point with nonpositive margin has probability at least <span class="math-inline">\(1-e^{-N\theta^2/8}\)</span> that its sampled vote has margin at most <span class="math-inline">\(\theta/2\)</span>. Apply a union bound to the at most <span class="math-inline">\(|\mathcal H|^N\)</span> sampled votes at this fixed threshold, then average over the vote sampling. Choosing <span class="math-inline">\(N\)</span> proportional to <span class="math-inline">\(\log n/\theta^2\)</span> gives a generalization gap of order <span class="math-inline">\(\sqrt{(\log|\mathcal H|\log n/\theta^2+\log(1/\delta))/n}\)</span>, with universal constants.</p>
+<p>The first inequality compares an indicator at threshold <span class="math-inline">\(\theta\)</span> with <span class="math-inline">\(\exp(\theta\sum_t\alpha_t-y_iF_T(x_i))\)</span>. Suppose <span class="math-inline">\(\epsilon_t\le1/2-\gamma\)</span> for all <span class="math-inline">\(t\)</span>, with <span class="math-inline">\(0&lt;\gamma&lt;1/2\)</span>. The factor on the right is increasing in <span class="math-inline">\(\epsilon_t\)</span> for <span class="math-inline">\(\epsilon_t&lt;(1-\theta)/2\)</span>, as differentiating its logarithm shows. For <span class="math-inline">\(0\le\theta&lt;\gamma\)</span>, each factor is thus bounded by <span class="math-inline">\((1-2\gamma)^{(1-\theta)/2}(1+2\gamma)^{(1+\theta)/2}&lt;1\)</span>. To see the strict inequality, set <span class="math-inline">\(u=2\gamma\)</span>. The log of this upper bound is <span class="math-inline">\(\tfrac12\log(1-u^2)+\theta\operatorname{atanh}(u)\)</span>. The inequality <span class="math-inline">\(-\log(1-u^2)\ge u\operatorname{atanh}(u)\)</span> follows since their difference has derivative <span class="math-inline">\(u/(1-u^2)-\operatorname{atanh}(u)\ge0\)</span> and vanishes at zero. Since <span class="math-inline">\(\theta&lt;u/2\)</span>, the log is negative. This gives the exponential decay in slides 33–35. For the zero-margin bound, <span class="math-inline">\(\sum_t\gamma_t^2=\infty\)</span> suffices for convergence to zero, in particular when every edge is at least <span class="math-inline">\(\gamma&gt;0\)</span>.</p>
+<p>The weight update is also mirror descent on the sample simplex, as asked on slide 19. Fix <span class="math-inline">\(h_t\)</span> and put <span class="math-inline">\(g_i=y_i h_t(x_i)\)</span>. The update minimizes <span class="math-inline">\(\alpha_t g^\top D+D_{\rm KL}(D\|D_t)\)</span>. Its interior stationarity condition is <span class="math-inline">\(\alpha_t g_i+\log(D_i/D_t(i))+1+\nu=0\)</span>, where <span class="math-inline">\(\nu\)</span> enforces <span class="math-inline">\(\sum_iD_i=1\)</span>. Exponentiating and normalizing gives the AdaBoost weights. Thus correctly classified examples lose relative weight and mistakes gain it.</p>
+<p>On slides 20–24, the first of three stumps misses 3 of 10 samples, giving <span class="math-inline">\(\epsilon_1=3/10\)</span> and <span class="math-inline">\(\alpha_1=\log(7/3)/2\)</span>. Under <span class="math-inline">\(D_2\)</span>, those three each weigh <span class="math-inline">\(1/6\)</span> and the remaining seven each weigh <span class="math-inline">\(1/14\)</span>. The second stump misses three of the latter, so <span class="math-inline">\(\epsilon_2=3/14\)</span> and <span class="math-inline">\(\alpha_2=\log(11/3)/2\)</span>. The update divides correct weights by <span class="math-inline">\(2(1-\epsilon_2)=11/7\)</span> and incorrect weights by <span class="math-inline">\(2\epsilon_2=3/7\)</span>. The third stump misses three samples of weight <span class="math-inline">\(1/22\)</span> each, giving <span class="math-inline">\(\epsilon_3=3/22\)</span> and <span class="math-inline">\(\alpha_3=\log(19/3)/2\)</span>. Since the three positive coefficients satisfy the strict triangle inequalities, every pair’s total exceeds the third coefficient. Their final weighted vote therefore agrees with the majority of the three stumps in this example.</p>
 <h2 id="Functional-gradient-boosting"><a href="#Functional-gradient-boosting" class="headerlink" title="Functional gradient boosting"></a>Functional gradient boosting</h2><p>Treat the predictions <span class="math-inline">\(F(x_i)\)</span> as coordinates. With squared loss, the negative gradient is the observed residual <span class="math-inline">\(y_i-F(x_i)\)</span>. With a general differentiable loss, set</p>
 <div class="math-display">\[r_i=-\left.\frac{\partial\ell(y_i,u)}{\partial u}\right|_{u=F(x_i)}.\]</div>
-<p>Fit a weak regressor to <span class="math-inline">\((x_i,r_i)\)</span>, line-search its coefficient, and update the predictions. A tree fits an allowable approximation to the descent direction. If the fitted tree predicts constants on fixed leaves, the squared-loss line search can also be performed independently per leaf.</p>
+<p>Fit a weak regressor to <span class="math-inline">\((x_i,r_i)\)</span>, line-search its coefficient, and update the predictions. A tree fits an allowable approximation to the descent direction. For squared loss and a fixed tree partition, minimizing <span class="math-inline">\(\sum_{i\in A}(r_i-c_A)^2/2\)</span> on a leaf gives <span class="math-inline">\(c_A=\sum_{i\in A}r_i/|A|\)</span> by differentiation. The normal equations for that orthogonal projection also give <span class="math-inline">\(r^\top h=\|h\|_2^2\)</span>. Hence shrinking the tree by <span class="math-inline">\(0&lt;\eta\le1\)</span> decreases the squared loss by <span class="math-inline">\(\eta(1-\eta/2)\|h\|_2^2\)</span> unless <span class="math-inline">\(h=0\)</span>. The lecture’s sample predictions <span class="math-inline">\((0.8,1.4)\)</span> and targets <span class="math-inline">\((0.9,1.3)\)</span> give residual targets <span class="math-inline">\((0.1,-0.1)\)</span> for the next tree.</p>
 <h3 id="A-uniform-margin-bound-with-constants"><a href="#A-uniform-margin-bound-with-constants" class="headerlink" title="A uniform margin bound, with constants"></a>A uniform margin bound, with constants</h3><p>Fix a margin threshold <span class="math-inline">\(0&lt;\theta\le1\)</span>. For a normalized vote <span class="math-inline">\(f\)</span>, draw <span class="math-inline">\(N\)</span> independent base hypotheses from its weights, and write <span class="math-inline">\(g\)</span> for their average. When <span class="math-inline">\(yf(x)\le0\)</span>, Hoeffding gives <span class="math-inline">\(\Pr_g(yg(x)&gt;\theta/2)\le a=e^{-N\theta^2/8}\)</span>. When <span class="math-inline">\(yf(x)&gt;\theta\)</span>, it gives <span class="math-inline">\(\Pr_g(yg(x)\le\theta/2)\le a\)</span>. Therefore</p>
 <div class="math-display">\[P(yf\le0)\le \mathbb E_g P(yg\le\theta/2)+a,\qquad
 \mathbb E_g P_S(yg\le\theta/2)\le P_S(yf\le\theta)+a.\]</div>
-<p>For every one of the at most <span class="math-inline">\(|\mathcal H|^N\)</span> possible ordered sampled votes, apply the one-sided Hoeffding bound to its binary thresholded loss over <span class="math-inline">\(n\)</span> independent training examples. A union bound gives, with probability at least <span class="math-inline">\(1-\delta\)</span>, <span class="math-inline">\(P(yg\le\theta/2)\le P_S(yg\le\theta/2)+b\)</span> simultaneously, where <span class="math-inline">\(b=\sqrt{(N\log|\mathcal H|+\log(1/\delta))/(2n)}\)</span>. The event does not depend on the vote weights. Combining the two displays yields the uniform gap <span class="math-inline">\(2a+b\)</span>. For <span class="math-inline">\(n\ge2\)</span>, choose <span class="math-inline">\(N=\lceil4\log n/\theta^2\rceil\)</span> so <span class="math-inline">\(a\le1/\sqrt n\)</span>. This establishes the stated order for a fixed threshold. A finite grid of thresholds can be covered by allocating part of <span class="math-inline">\(\delta\)</span> to each threshold.</p>
+<p>For every one of the at most <span class="math-inline">\(|\mathcal H|^N\)</span> possible ordered sampled votes, apply the one-sided Hoeffding bound to its binary thresholded loss over <span class="math-inline">\(n\)</span> independent training examples. A union bound gives, with probability at least <span class="math-inline">\(1-\delta\)</span>, <span class="math-inline">\(P(yg\le\theta/2)\le P_S(yg\le\theta/2)+b\)</span> simultaneously, where <span class="math-inline">\(b=\sqrt{(N\log|\mathcal H|+\log(1/\delta))/(2n)}\)</span>. The event does not depend on the vote weights. Combining the two displays yields the uniform gap <span class="math-inline">\(2a+b\)</span>. For <span class="math-inline">\(n\ge2\)</span>, choose <span class="math-inline">\(N=\lceil4\log n/\theta^2\rceil\)</span> so <span class="math-inline">\(a\le1/\sqrt n\)</span>.</p>
+<p>Slide 32 states the result simultaneously for all margins. To recover that quantifier, first apply the bound at <span class="math-inline">\(\theta_j=2^{-j}\)</span> for <span class="math-inline">\(j\ge0\)</span>, giving the <span class="math-inline">\(j\)</span>th event failure budget <span class="math-inline">\(\delta/((j+1)(j+2))\)</span>. These budgets sum to <span class="math-inline">\(\delta\)</span>. For an arbitrary <span class="math-inline">\(0&lt;\theta\le1\)</span>, choose <span class="math-inline">\(\theta_j\le\theta&lt;2\theta_j\)</span>. Then <span class="math-inline">\(P_S(yf\le\theta_j)\le P_S(yf\le\theta)\)</span>, and <span class="math-inline">\(\theta_j^{-2}\le4\theta^{-2}\)</span>. For <span class="math-inline">\(\theta\ge n^{-1/2}\)</span> the extra confidence cost is only <span class="math-inline">\(O(\log(1+\log n))\)</span>, absorbed by the leading term when <span class="math-inline">\(|\mathcal H|\ge2\)</span>. For smaller <span class="math-inline">\(\theta\)</span> the displayed big-<span class="math-inline">\(O\)</span> bound is already at least one with a universal constant. The single-base-rule case is ordinary Hoeffding. This proves the margin theorem with order <span class="math-inline">\(\sqrt{(\log|\mathcal H|\log n/\theta^2+\log(1/\delta))/n}\)</span>. <a target="_blank" rel="noopener" href="https://cseweb.ucsd.edu/~yfreund/papers/BoostingtheMargin.pdf">Schapire et al., “Boosting the Margin,” Theorem 1</a></p>
 <h2 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h2><p>Show that for finite base class, the first AdaBoost round is a greedy coordinate minimization of exponential loss, and give the exact objective improvement when the selected rule has weighted error <span class="math-inline">\(\epsilon\)</span>. What changes if the class contains each sign-flipped rule?</p>
 <details>
 <summary>Show solution</summary>
@@ -262,13 +295,27 @@
 <p>For a leaf let <span class="math-inline">\(G\)</span> and <span class="math-inline">\(H\)</span> be the sums of sample gradients and Hessians at the current predictions. Its quadratic term is <span class="math-inline">\(Gw+\tfrac12(H+\lambda)w^2\)</span>. If <span class="math-inline">\(H+\lambda&gt;0\)</span>, the minimizer is <span class="math-inline">\(-G/(H+\lambda)\)</span> and the fitted contribution is <span class="math-inline">\(-G^2/(2(H+\lambda))\)</span>. Thus split gain is half the sum of the two new <span class="math-inline">\(G^2/(H+\lambda)\)</span> scores minus half the old score and minus the extra leaf penalty. A large Newton weight alone gives no guarantee of a large gain.</p>
 </details>
 
-<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 8 from the archived slides. <a target="_blank" rel="noopener" href="https://doi.org/10.1023/a%3A1010933404324">Breiman, Random Forests</a>. <a target="_blank" rel="noopener" href="https://www.cse.iitb.ac.in/~soumen/readings/papers/Friedman1999GreedyFuncApprox.pdf">Friedman, Greedy Function Approximation</a>.</p>
+<h3 id="Paper-challenge-·-When-a-Newton-split-improves-the-tree"><a href="#Paper-challenge-·-When-a-Newton-split-improves-the-tree" class="headerlink" title="Paper challenge · When a Newton split improves the tree"></a>Paper challenge · When a Newton split improves the tree</h3><p>In the XGBoost quadratic fit, let the two child nodes have gradient sums <span class="math-inline">\(G_L,G_R\)</span> and positive Hessian sums <span class="math-inline">\(H_L,H_R\)</span>. First set the leaf ridge penalty <span class="math-inline">\(\lambda=0\)</span> and prove that the unpenalized gain before the extra leaf cost is a weighted square of the difference of the two Newton steps. Then construct a split with <span class="math-inline">\(\lambda&gt;0\)</span> that has strictly negative gain even when the extra leaf cost vanishes. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1603.02754">Chen and Guestrin, “XGBoost,” §2.2, equations (5)–(7)</a></p>
+<details>
+<summary>Show paper solution</summary>
+
+<p>Put <span class="math-inline">\(a=G_L/H_L\)</span> and <span class="math-inline">\(b=G_R/H_R\)</span>. These ratios are the negatives of the separate Newton steps. Twice the score improvement at <span class="math-inline">\(\lambda=0\)</span> equals</p>
+<div class="math-display">\[H_L a^2+H_R b^2-\frac{(H_La+H_Rb)^2}{H_L+H_R}
+=\frac{H_LH_R}{H_L+H_R}(a-b)^2.\]</div>
+<p>This is nonnegative, with equality exactly when one weight fits both child Newton steps. For <span class="math-inline">\(\lambda&gt;0\)</span>, choose identically sized children with <span class="math-inline">\(G_L=G_R=1\)</span> and <span class="math-inline">\(H_L=H_R=1\)</span>. Twice the gain is <span class="math-inline">\(2/(1+\lambda)-4/(2+\lambda)\)</span>, which is strictly negative. Duplicating a nonzero fitted parent weight on its children incurs the ridge penalty twice, so the two-leaf model has a different regularized objective even before the split cost is included.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><ul>
+<li>Yang Yuan, <em>Machine Learning</em>, legacy Lecture 8, slides 4–12 for tree split calculations and bootstrap aggregation, 14–24 for boosting and its example, 25–28 for training error, 31–35 for margin bounds, and 37–43 for functional descent.</li>
+<li>Robert E. Schapire, Yoav Freund, Peter Bartlett, and Wee Sun Lee, <em>Boosting the Margin: A New Explanation for the Effectiveness of Voting Methods</em>, Theorems 1–2. <a target="_blank" rel="noopener" href="https://cseweb.ucsd.edu/~yfreund/papers/BoostingtheMargin.pdf">Annals of Statistics paper</a></li>
+<li>Leo Breiman, <em>Random Forests</em>. Jerome H. Friedman, <em>Greedy Function Approximation: A Gradient Boosting Machine</em>, §§2–4. Tianqi Chen and Carlos Guestrin, <em>XGBoost: A Scalable Tree Boosting System</em>, §2.2. <a target="_blank" rel="noopener" href="https://doi.org/10.1023/a%3A1010933404324">Random Forests</a> · <a target="_blank" rel="noopener" href="https://doi.org/10.1214/aos/1013203451">Gradient Boosting</a> · <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1603.02754">XGBoost</a></li>
+</ul>
 <p><a href="/notes/ml/07/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/09/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/08/" data-id="cuidKtvxsJxOOBGudrLBhAEJu" data-title="ML 08: Decision Trees, Random Forests, and Boosting" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/08/" data-id="cuidYRoR_JT83LWqddh2zie1O" data-title="ML 08: Decision Trees, Random Forests, and Boosting" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -330,6 +377,44 @@
   
 </section>
 
+
+  </div>
+  <aside class="article-reader-side" aria-label="Article navigation" hidden>
+    <div class="article-outline tex2jax_ignore" id="article-outline">
+      <header>
+        <h2>On this page</h2>
+        <button type="button" class="outline-collapse" aria-label="Collapse article navigation" aria-controls="article-outline-content" aria-expanded="true">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+        </button>
+        <button type="button" class="outline-close" aria-label="Close contents">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+
+        </button>
+      </header>
+      <div class="outline-jump" aria-label="Jump within article navigation" role="group" hidden></div>
+      <div class="article-outline-content" id="article-outline-content">
+        <nav aria-label="Section headings">
+          <ol class="outline-headings"></ol>
+        </nav>
+        <section class="outline-media" data-outline-media="figures" hidden>
+          <h3>Figures</h3>
+          <ol></ol>
+        </section>
+        <section class="outline-media" data-outline-media="tables" hidden>
+          <h3>Tables</h3>
+          <ol></ol>
+        </section>
+      </div>
+    </div>
+  </aside>
+  <button type="button" class="outline-trigger" aria-controls="article-outline-dialog" aria-expanded="false" hidden>
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+<span>Contents</span>
+  </button>
+  <dialog class="article-outline-dialog" id="article-outline-dialog" aria-label="Article contents"></dialog>
+</div>
+<script defer src="/js/article-outline.js"></script>
 </div>
           </div>
           <footer id="footer">

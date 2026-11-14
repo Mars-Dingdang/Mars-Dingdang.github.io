@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-07/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:07:00.000Z">
-<meta property="article:modified_time" content="2026-11-14T02:31:24.975Z">
+<meta property="article:modified_time" content="2026-11-14T03:13:21.286Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Kernel Methods">
 <meta property="article:tag" content="Lecture Notes">
@@ -58,12 +58,14 @@
           inlineMath: [['$', '$'], ['\\(', '\\)']],
           displayMath: [['$$', '$$'], ['\\[', '\\]']],
           processEscapes: true,
-          processEnvironments: true
+          processEnvironments: true,
+          tags: 'all'
         },
         options: {
           skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
         },
         svg: {
+          displayAlign: 'center',
           fontCache: 'global'
         }
       };
@@ -72,7 +74,7 @@
   
 <meta name="generator" content="Hexo 8.1.2"></head>
 
-<body class="is-inner">
+<body class="is-inner is-post">
   
   <div id="container">
     <div id="wrap">
@@ -191,7 +193,9 @@
         </aside>
         <main class="site-main">
           <div class="outer">
-            <div id="main"><article id="post-ml-07" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+            <div id="main"><div class="article-reader" data-article-reader>
+  <div class="article-reader-body">
+    <article id="post-ml-07" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   
     <nav class="course-breadcrumb" aria-label="Course">
@@ -246,10 +250,14 @@
 \left\{\sum_i\alpha_i-\tfrac12\sum_{i,j}\alpha_i\alpha_j y_i y_j x_i^\top x_j\right\}.\]</div>
 <p>Soft-margin strict feasibility follows from <span class="math-inline">\(w=b=0,\xi_i=2\)</span>. Hard-margin strict feasibility follows by scaling any separator by a sufficiently large factor. Slater’s condition yields strong duality in either case. For the hard-margin problem there is no slack coefficient to impose an upper bound on <span class="math-inline">\(\alpha_i\)</span>.</p>
 <p>Complementary slackness gives <span class="math-inline">\(\alpha_i(1-\xi_i-y_if(x_i))=0\)</span> and <span class="math-inline">\((C-\alpha_i)\xi_i=0\)</span>. Strictly outside the margin, <span class="math-inline">\(\alpha_i=0\)</span>. An interior multiplier <span class="math-inline">\(0&lt;\alpha_i&lt;C\)</span> has zero slack and <span class="math-inline">\(y_if(x_i)=1\)</span>, hence <span class="math-inline">\(b=y_i-w^\top x_i\)</span>. At <span class="math-inline">\(\alpha_i=C\)</span>, the point may be inside the margin or misclassified. If there are no interior multipliers, use the corresponding KKT inequalities to find the allowable interval for <span class="math-inline">\(b\)</span>.</p>
+<p>If strong duality holds and the optima are attained, <span class="math-inline">\(d(\alpha^\star)\le\mathcal L(x^\star,\alpha^\star)\le f(x^\star)\)</span> has equal endpoints. The first equality makes <span class="math-inline">\(x^\star\)</span> an unconstrained minimizer of the Lagrangian in the primal variables. The second makes each nonpositive product of a multiplier with its inequality vanish. This derives stationarity and complementary slackness without differentiating with respect to a multiplier at the boundary of its admissible range.</p>
+<p>In the bias-free hard-margin case of slide 13, minimizing over <span class="math-inline">\(w\)</span> gives <span class="math-inline">\(\sum_i\alpha_i-\|\sum_i\alpha_i y_i x_i\|^2/2\)</span>. The constraints are only <span class="math-inline">\(\alpha_i\ge0\)</span> because there is no free intercept. For a free intercept, let <span class="math-inline">\(r_i=y_i-w^\top x_i\)</span>. If <span class="math-inline">\(\alpha_i=0\)</span>, KKT requires <span class="math-inline">\(b\ge r_i\)</span> for <span class="math-inline">\(y_i=1\)</span> and <span class="math-inline">\(b\le r_i\)</span> for <span class="math-inline">\(y_i=-1\)</span>. If <span class="math-inline">\(\alpha_i=C\)</span>, these inequalities reverse because the point’s margin is at most one. Their intersection gives the allowable intercepts when there is no interior multiplier.</p>
 <h2 id="Kernels-and-finite-Gram-matrices"><a href="#Kernels-and-finite-Gram-matrices" class="headerlink" title="Kernels and finite Gram matrices"></a>Kernels and finite Gram matrices</h2><p>A feature map induces <span class="math-inline">\(K(x,z)=\langle\phi(x),\phi(z)\rangle\)</span>. For any finite sample and real vector <span class="math-inline">\(a\)</span>, the Gram matrix satisfies</p>
 <div class="math-display">\[a^\top K a=\left\|\sum_i a_i\phi(x_i)\right\|^2\ge0.\]</div>
 <p>Conversely, a symmetric kernel whose every finite Gram matrix is positive semidefinite induces a feature space. Start with finitely supported formal sums of symbols <span class="math-inline">\(\delta_x\)</span>, set <span class="math-inline">\(\langle\delta_x,\delta_z\rangle=K(x,z)\)</span>, and extend bilinearly. Cauchy–Schwarz for this semidefinite form follows by requiring <span class="math-inline">\(\|u+tv\|^2\ge0\)</span> for all <span class="math-inline">\(t\)</span>. Therefore zero-norm vectors are orthogonal to the whole space. Quotient them out, take the Hilbert completion, and map <span class="math-inline">\(x\)</span> to the equivalence class of <span class="math-inline">\(\delta_x\)</span>. This construction suffices for the kernel trick. Mercer expansions additionally impose conditions on the integral operator and its domain.</p>
-<p>The SVM dual replaces dot products by <span class="math-inline">\(K\)</span>. The quadratic term has matrix <span class="math-inline">\(\operatorname{diag}(y)K\operatorname{diag}(y)\)</span>, which remains positive semidefinite, so the maximization remains concave. The prediction is <span class="math-inline">\(f(x)=\sum_i\alpha_i y_i K(x_i,x)+b\)</span>. For <span class="math-inline">\((x^\top z)^2\)</span> on <span class="math-inline">\(\mathbb R^2\)</span>, one explicit feature map is <span class="math-inline">\((x_1^2,\sqrt2 x_1x_2,x_2^2)\)</span>.</p>
+<p>The SVM dual replaces dot products by <span class="math-inline">\(K\)</span>. The quadratic term has matrix <span class="math-inline">\(\operatorname{diag}(y)K\operatorname{diag}(y)\)</span>, which remains positive semidefinite, so the maximization remains concave. The prediction is <span class="math-inline">\(f(x)=\sum_i\alpha_i y_i K(x_i,x)+b\)</span>. The inhomogeneous quadratic feature map of slides 19–20 is</p>
+<div class="math-display">\[\phi(x)=\left(1,\,(\sqrt2 x_i)_i,\,(x_i^2)_i,\,(\sqrt2 x_ix_j)_{i&lt;j}\right).\]</div>
+<p>Its inner product expands to <span class="math-inline">\(1+2\sum_i x_i z_i+\sum_i x_i^2z_i^2+2\sum_{i&lt;j}x_ix_jz_iz_j\)</span>. The last two sums are <span class="math-inline">\((x^\top z)^2\)</span>, so the whole expression equals <span class="math-inline">\((1+x^\top z)^2\)</span>. Evaluating the latter takes <span class="math-inline">\(O(d)\)</span> operations despite the <span class="math-inline">\(1+2d+d(d-1)/2\)</span> explicit features. A dense Gram matrix evaluates at most <span class="math-inline">\(n(n+1)/2\)</span> distinct pairs by symmetry. Evaluation at a new point uses only kernels against support vectors.</p>
 <p>For the Gaussian, write</p>
 <div class="math-display">\[K(x,z)=e^{-\|x\|^2/(2\sigma^2)}e^{-\|z\|^2/(2\sigma^2)}
 \sum_{m=0}^{\infty}\frac{(x^\top z)^m}{m!\sigma^{2m}}.\]</div>
@@ -268,13 +276,33 @@
 <p>The balance constraint gives <span class="math-inline">\(\alpha_1=\alpha_2=\alpha\)</span>, and the dual objective is <span class="math-inline">\(2\alpha-2\alpha^2\)</span>. Hence <span class="math-inline">\(\alpha=\min(C,1/2)\)</span> and <span class="math-inline">\(w=2\alpha\)</span>. If <span class="math-inline">\(C&gt;1/2\)</span>, both multipliers are interior, so the margin equalities force <span class="math-inline">\(b=0\)</span>. If <span class="math-inline">\(C\le1/2\)</span>, the positive multipliers give <span class="math-inline">\(\xi_1=1-w+b\)</span> and <span class="math-inline">\(\xi_2=1-w-b\)</span>. The feasible interval is <span class="math-inline">\(|b|\le1-w\)</span>, reducing to zero at <span class="math-inline">\(C=1/2\)</span>. All intercepts in the interval have the same total slack and satisfy KKT.</p>
 </details>
 
-<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning (2026), Lecture 7. The local supplements include the Lagrangian derivation, dual formulation, and coordinate descent for SVM.</p>
+<h3 id="Paper-challenge-·-Dual-coordinates-for-squared-hinge-loss"><a href="#Paper-challenge-·-Dual-coordinates-for-squared-hinge-loss" class="headerlink" title="Paper challenge · Dual coordinates for squared hinge loss"></a>Paper challenge · Dual coordinates for squared hinge loss</h3><p>Work in the bias-free linear formulation of <a target="_blank" rel="noopener" href="https://icml.cc/Conferences/2008/papers/166.pdf">Hsieh et al., “A Dual Coordinate Descent Method for Large-Scale Linear SVM,” §3</a>. Starting from <span class="math-inline">\(\min_w \|w\|_2^2/2+C\sum_i(1-y_iw^\top x_i)_+^2\)</span>, derive the dual diagonal correction, the exact projected coordinate update, and a certificate that every coordinate is optimal simultaneously. Explain how one sparse dot product and one sparse vector update replace a dense Gram row. Finally, prove geometric convergence in expectation when each coordinate is chosen uniformly at random.</p>
+<details>
+<summary>Show paper solution</summary>
+
+<p>Introduce slack <span class="math-inline">\(\xi_i\)</span> with <span class="math-inline">\(\xi_i\ge 1-y_iw^\top x_i\)</span>. Minimizing <span class="math-inline">\(\xi_i^2\)</span> over this half-line chooses <span class="math-inline">\((1-y_iw^\top x_i)_+\)</span>, so a separate positivity constraint is unnecessary. With margin multipliers <span class="math-inline">\(\alpha_i\ge0\)</span>, the unconstrained minimizers in the Lagrangian are <span class="math-inline">\(w=\sum_i\alpha_i y_i x_i\)</span> and <span class="math-inline">\(\xi_i=\alpha_i/(2C)\)</span>. Thus the dual in minimization form is</p>
+<div class="math-display">\[F(\alpha)=\tfrac12\alpha^\top\left(Q+\tfrac1{2C}I\right)\alpha-\mathbf1^\top\alpha,
+\qquad
+Q_{ij}=y_i y_j x_i^\top x_j,\quad \alpha_i\ge0.\]</div>
+<p>Strong duality follows from strict primal feasibility. Set <span class="math-inline">\(D=Q+I/(2C)\)</span>. Along coordinate <span class="math-inline">\(i\)</span>, the objective variation for change <span class="math-inline">\(d\)</span> is <span class="math-inline">\(G_i d+D_{ii}d^2/2\)</span>, with <span class="math-inline">\(G_i=y_iw^\top x_i+\alpha_i/(2C)-1\)</span> and <span class="math-inline">\(d\ge-\alpha_i\)</span>. Completing the square gives <span class="math-inline">\(\alpha_i^+=\max(0,\alpha_i-G_i/D_{ii})\)</span> with <span class="math-inline">\(D_{ii}=\|x_i\|_2^2+1/(2C)&gt;0\)</span>. Apply the update <span class="math-inline">\(w^+=w+(\alpha_i^+-\alpha_i)y_i x_i\)</span>. Each operation visits only the nonzero entries of <span class="math-inline">\(x_i\)</span>.</p>
+<p>For all coordinates define the projected derivative as <span class="math-inline">\(G_i\)</span> if <span class="math-inline">\(\alpha_i&gt;0\)</span> and <span class="math-inline">\(\min(G_i,0)\)</span> at zero. Its simultaneous vanishing is necessary by feasible one-dimensional derivatives. It is sufficient because then <span class="math-inline">\(\nabla F(\alpha)^\top(\beta-\alpha)\ge0\)</span> for every <span class="math-inline">\(\beta\ge0\)</span>, and convexity gives <span class="math-inline">\(F(\beta)\ge F(\alpha)\)</span>. The diagonal correction also makes <span class="math-inline">\(F\)</span> strongly convex and its dual optimizer unique. For ordinary hinge loss, the slack term is linear, yielding <span class="math-inline">\(0\le\alpha_i\le C\)</span>, zero diagonal correction, and clipping at both endpoints. A free intercept imposes <span class="math-inline">\(\sum_i y_i\alpha_i=0\)</span> and generally requires coordinated changes to two multipliers.</p>
+<p>For the convergence proof, let <span class="math-inline">\(\mu=1/(2C)&gt;0\)</span>, <span class="math-inline">\(L_{\max}=\max_i D_{ii}\)</span>, and <span class="math-inline">\(s=\alpha^\star-\alpha\)</span>. For <span class="math-inline">\(0\le t\le1\)</span>, <span class="math-inline">\(\alpha+t s_i e_i\)</span> is a feasible coordinate step, so the exact coordinate update at <span class="math-inline">\(i\)</span> achieves at least as much decrease. Conditional on the current iterate and averaging the quadratic expansions over uniform <span class="math-inline">\(i\)</span> gives</p>
+<div class="math-display">\[\mathbb E_i[F(\alpha^+)-F(\alpha)]
+\le\frac tn\nabla F(\alpha)^\top s+\frac{t^2L_{\max}}{2n}\|s\|^2.\]</div>
+<p>Strong convexity implies <span class="math-inline">\(\nabla F(\alpha)^\top s\le F(\alpha^\star)-F(\alpha)-\mu\|s\|^2/2\)</span>. Choose <span class="math-inline">\(t=\mu/L_{\max}\le1\)</span> so the squared terms cancel. The gap contracts in conditional expectation by <span class="math-inline">\(1-\mu/(nL_{\max})\)</span> per step, and repeated expectations give geometric convergence. This proof uses the positive diagonal correction in the squared-hinge dual.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><ul>
+<li>Yang Yuan, <em>Machine Learning</em>, Lecture 7. Legacy and 2026 slides 3–7 for margins and slack, 9–15 for Lagrangian examples and SVM duality, and 16–22 for feature maps and positive semidefinite kernels.</li>
+<li>Baxter Tyson Smith, <em>Lagrange Multipliers Tutorial in the Context of Support Vector Machines</em>, §§4–5. CMU 10-315, <em>Support Vector Machines: Dual Formulation and Kernel</em>, local lecture supplement.</li>
+<li>Cho-Jui Hsieh, Kai-Wei Chang, Chih-Jen Lin, Sathiya Keerthi, and S. Sundararajan, <em>A Dual Coordinate Descent Method for Large-Scale Linear SVM</em>, §3. <a target="_blank" rel="noopener" href="https://icml.cc/Conferences/2008/papers/166.pdf">ICML paper</a></li>
+</ul>
 <p><a href="/notes/ml/06/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/08/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/07/" data-id="cuidHdWfCGh_qaR-3zqHw-nam" data-title="ML 07: Support Vector Machines and Kernels" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/07/" data-id="cuidYkdmxyH94VvSPXaUHNfhn" data-title="ML 07: Support Vector Machines and Kernels" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -336,6 +364,44 @@
   
 </section>
 
+
+  </div>
+  <aside class="article-reader-side" aria-label="Article navigation" hidden>
+    <div class="article-outline tex2jax_ignore" id="article-outline">
+      <header>
+        <h2>On this page</h2>
+        <button type="button" class="outline-collapse" aria-label="Collapse article navigation" aria-controls="article-outline-content" aria-expanded="true">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+        </button>
+        <button type="button" class="outline-close" aria-label="Close contents">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+
+        </button>
+      </header>
+      <div class="outline-jump" aria-label="Jump within article navigation" role="group" hidden></div>
+      <div class="article-outline-content" id="article-outline-content">
+        <nav aria-label="Section headings">
+          <ol class="outline-headings"></ol>
+        </nav>
+        <section class="outline-media" data-outline-media="figures" hidden>
+          <h3>Figures</h3>
+          <ol></ol>
+        </section>
+        <section class="outline-media" data-outline-media="tables" hidden>
+          <h3>Tables</h3>
+          <ol></ol>
+        </section>
+      </div>
+    </div>
+  </aside>
+  <button type="button" class="outline-trigger" aria-controls="article-outline-dialog" aria-expanded="false" hidden>
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+<span>Contents</span>
+  </button>
+  <dialog class="article-outline-dialog" id="article-outline-dialog" aria-label="Article contents"></dialog>
+</div>
+<script defer src="/js/article-outline.js"></script>
 </div>
           </div>
           <footer id="footer">

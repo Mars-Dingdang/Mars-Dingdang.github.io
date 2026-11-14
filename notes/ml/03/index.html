@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-03/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:03:00.000Z">
-<meta property="article:modified_time" content="2026-11-14T02:31:23.698Z">
+<meta property="article:modified_time" content="2026-11-14T03:15:21.043Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Lecture Notes">
 <meta property="article:tag" content="Mirror Descent">
@@ -58,12 +58,14 @@
           inlineMath: [['$', '$'], ['\\(', '\\)']],
           displayMath: [['$$', '$$'], ['\\[', '\\]']],
           processEscapes: true,
-          processEnvironments: true
+          processEnvironments: true,
+          tags: 'all'
         },
         options: {
           skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
         },
         svg: {
+          displayAlign: 'center',
           fontCache: 'global'
         }
       };
@@ -72,7 +74,7 @@
   
 <meta name="generator" content="Hexo 8.1.2"></head>
 
-<body class="is-inner">
+<body class="is-inner is-post">
   
   <div id="container">
     <div id="wrap">
@@ -191,7 +193,9 @@
         </aside>
         <main class="site-main">
           <div class="outer">
-            <div id="main"><article id="post-ml-03" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+            <div id="main"><div class="article-reader" data-article-reader>
+  <div class="article-reader-body">
+    <article id="post-ml-03" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   
     <nav class="course-breadcrumb" aria-label="Course">
@@ -242,6 +246,10 @@
 <p>Take total expectations, sum over <span class="math-inline">\(T\)</span> steps, and apply Jensen’s inequality at <span class="math-inline">\(\bar w_T=T^{-1}\sum_{t=1}^T w_t\)</span>:</p>
 <div class="math-display">\[\mathbb E[f(\bar w_T)-f^\star]\le \frac{\|w_0-w^\star\|^2}{2\eta T}+\eta\sigma^2.\]</div>
 <p>A step proportional to <span class="math-inline">\(T^{-1/2}\)</span> balances the terms. A uniform random output iterate has the same objective bound. The proof does not imply a bound for the last iterate because stochastic losses need not decrease monotonically. An average of <span class="math-inline">\(b\)</span> conditionally independent sample gradients has variance <span class="math-inline">\(\sigma^2/b\)</span> when the individual variance is bounded by <span class="math-inline">\(\sigma^2\)</span>.</p>
+<h3 id="The-LANDSCAPE-MATH-TOKEN-35-stochastic-rate-under-strong-convexity"><a href="#The-LANDSCAPE-MATH-TOKEN-35-stochastic-rate-under-strong-convexity" class="headerlink" title="The <span class="math-inline">\(1/T\)</span> stochastic rate under strong convexity"></a>The <span class="math-inline">\(1/T\)</span> stochastic rate under strong convexity</h3><p>For a <span class="math-inline">\(\mu\)</span>-strongly convex and <span class="math-inline">\(L\)</span>-smooth <span class="math-inline">\(f\)</span> on a closed convex set containing an unconstrained minimizer <span class="math-inline">\(w^\star\)</span>, use the update with Euclidean projection and assume <span class="math-inline">\(\mathbb E_t\|G_t\|^2\le G^2\)</span> along the trajectory. Projection cannot increase the distance to a feasible comparator: the projection’s first-order condition makes the cross term in the squared-distance expansion nonnegative. Strong monotonicity gives <span class="math-inline">\(\langle\nabla f(w_t),w_t-w^\star\rangle\ge\mu\|w_t-w^\star\|^2\)</span>. Therefore for <span class="math-inline">\(\eta_t=1/(\mu(t+1))\)</span> and <span class="math-inline">\(t\ge1\)</span>,</p>
+<div class="math-display">\[\mathbb E\|w_{t+1}-w^\star\|^2
+\le\frac{t-1}{t+1}\mathbb E\|w_t-w^\star\|^2+\frac{G^2}{\mu^2(t+1)^2}.\]</div>
+<p>Let <span class="math-inline">\(C=\max\{\mathbb E\|w_1-w^\star\|^2,G^2/\mu^2\}\)</span>. If the distance bound is <span class="math-inline">\(C/t\)</span>, the right side is at most <span class="math-inline">\(C/(t+1)\)</span> because the remaining slack before the noise term is <span class="math-inline">\(C/(t(t+1))\)</span>. Induction gives squared distance <span class="math-inline">\(O(1/t)\)</span>. The smooth upper model at <span class="math-inline">\(w^\star\)</span> has zero linear term, so the expected last-iterate objective gap is at most <span class="math-inline">\(LC/(2t)\)</span>. This gives the stochastic rate contrasted with geometric decay for deterministic strongly convex GD in the 2026 slide 10 comparison.</p>
 <h2 id="SVRG-as-a-control-variate"><a href="#SVRG-as-a-control-variate" class="headerlink" title="SVRG as a control variate"></a>SVRG as a control variate</h2><p>Take <span class="math-inline">\(f=n^{-1}\sum_i f_i\)</span>, where each <span class="math-inline">\(f_i\)</span> is convex and <span class="math-inline">\(L\)</span>-smooth. At an epoch snapshot <span class="math-inline">\(\tilde w\)</span>, compute its full gradient. Sample <span class="math-inline">\(i\)</span> uniformly and use</p>
 <div class="math-display">\[V_i=\nabla f_i(w)-\nabla f_i(\tilde w)+\nabla f(\tilde w).\]</div>
 <p>Its conditional expectation is <span class="math-inline">\(\nabla f(w)\)</span>. If <span class="math-inline">\(A_i=\nabla f_i(w)-\nabla f_i(\tilde w)\)</span>, its variance is <span class="math-inline">\(\mathbb E\|A_i-\mathbb EA_i\|^2\le\mathbb E\|A_i\|^2\le L^2\|w-\tilde w\|^2\)</span>. The same index in both evaluations makes this cancellation possible.</p>
@@ -255,17 +263,29 @@
 <p>If <span class="math-inline">\(f\)</span> is <span class="math-inline">\(\mu\)</span>-strongly convex, start <span class="math-inline">\(w_0=\tilde w\)</span>, sum this bound over <span class="math-inline">\(m\)</span> updates, and choose <span class="math-inline">\(\tilde w^+\)</span> uniformly from <span class="math-inline">\(w_0,\ldots,w_{m-1}\)</span>. The starting squared distance is at most <span class="math-inline">\(2\Delta(\tilde w)/\mu\)</span>, so</p>
 <div class="math-display">\[\mathbb E[\Delta(\tilde w^+)\mid\tilde w]
 \le \frac{1/(m\mu\eta)+2L\eta}{1-2L\eta}\Delta(\tilde w).\]</div>
-<p>Choosing <span class="math-inline">\(\eta=1/(8L)\)</span> and <span class="math-inline">\(m\ge32L/\mu\)</span> gives a factor at most <span class="math-inline">\(2/3\)</span>. An epoch costs <span class="math-inline">\(n+2m\)</span> component evaluations. For a composite objective <span class="math-inline">\(P=f+R\)</span>, with a proper convex regularizer <span class="math-inline">\(R\)</span>, the optimality condition <span class="math-inline">\(-\nabla f(w^\star)\in\partial R(w^\star)\)</span> implies <span class="math-inline">\(\Delta_P(u)\ge\Delta_f(u)-\langle\nabla f(w^\star),u-w^\star\rangle\)</span>. The same argument therefore bounds the second moment of the <strong>error</strong> <span class="math-inline">\(V_i-\nabla f(w^\star)\)</span> by <span class="math-inline">\(4L(\Delta_P(w)+\Delta_P(\tilde w))\)</span>.</p>
-<h2 id="Mirror-descent-and-the-simplex"><a href="#Mirror-descent-and-the-simplex" class="headerlink" title="Mirror descent and the simplex"></a>Mirror descent and the simplex</h2><p>A differentiable convex potential <span class="math-inline">\(\psi\)</span> defines the Bregman divergence</p>
+<p>Choosing <span class="math-inline">\(\eta=1/(8L)\)</span> and <span class="math-inline">\(m\ge32L/\mu\)</span> gives a factor at most <span class="math-inline">\(2/3\)</span>. An epoch costs <span class="math-inline">\(n+2m\)</span> component evaluations. To reduce the initial gap by a factor <span class="math-inline">\(\varepsilon\)</span>, this takes <span class="math-inline">\(O((n+L/\mu)\log(1/\varepsilon))\)</span> component-gradient evaluations. Full gradient descent costs <span class="math-inline">\(O(n(L/\mu)\log(1/\varepsilon))\)</span> evaluations by the rate in <a href="/notes/ml/02/">Lecture 2</a>.</p>
+<p>For a composite objective <span class="math-inline">\(P=f+R\)</span>, with a proper convex regularizer <span class="math-inline">\(R\)</span>, the optimality condition <span class="math-inline">\(-\nabla f(w^\star)\in\partial R(w^\star)\)</span> implies <span class="math-inline">\(\Delta_P(u)\ge\Delta_f(u)-\langle\nabla f(w^\star),u-w^\star\rangle\)</span>. The same argument therefore bounds the second moment of <span class="math-inline">\(V_i-\nabla f(w^\star)\)</span> by <span class="math-inline">\(4L(\Delta_P(w)+\Delta_P(\tilde w))\)</span>.</p>
+<h2 id="Mirror-descent-and-the-simplex"><a href="#Mirror-descent-and-the-simplex" class="headerlink" title="Mirror descent and the simplex"></a>Mirror descent and the simplex</h2><p>A convex function’s tangent at each queried point <span class="math-inline">\(w_t\)</span> gives a lower bound on <span class="math-inline">\(f(u)\)</span>. Average those inequalities and use Jensen at <span class="math-inline">\(\bar w_T=T^{-1}\sum_{t=0}^{T-1}w_t\)</span> to obtain</p>
+<div class="math-display">\[f(\bar w_T)-f(u)\le T^{-1}\sum_{t=0}^{T-1}\langle\nabla f(w_t),w_t-u\rangle.\]</div>
+<p>Thus controlling the sum of the linearized gaps also controls the objective value of the averaged iterate.</p>
+<p>A differentiable convex potential <span class="math-inline">\(\psi\)</span> defines the Bregman divergence</p>
 <div class="math-display">\[D_\psi(u,w)=\psi(u)-\psi(w)-\langle\nabla\psi(w),u-w\rangle.\]</div>
 <p>The update minimizes <span class="math-inline">\(\eta\langle g_t,u\rangle+D_\psi(u,w_t)\)</span> on a convex set. In the interior of an unconstrained domain the equation is <span class="math-inline">\(\nabla\psi(w_{t+1})=\nabla\psi(w_t)-\eta g_t\)</span>. A squared-Euclidean potential gives projected gradient descent.</p>
-<p>The variational inequality for the constrained update and direct expansion of the three Bregman terms yield</p>
+<p>The three-point identity follows by expanding the three divergences and canceling potential values:</p>
+<div class="math-display">\[D_\psi(u,w_t)-D_\psi(u,w_{t+1})-D_\psi(w_{t+1},w_t)
+=\langle\nabla\psi(w_{t+1})-\nabla\psi(w_t),u-w_{t+1}\rangle.\]</div>
+<p>The right side is the change in the tangent model evaluated at <span class="math-inline">\(u\)</span>, after accounting for the old tangent’s gap at <span class="math-inline">\(w_{t+1}\)</span>. The variational inequality for the mirror update says that adding <span class="math-inline">\(\eta\langle g_t,u-w_{t+1}\rangle\)</span> to this inner product makes it nonnegative. Thus</p>
 <div class="math-display">\[\eta\langle g_t,w_{t+1}-u\rangle\le
 D_\psi(u,w_t)-D_\psi(u,w_{t+1})-D_\psi(w_{t+1},w_t).\]</div>
 <p>For a 1-strongly convex potential, adding <span class="math-inline">\(\eta\langle g_t,w_t-w_{t+1}\rangle\)</span> and applying Young’s inequality in the primal and dual norms cancels the last divergence. Sum over <span class="math-inline">\(t\)</span> to get</p>
 <div class="math-display">\[\sum_{t=0}^{T-1}\langle g_t,w_t-u\rangle
 \le D_\psi(u,w_0)/\eta+\tfrac\eta2\sum_{t=0}^{T-1}\|g_t\|_\ast^2.\]</div>
-<p>On the probability simplex, use <span class="math-inline">\(\psi(w)=\sum_j w_j\log w_j\)</span>. With positive initial coordinates, the gradient components are <span class="math-inline">\(1+\log w_j\)</span>. The equality constraint introduces a common additive term, removed by normalization:</p>
+<p>For <span class="math-inline">\(\|g_t\|_\ast\le\rho\)</span> and <span class="math-inline">\(\Theta=D_\psi(u,w_0)&gt;0\)</span>, choose <span class="math-inline">\(\eta=\sqrt{2\Theta}/(\rho\sqrt T)\)</span> for average regret at most <span class="math-inline">\(\rho\sqrt{2\Theta/T}\)</span>. With <span class="math-inline">\(g_t=\nabla f(w_t)\)</span>, the same bound holds for the objective gap of the averaged iterate.</p>
+<h3 id="Legendre-coordinates-and-projection"><a href="#Legendre-coordinates-and-projection" class="headerlink" title="Legendre coordinates and projection"></a>Legendre coordinates and projection</h3><p>For a differentiable Legendre potential, write <span class="math-inline">\(p=\nabla\psi(x)\)</span> and <span class="math-inline">\(\psi^\ast(p)=\sup_v(\langle p,v\rangle-\psi(v))\)</span>. At the interior optimizer the stationarity condition is <span class="math-inline">\(\nabla\psi(v)=p\)</span>, and the derivative of the conjugate is <span class="math-inline">\(\nabla\psi^\ast(p)=v\)</span>. Fenchel equality <span class="math-inline">\(\psi^\ast(p)=\langle p,x\rangle-\psi(x)\)</span> yields</p>
+<div class="math-display">\[D_\psi(u,x)=\psi(u)+\psi^\ast(p)-\langle p,u\rangle
+=D_{\psi^\ast}(\nabla\psi(x),\nabla\psi(u)).\]</div>
+<p>The last equality follows by inserting <span class="math-inline">\(\nabla\psi^\ast(\nabla\psi(u))=u\)</span> and applying Fenchel equality at <span class="math-inline">\(u\)</span>. In dual coordinates the divergence reverses its arguments. If <span class="math-inline">\(y=\arg\min_{v\in C}D_\psi(v,x)\)</span> for convex <span class="math-inline">\(C\)</span>, its first-order condition is <span class="math-inline">\(\langle\nabla\psi(y)-\nabla\psi(x),u-y\rangle\ge0\)</span> for <span class="math-inline">\(u\in C\)</span>. The three-point identity then gives <span class="math-inline">\(D_\psi(u,x)\ge D_\psi(u,y)+D_\psi(y,x)\)</span>. Equality holds when the primal chord <span class="math-inline">\(u-y\)</span> is orthogonal to the dual chord <span class="math-inline">\(\nabla\psi(y)-\nabla\psi(x)\)</span>. <a target="_blank" rel="noopener" href="https://doi.org/10.1007/978-4-431-55978-8">Amari, <em>Information Geometry and Its Applications</em>, §§1.3–1.4 and 1.6</a>.</p>
+<h3 id="Negative-entropy-and-multiplicative-weights"><a href="#Negative-entropy-and-multiplicative-weights" class="headerlink" title="Negative entropy and multiplicative weights"></a>Negative entropy and multiplicative weights</h3><p>On the probability simplex, use <span class="math-inline">\(\psi(w)=\sum_j w_j\log w_j\)</span>. With positive initial coordinates, the gradient components are <span class="math-inline">\(1+\log w_j\)</span>. The equality constraint introduces a common additive term, removed by normalization:</p>
 <div class="math-display">\[w_{t+1,j}=\frac{w_{t,j}e^{-\eta g_{t,j}}}{\sum_k w_{t,k}e^{-\eta g_{t,k}}}.\]</div>
 <p>On the simplex interior the Hessian is diagonal with entries <span class="math-inline">\(1/w_j\)</span>. For a displacement <span class="math-inline">\(v\)</span>, Cauchy–Schwarz gives <span class="math-inline">\((\sum_j|v_j|)^2\le(\sum_jw_j)(\sum_jv_j^2/w_j)=v^\top\nabla^2\psi(w)v\)</span>. Integrating along a segment yields <span class="math-inline">\(\ell_1\)</span> strong convexity, extended by continuity to boundary targets. The dual norm is <span class="math-inline">\(\ell_\infty\)</span>. For uniform <span class="math-inline">\(w_0\)</span>, <span class="math-inline">\(D_\psi(u,w_0)\le\log d\)</span>. If <span class="math-inline">\(\|g_t\|_\infty\le\rho\)</span>, optimizing the step in the regret bound gives average regret at most <span class="math-inline">\(\rho\sqrt{2\log d/T}\)</span>. With Euclidean projected descent the uniform-start squared diameter is at most 1, but gradients can have <span class="math-inline">\(\ell_2\)</span> norm <span class="math-inline">\(\rho\sqrt d\)</span>, giving average regret at most <span class="math-inline">\(\rho\sqrt{d/T}\)</span>. The corresponding iteration bounds at accuracy <span class="math-inline">\(\varepsilon\)</span> scale as <span class="math-inline">\(\rho^2\log d/\varepsilon^2\)</span> and <span class="math-inline">\(\rho^2d/\varepsilon^2\)</span>.</p>
 <h2 id="Mirror-descent-and-cumulative-linearization"><a href="#Mirror-descent-and-cumulative-linearization" class="headerlink" title="Mirror descent and cumulative linearization"></a>Mirror descent and cumulative linearization</h2><p>In the unconstrained interior setting, initialize at a differentiable minimizer <span class="math-inline">\(w_0\)</span> of <span class="math-inline">\(\psi\)</span>, so <span class="math-inline">\(\nabla\psi(w_0)=0\)</span>. Unrolling the dual update gives <span class="math-inline">\(\nabla\psi(w_{t+1})=-\eta\sum_{j=0}^t g_j\)</span>. This is also the optimality equation for minimizing <span class="math-inline">\(\psi(u)+\eta\langle\sum_{j=0}^t g_j,u\rangle\)</span>. Strict convexity makes each minimizer unique. Induction from the common initialization therefore makes the two trajectories identical under these hypotheses.</p>
@@ -284,13 +304,35 @@ D_\psi(u,w_t)-D_\psi(u,w_{t+1})-D_\psi(w_{t+1},w_t).\]</div>
 <p>Set <span class="math-inline">\(a_i=\nabla f_i(w)-\nabla f_i(\tilde w)\)</span> and use <span class="math-inline">\(a_i/(np_i)+\nabla f(\tilde w)\)</span>. Its variance is at most <span class="math-inline">\(n^{-2}\sum_i\|a_i\|^2/p_i\le n^{-2}\|w-\tilde w\|^2\sum_iL_i^2/p_i\)</span>. Cauchy–Schwarz gives <span class="math-inline">\(\sum_i L_i^2/p_i\ge(\sum_iL_i)^2\)</span> with equality when <span class="math-inline">\(p_i=L_i/\sum_jL_j\)</span>.</p>
 </details>
 
-<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning (2026), Lecture 3 and Problem Set 2. <a target="_blank" rel="noopener" href="https://proceedings.neurips.cc/paper/2013/hash/ac1dd209cbcc5e5d1c6e28598e8cbbe8-Abstract.html">Johnson and Zhang, Accelerating Stochastic Gradient Descent using Predictive Variance Reduction</a>.</p>
+<h3 id="Problem-3-Accelerate-gradient-descent-by-coupling-two-updates"><a href="#Problem-3-Accelerate-gradient-descent-by-coupling-two-updates" class="headerlink" title="Problem 3. Accelerate gradient descent by coupling two updates"></a>Problem 3. Accelerate gradient descent by coupling two updates</h3><p>Let <span class="math-inline">\(f\)</span> be convex and <span class="math-inline">\(L\)</span>-smooth on a convex set <span class="math-inline">\(Q\)</span> in a norm <span class="math-inline">\(\|\cdot\|\)</span>, and let <span class="math-inline">\(\psi\)</span> be a differentiable 1-strongly convex potential in that norm. Start <span class="math-inline">\(y_0=z_0\)</span>. At step <span class="math-inline">\(k\ge0\)</span> set <span class="math-inline">\(a=(k+2)/(2L)\)</span>, <span class="math-inline">\(\tau=1/(aL)\)</span>, and <span class="math-inline">\(x=(1-\tau)y_k+\tau z_k\)</span>. For <span class="math-inline">\(g=\nabla f(x)\)</span>, use</p>
+<div class="math-display">\[y_{k+1}=\arg\min_{y\in Q}\{\langle g,y-x\rangle+\tfrac L2\|y-x\|^2\},\qquad
+z_{k+1}=\arg\min_{z\in Q}\{a\langle g,z-z_k\rangle+D_\psi(z,z_k)\}.\]</div>
+<p>Assume the subproblems and a minimizer <span class="math-inline">\(u^\star\)</span> exist. Prove <span class="math-inline">\(f(y_T)-f(u^\star)\le4LD_\psi(u^\star,z_0)/(T+1)^2\)</span> for <span class="math-inline">\(T\ge1\)</span>. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1407.1537">Allen-Zhu and Orecchia, <em>Linear Coupling</em>, Theorem 4.1, Lemmas 4.2–4.3 and Appendix C</a>.</p>
+<details>
+<summary>Show solution</summary>
+
+<p>At step <span class="math-inline">\(k\)</span>, let <span class="math-inline">\(G=f(x)-f(y_{k+1})\)</span> and <span class="math-inline">\(z^+=z_{k+1}\)</span>. The mirror variational inequality and strong convexity give for any <span class="math-inline">\(u\in Q\)</span></p>
+<div class="math-display">\[a\langle g,z_k-u\rangle
+\le a\langle g,z_k-z^+\rangle-\tfrac12\|z_k-z^+\|^2+D_\psi(u,z_k)-D_\psi(u,z^+).\]</div>
+<p>Set <span class="math-inline">\(v=(1-\tau)y_k+\tau z^+\in Q\)</span>, so <span class="math-inline">\(x-v=\tau(z_k-z^+)\)</span>. The first two terms become</p>
+<div class="math-display">\[a^2L\big(\langle g,x-v\rangle-\tfrac L2\|x-v\|^2\big)\le a^2LG.\]</div>
+<p>The bracket is the model decrease at <span class="math-inline">\(v\)</span>. The gradient update maximizes that decrease, and smoothness guarantees an actual decrease at least as large as the achieved model decrease.</p>
+<p>By convexity, <span class="math-inline">\(a(f(x)-f(u))\le a\langle g,x-u\rangle\)</span>. Split its right side at <span class="math-inline">\(z_k\)</span> and substitute <span class="math-inline">\(x-z_k=((1-\tau)/\tau)(y_k-x)\)</span>. The coefficient <span class="math-inline">\((1-\tau)a/\tau=a^2L-a\)</span> is nonnegative, so convexity at <span class="math-inline">\(y_k\)</span> and the bound for the mirror step give</p>
+<div class="math-display">\[a^2L(f(y_{k+1})-f(u))
+\le(a^2L-a)(f(y_k)-f(u))+D_\psi(u,z_k)-D_\psi(u,z_{k+1}).\]</div>
+<p>For <span class="math-inline">\(u=u^\star\)</span> all objective gaps are nonnegative. At <span class="math-inline">\(k=0\)</span>, <span class="math-inline">\(a^2L-a=0\)</span>. For <span class="math-inline">\(k\ge1\)</span>, <span class="math-inline">\(a^2L-a=k(k+2)/(4L)\le(k+1)^2/(4L)\)</span>, the preceding step’s coefficient on <span class="math-inline">\(f(y_k)-f(u^\star)\)</span>. The potential consisting of the weighted objective gap plus <span class="math-inline">\(D_\psi(u^\star,z_k)\)</span> therefore never increases. After <span class="math-inline">\(T\)</span> steps the coefficient is <span class="math-inline">\((T+1)^2/(4L)\)</span>. Drop the nonnegative final divergence and divide.</p>
+</details>
+
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><ul>
+<li>Yang Yuan, <em>Machine Learning</em>, 2026 Lecture 3, slides 3–10 and 13 (SGD), 14–24 (variance reduction and nonconvex stationarity), and 25–34 (mirror descent). Archived slides 3–22 and 24–32 contain the corresponding proofs.</li>
+<li><em>SGD Convergence in the Smooth Convex Setting</em>, course note, pp. 1–2, and Problem Set 2, questions 1–4. <a target="_blank" rel="noopener" href="https://proceedings.neurips.cc/paper/2013/hash/ac1dd209cbcc5e5d1c6e28598e8cbbe8-Abstract.html">Johnson and Zhang, <em>Accelerating Stochastic Gradient Descent using Predictive Variance Reduction</em>, §§2–3</a>.</li>
+</ul>
 <p><a href="/notes/ml/02/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/04/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/03/" data-id="cuidMSoAb2A6RCv0OSpnCyPG3" data-title="ML 03: SGD, SVRG, and Mirror Descent" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/03/" data-id="cuidgwzUA8co-cQ1qyTGpN_cM" data-title="ML 03: SGD, SVRG, and Mirror Descent" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -352,6 +394,44 @@ D_\psi(u,w_t)-D_\psi(u,w_{t+1})-D_\psi(w_{t+1},w_t).\]</div>
   
 </section>
 
+
+  </div>
+  <aside class="article-reader-side" aria-label="Article navigation" hidden>
+    <div class="article-outline tex2jax_ignore" id="article-outline">
+      <header>
+        <h2>On this page</h2>
+        <button type="button" class="outline-collapse" aria-label="Collapse article navigation" aria-controls="article-outline-content" aria-expanded="true">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+        </button>
+        <button type="button" class="outline-close" aria-label="Close contents">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+
+        </button>
+      </header>
+      <div class="outline-jump" aria-label="Jump within article navigation" role="group" hidden></div>
+      <div class="article-outline-content" id="article-outline-content">
+        <nav aria-label="Section headings">
+          <ol class="outline-headings"></ol>
+        </nav>
+        <section class="outline-media" data-outline-media="figures" hidden>
+          <h3>Figures</h3>
+          <ol></ol>
+        </section>
+        <section class="outline-media" data-outline-media="tables" hidden>
+          <h3>Tables</h3>
+          <ol></ol>
+        </section>
+      </div>
+    </div>
+  </aside>
+  <button type="button" class="outline-trigger" aria-controls="article-outline-dialog" aria-expanded="false" hidden>
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+<span>Contents</span>
+  </button>
+  <dialog class="article-outline-dialog" id="article-outline-dialog" aria-label="Article contents"></dialog>
+</div>
+<script defer src="/js/article-outline.js"></script>
 </div>
           </div>
           <footer id="footer">

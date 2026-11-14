@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-11/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:11:00.000Z">
-<meta property="article:modified_time" content="2026-11-14T02:31:43.770Z">
+<meta property="article:modified_time" content="2026-11-14T03:09:57.908Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Contrastive Learning">
 <meta property="article:tag" content="Lecture Notes">
@@ -58,12 +58,14 @@
           inlineMath: [['$', '$'], ['\\(', '\\)']],
           displayMath: [['$$', '$$'], ['\\[', '\\]']],
           processEscapes: true,
-          processEnvironments: true
+          processEnvironments: true,
+          tags: 'all'
         },
         options: {
           skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
         },
         svg: {
+          displayAlign: 'center',
           fontCache: 'global'
         }
       };
@@ -72,7 +74,7 @@
   
 <meta name="generator" content="Hexo 8.1.2"></head>
 
-<body class="is-inner">
+<body class="is-inner is-post">
   
   <div id="container">
     <div id="wrap">
@@ -191,7 +193,9 @@
         </aside>
         <main class="site-main">
           <div class="outer">
-            <div id="main"><article id="post-ml-11" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+            <div id="main"><div class="article-reader" data-article-reader>
+  <div class="article-reader-body">
+    <article id="post-ml-11" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   
     <nav class="course-breadcrumb" aria-label="Course">
@@ -230,18 +234,36 @@
 
 <p><img src="/images/posts/ml-11/figure.png" alt="Two vector pairs show the original angle and the angle after position rotations"></p>
 <p><em>A two-dimensional query and key rotate at a shared frequency. Their relative angle changes by the difference of the position rotations.</em></p>
-<h2 id="SimCLR-and-positive-pair-graphs"><a href="#SimCLR-and-positive-pair-graphs" class="headerlink" title="SimCLR and positive-pair graphs"></a>SimCLR and positive-pair graphs</h2><p>Apply two independent random augmentations to each image. Each such pair consists of positive views, while the other images in the batch supply negative views. An encoder provides <span class="math-inline">\(h_i\)</span>, and a projection head provides unit embeddings <span class="math-inline">\(z_i\)</span>. For anchor <span class="math-inline">\(i\)</span> and its positive partner <span class="math-inline">\(j\)</span>, define</p>
+<h2 id="SimCLR-and-positive-pair-graphs"><a href="#SimCLR-and-positive-pair-graphs" class="headerlink" title="SimCLR and positive-pair graphs"></a>SimCLR and positive-pair graphs</h2><p><em>Lecture 11, slides 3–7 and 10–15. The full-vocabulary model below follows Tan et al., Sections 3–4.</em></p>
+<p>Recall why spectral clustering uses the eigenvectors of smallest eigenvalue. For a symmetric nonnegative weight matrix <span class="math-inline">\(A\)</span> and <span class="math-inline">\(L=\operatorname{diag}(A\mathbf 1)-A\)</span>, write <span class="math-inline">\(L=V\Lambda V^\top\)</span>, with <span class="math-inline">\(\lambda_1\le\cdots\le\lambda_n\)</span>. For <span class="math-inline">\(U^\top U=I_k\)</span>, let <span class="math-inline">\(r_\ell\)</span> be the squared norm of row <span class="math-inline">\(\ell\)</span> of <span class="math-inline">\(V^\top U\)</span>. Then <span class="math-inline">\(0\le r_\ell\le1\)</span> because <span class="math-inline">\(V^\top UU^\top V\)</span> is an orthogonal projection, <span class="math-inline">\(\sum_\ell r_\ell=k\)</span> by its trace, and <span class="math-inline">\(\operatorname{tr}(U^\top LU)=\sum_\ell\lambda_\ell r_\ell\)</span>. Moving mass from any larger occupied <span class="math-inline">\(\lambda_\ell\)</span> to a smaller unsaturated one cannot increase this sum. Its minimum is <span class="math-inline">\(\sum_{\ell=1}^k\lambda_\ell\)</span>, attained by taking the corresponding eigenvectors. The row of <span class="math-inline">\(U\)</span> for object <span class="math-inline">\(i\)</span> is a <span class="math-inline">\(k\)</span>-dimensional embedding. Apply <span class="math-inline">\(k\)</span>-means to those rows and transfer the resulting labels to the original objects.</p>
+<p>Apply two independent random augmentations to each image. Each such pair consists of positive views, while the other images in the batch supply negative views. An encoder provides <span class="math-inline">\(h_i\)</span>, and a projection head provides unit embeddings <span class="math-inline">\(z_i\)</span>. For anchor <span class="math-inline">\(i\)</span> and its positive partner <span class="math-inline">\(j\)</span>, define</p>
 <div class="math-display">\[\ell_{i,j}=-\log\frac{\exp(z_i^\top z_j/\tau)}{\sum_{k\ne i}\exp(z_i^\top z_k/\tau)}.\]</div>
 <p>Write <span class="math-inline">\(s_{ik}=z_i^\top z_k\)</span> and <span class="math-inline">\(p_{ik}\)</span> for the temperature softmax. Differentiating the positive linear term and the log normalizer gives <span class="math-inline">\(\partial\ell_{i,j}/\partial s_{ik}=(p_{ik}-\mathbf1\{k=j\})/\tau\)</span>. High-similarity negative examples receive a larger repulsive derivative. The actual encoder gradient couples many pairs through shared parameters. SimCLR uses both directions of each positive pair and commonly uses the encoder’s pre-projection representation downstream.</p>
 <p>In a finite vocabulary of possible augmented views, put a symmetric edge weight on each positive pair proportional to its frequency. With embedding matrix <span class="math-inline">\(Z\)</span> and Laplacian <span class="math-inline">\(L\)</span>, expanding squared edge differences gives</p>
 <div class="math-display">\[\tfrac12\sum_{i,j}w_{ij}\|z_i-z_j\|^2=\operatorname{tr}(Z^\top LZ).\]</div>
 <p>With unit embeddings, minimizing this term is equivalent to maximizing the weighted dot products over positive edges. The InfoNCE normalizer adds a second term. For example, with ordered positive-pair probabilities <span class="math-inline">\(\pi_{ij}\)</span> and marginals <span class="math-inline">\(\pi_i=\sum_j\pi_{ij}\)</span>, the full-vocabulary loss is <span class="math-inline">\(-\tau^{-1}\sum_{ij}\pi_{ij}s_{ij}+\sum_i\pi_i\log\sum_{k\ne i}e^{s_{ik}/\tau}\)</span>. The graph energy accounts for the attraction term. Spectral equivalence for a complete contrastive objective depends on how subgraphs, kernel probabilities, and normalization are modeled. Image–text contrastive learning instead uses a bipartite positive graph.</p>
+<h3 id="From-an-RKHS-Gram-matrix-to-a-subgraph-distribution"><a href="#From-an-RKHS-Gram-matrix-to-a-subgraph-distribution" class="headerlink" title="From an RKHS Gram matrix to a subgraph distribution"></a>From an RKHS Gram matrix to a subgraph distribution</h3><p>Let <span class="math-inline">\(K_{ij}=k(z_i,z_j)=\langle\varphi(z_i),\varphi(z_j)\rangle_{\mathcal H}\)</span> for a positive semidefinite kernel <span class="math-inline">\(k\)</span>. In its RKHS one can take <span class="math-inline">\(\varphi(z)=k(z,\cdot)\)</span>, since reproducing function evaluation gives <span class="math-inline">\(\langle k(z,\cdot),k(z',\cdot)\rangle=k(z,z')\)</span>. For any coefficient vector <span class="math-inline">\(c\)</span>, <span class="math-inline">\(c^\top Kc=\|\sum_i c_i\varphi(z_i)\|_{\mathcal H}^2\ge0\)</span>. The finite Gram matrix remains computable even when <span class="math-inline">\(\mathcal H\)</span> is infinite-dimensional. The graph probability also requires nonnegative allowed edge weights. Positive semidefiniteness alone does not ensure nonnegative entries.</p>
+<p>For the Gaussian weights used here, nonnegativity is immediate. Positive semidefiniteness follows from</p>
+<div class="math-display">\[e^{-\|z-z'\|^2/(2\tau)}
+=e^{-\|z\|^2/(2\tau)}e^{-\|z'\|^2/(2\tau)}
+\sum_{r=0}^{\infty}\frac{\langle z,z'\rangle^r}{r!\tau^r}.\]</div>
+<p>Each dot-product power is the inner product of <span class="math-inline">\(r\)</span>-fold tensor powers, and scaling a feature vector by the leading exponential gives the outside factors. Directly summing these weighted tensor features proves the Gram property. SimCLR uses unit vectors, so <span class="math-inline">\(\exp(-\|z-z'\|^2/(2\tau))=\exp(-1/\tau)\exp(z^\top z'/\tau)\)</span>. The constant cancels in each ratio.</p>
 <h3 id="Deriving-InfoNCE-from-the-graph-cross-entropy"><a href="#Deriving-InfoNCE-from-the-graph-cross-entropy" class="headerlink" title="Deriving InfoNCE from the graph cross-entropy"></a>Deriving InfoNCE from the graph cross-entropy</h3><p>For each directed edge from <span class="math-inline">\(i\)</span> to <span class="math-inline">\(j\)</span>, let <span class="math-inline">\(w_{ij}\)</span> be its nonnegative score and exclude self-edges. Impose the constraint that every row selects one outgoing edge. A graph is then determined by its choices <span class="math-inline">\(j(i)\)</span>, and its unnormalized probability is <span class="math-inline">\(\prod_i w_{i,j(i)}\)</span>. Since the constraint on one row is independent of the other rows, summing this product over all graphs gives <span class="math-inline">\(\prod_i\sum_{k\ne i}w_{ik}\)</span>. The resulting probability of the graph factors into the product of its row probabilities.</p>
 <p>Take the positive-pair weights to be <span class="math-inline">\(\pi_{ij}\)</span> and the embedding weights to be <span class="math-inline">\(w_{ij}=\exp(z_i^\top z_j/\tau)\)</span>. Write <span class="math-inline">\(\pi(j\mid i)=\pi_{ij}/\sum_{k\ne i}\pi_{ik}\)</span> for every row with positive total weight. The negative log probability under the embedding distribution, averaged over the positive-pair graph, is</p>
 <div class="math-display">\[-\sum_i\sum_{j\ne i}\pi(j\mid i)
 \log\frac{\exp(z_i^\top z_j/\tau)}{\sum_{k\ne i}\exp(z_i^\top z_k/\tau)}.\]</div>
 <p>This is the sum of per-anchor InfoNCE objectives, averaged over each anchor’s positives. Weighting the rows by their anchor frequencies gives the ordered-pair objective above. The derivation requires the one-outgoing-edge constraint and these exponential weights. For a graph model that couples row choices, the partition function need not factor.</p>
-<h2 id="t-SNE-preserves-a-distribution-over-neighbors"><a href="#t-SNE-preserves-a-distribution-over-neighbors" class="headerlink" title="t-SNE preserves a distribution over neighbors"></a>t-SNE preserves a distribution over neighbors</h2><p>For high-dimensional inputs use</p>
+<h3 id="Recovering-the-Laplacian-term-and-the-role-of-the-partition-function"><a href="#Recovering-the-Laplacian-term-and-the-role-of-the-partition-function" class="headerlink" title="Recovering the Laplacian term and the role of the partition function"></a>Recovering the Laplacian term and the role of the partition function</h3><p>For either graph, write the full law as</p>
+<div class="math-display">\[P_B(W)=\frac{\Omega(W)\prod_{i,j\ne i}B_{ij}^{W_{ij}}}{\mathcal Z_B},
+\qquad \mathcal Z_B=\prod_i\sum_{j\ne i}B_{ij}.\]</div>
+<p>Here <span class="math-inline">\(B=\pi\)</span> produces the augmentation graph, <span class="math-inline">\(B=K\)</span> produces the embedding graph, and <span class="math-inline">\(\Omega\)</span> enforces one outgoing edge per row. Only used edges enter the product. Put <span class="math-inline">\(P_{ij}=\mathbb E_{\pi} W_{ij}=\pi(j\mid i)\)</span>, and use Gaussian <span class="math-inline">\(K_{ij}\)</span>. Taking the negative logarithm and then expectation under <span class="math-inline">\(P_\pi\)</span> gives</p>
+<div class="math-display">\[H(P_\pi,P_K)=\frac{1}{2\tau}\sum_{i,j\ne i}P_{ij}\|z_i-z_j\|^2
++\sum_i\log\sum_{k\ne i}e^{-\|z_i-z_k\|^2/(2\tau)}.\]</div>
+<p>The distance is symmetric in the edge endpoints, hence we may replace <span class="math-inline">\(P\)</span> in the first sum by <span class="math-inline">\(A=(P+P^\top)/2\)</span>. Expanding the square gives that sum as <span class="math-inline">\(2\operatorname{tr}(Z^\top L_A Z)\)</span>, so the first term is <span class="math-inline">\(\operatorname{tr}(Z^\top L_A Z)/\tau\)</span>. For symmetric <span class="math-inline">\(P\)</span>, <span class="math-inline">\(A=P\)</span> exactly. This is Tan et al.’s regularized spectral formulation in the finite full-vocabulary setting. The log partition function still depends on <span class="math-inline">\(Z\)</span>, and ordinary Laplacian eigendecomposition minimizes only a relaxed trace objective. At collapse the trace term is zero, but every row predicts a uniform neighbor and its loss is <span class="math-inline">\(\log(n-1)\)</span>.</p>
+<h3 id="CLIP-uses-a-bipartite-candidate-graph"><a href="#CLIP-uses-a-bipartite-candidate-graph" class="headerlink" title="CLIP uses a bipartite candidate graph"></a>CLIP uses a bipartite candidate graph</h3><p><em>Lecture 11, slide 16. Tan et al., Section 5.</em></p>
+<p>Let <span class="math-inline">\(M_{ij}\)</span> count the observed pairings of image <span class="math-inline">\(i\)</span> and text <span class="math-inline">\(j\)</span>. Image anchors draw texts with probabilities <span class="math-inline">\(M_{ij}/\sum_j M_{ij}\)</span>. Text anchors use <span class="math-inline">\(M_{ij}/\sum_i M_{ij}\)</span>. Use kernel weights only between the two modalities. On each image row the kernel partition sums over all texts, and on each text row it sums over all images. The graph cross-entropy therefore splits into the two directional contrastive losses. On a batch of <span class="math-inline">\(N\)</span> paired and indexed image&#x2F;text views, averaging their <span class="math-inline">\(2N\)</span> row losses gives CLIP’s symmetric contrastive objective. A vocabulary of deduplicated objects can have unequal degrees. Uniform objects and uniform edges induce different anchor frequencies, so the finite theory needs the sampling convention stated.</p>
+<h2 id="t-SNE-preserves-a-distribution-over-neighbors"><a href="#t-SNE-preserves-a-distribution-over-neighbors" class="headerlink" title="t-SNE preserves a distribution over neighbors"></a>t-SNE preserves a distribution over neighbors</h2><p><em>Lecture 11, slides 18–25. The original objective and gradient are in van der Maaten and Hinton, Sections 2–3.</em></p>
+<p>For high-dimensional inputs use</p>
 <div class="math-display">\[p_{j\mid i}=
 \frac{e^{-\|x_i-x_j\|^2/(2\sigma_i^2)}}{\sum_{k\ne i}e^{-\|x_i-x_k\|^2/(2\sigma_i^2)}},\qquad
 p_{ij}=\frac{p_{j\mid i}+p_{i\mid j}}{2n}.\]</div>
@@ -249,9 +271,16 @@ p_{ij}=\frac{p_{j\mid i}+p_{i\mid j}}{2n}.\]</div>
 <p>To differentiate <span class="math-inline">\(D_{\rm KL}(P\|Q)\)</span>, omit the constant <span class="math-inline">\(\sum p_{ij}\log p_{ij}\)</span> and write the remainder as <span class="math-inline">\(\log Z-\sum p_{ij}\log w_{ij}\)</span>. For <span class="math-inline">\(j\ne i\)</span>, <span class="math-inline">\(\nabla_{y_i}\log w_{ij}=-2w_{ij}(y_i-y_j)\)</span>. Each unordered pair appears twice. The two terms therefore combine to</p>
 <div class="math-display">\[\nabla_{y_i}D_{\rm KL}(P\|Q)=4\sum_{j\ne i}(p_{ij}-q_{ij})w_{ij}(y_i-y_j).\]</div>
 <p>A pair with <span class="math-inline">\(p_{ij}&gt;q_{ij}\)</span> attracts under gradient descent. Distances between clusters and relative cluster areas can vary considerably with the initialization and perplexity.</p>
-<h2 id="RoPE-is-a-representation-of-position-offsets"><a href="#RoPE-is-a-representation-of-position-offsets" class="headerlink" title="RoPE is a representation of position offsets"></a>RoPE is a representation of position offsets</h2><p>In each two-dimensional coordinate block, apply <span class="math-inline">\(R(m\theta_j)\)</span> to query at position <span class="math-inline">\(m\)</span> and <span class="math-inline">\(R(n\theta_j)\)</span> to key at position <span class="math-inline">\(n\)</span>. Here <span class="math-inline">\(R(\alpha)\)</span> is the rotation with rows <span class="math-inline">\((\cos\alpha,-\sin\alpha)\)</span> and <span class="math-inline">\((\sin\alpha,\cos\alpha)\)</span>. Since <span class="math-inline">\(R(\alpha)^\top=R(-\alpha)\)</span> and <span class="math-inline">\(R(a)R(b)=R(a+b)\)</span>,</p>
+<p>For the original SNE, the low-dimensional conditional distribution uses Gaussian weights <span class="math-inline">\(q_{j\mid i}\propto e^{-\|y_i-y_j\|^2}\)</span>, and the loss is <span class="math-inline">\(\sum_i D_{\mathrm{KL}}(p_{\cdot\mid i}\|q_{\cdot\mid i})\)</span>. In symmetric t-SNE each conditional row sums to one, so summing the displayed <span class="math-inline">\(p_{ij}\)</span> over ordered distinct pairs gives <span class="math-inline">\((n+n)/(2n)=1\)</span>. This is why the symmetric KL and its derivative use a single global normalizer.</p>
+<p>To see the geometric source of crowding, note that a radius-<span class="math-inline">\(r\)</span> ball in <span class="math-inline">\(D\)</span> dimensions has volume proportional to <span class="math-inline">\(r^D\)</span> by the Jacobian of scaling. Doubling radius multiplies local capacity by <span class="math-inline">\(2^{10}\)</span> in ten dimensions and by <span class="math-inline">\(4\)</span> in two. Uniform local density is an illustration, and the exponent describes how rapidly available space expands. At distance <span class="math-inline">\(r\)</span>, t-SNE’s unnormalized weight is asymptotic to <span class="math-inline">\(r^{-2}\)</span>, while the Gaussian weight decays as <span class="math-inline">\(e^{-r^2}\)</span>. Thus a distant pair can move much farther for a given small relative weight under the heavy-tailed kernel. At the origin <span class="math-inline">\((1+r^2)^{-1}=1-r^2+O(r^4)\)</span> has finite weight and zero slope. The distribution works for a chosen embedding dimension above two as well.</p>
+<h2 id="RoPE-is-a-representation-of-position-offsets"><a href="#RoPE-is-a-representation-of-position-offsets" class="headerlink" title="RoPE is a representation of position offsets"></a>RoPE is a representation of position offsets</h2><p><em>Lecture 11, slides 26–33. Su et al., Sections 3.2–3.4.</em></p>
+<p>Represent a real block <span class="math-inline">\((a,b)\)</span> by <span class="math-inline">\(a+ib\)</span>. Then</p>
+<div class="math-display">\[\overline{(a+ib)}(c+id)=(ac+bd)+i(ad-bc),\]</div>
+<p>so the ordinary dot product is its real part. Multiplying by <span class="math-inline">\(e^{im\theta}=\cos(m\theta)+i\sin(m\theta)\)</span> acts on real coordinates via the rotation matrix below. For complex query and key blocks <span class="math-inline">\(q,k\)</span>, their rotated Euclidean dot product is <span class="math-inline">\(\operatorname{Re}(\overline q\,k\,e^{i(n-m)\theta})\)</span> because conjugation reverses the query rotation. This derives the relative-offset form without losing the distinction between the complex product and the real score.</p>
+<p>In each two-dimensional coordinate block, apply <span class="math-inline">\(R(m\theta_j)\)</span> to query at position <span class="math-inline">\(m\)</span> and <span class="math-inline">\(R(n\theta_j)\)</span> to key at position <span class="math-inline">\(n\)</span>. Here <span class="math-inline">\(R(\alpha)\)</span> is the rotation with rows <span class="math-inline">\((\cos\alpha,-\sin\alpha)\)</span> and <span class="math-inline">\((\sin\alpha,\cos\alpha)\)</span>. Since <span class="math-inline">\(R(\alpha)^\top=R(-\alpha)\)</span> and <span class="math-inline">\(R(a)R(b)=R(a+b)\)</span>,</p>
 <div class="math-display">\[(R(m\theta_j)q)^\top R(n\theta_j)k=q^\top R((n-m)\theta_j)k.\]</div>
 <p>Thus the positional action on the dot product is a function of the relative position. The content vectors can still depend on the surrounding context. Multiple blocks use different frequencies, for example <span class="math-inline">\(\theta_j=10000^{-2j/d}\)</span>, so they encode different offset scales.</p>
+<p>In dimension <span class="math-inline">\(d\)</span> even, let <span class="math-inline">\(\mathcal R_m=\operatorname{diag}(R(m\theta_1),\dots,R(m\theta_{d/2}))\)</span> and <span class="math-inline">\(\theta_j=10000^{-2(j-1)/d}\)</span>. Matrices in different blocks act independently, so <span class="math-inline">\(\mathcal R_m^\top\mathcal R_n=\mathcal R_{n-m}\)</span>. The full score is <span class="math-inline">\(x_m^\top W_q^\top\mathcal R_{n-m}W_kx_n\)</span> and each rotation preserves norm. With <span class="math-inline">\(d=100\)</span>, the first three frequencies are <span class="math-inline">\(1\)</span>, approximately <span class="math-inline">\(0.8318\)</span>, and approximately <span class="math-inline">\(0.6918\)</span>. Large frequencies change quickly with position, and small frequencies have longer periods. An individual block wraps modulo <span class="math-inline">\(2\pi\)</span>. Multiple frequencies can still distinguish offsets after a single block wraps, and even a single irrational frequency need not repeat exactly on integer offsets.</p>
 <h2 id="Challenge"><a href="#Challenge" class="headerlink" title="Challenge"></a>Challenge</h2><p>Prove row perplexity is nondecreasing as Gaussian bandwidth grows. Under what conditions is it strictly increasing?</p>
 <details>
 <summary>Show solution</summary>
@@ -266,13 +295,76 @@ p_{ij}=\frac{p_{j\mid i}+p_{i\mid j}}{2n}.\]</div>
 <p>Equality would require <span class="math-inline">\((m-n)\theta\in2\pi\mathbb Z\)</span>, which is impossible for different integer offsets. For closeness, divide the circle into <span class="math-inline">\(N\)</span> intervals and place the <span class="math-inline">\(N+1\)</span> angles <span class="math-inline">\(0,\theta,\ldots,N\theta\)</span> into them modulo <span class="math-inline">\(2\pi\)</span>. Two fall into the same interval, so the nonzero difference has angular distance at most <span class="math-inline">\(2\pi/N\)</span> from zero. Exact injectivity therefore gives no uniform numerical separation over unbounded positions.</p>
 </details>
 
-<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 11 from the archived slides. <a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v119/chen20j.html">SimCLR</a>, <a target="_blank" rel="noopener" href="https://jmlr.org/papers/v9/vandermaaten08a.html">t-SNE</a>, and <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2104.09864">RoFormer</a>.</p>
+<h2 id="Research-challenge-—-the-large-negative-limit-of-contrastive-learning"><a href="#Research-challenge-—-the-large-negative-limit-of-contrastive-learning" class="headerlink" title="Research challenge — the large-negative limit of contrastive learning"></a>Research challenge — the large-negative limit of contrastive learning</h2><p>In Wang and Isola’s Theorem 1, embeddings lie on the unit sphere. In this exercise the encoder and temperature <span class="math-inline">\(\tau&gt;0\)</span> are fixed. Draw <span class="math-inline">\((X,Y)\)</span> from a positive-pair distribution with common marginal <span class="math-inline">\(\mu\)</span>, and draw <span class="math-inline">\(X_1^-,\ldots,X_M^-\)</span> independently from <span class="math-inline">\(\mu\)</span>, independent of the pair. Let <span class="math-inline">\(s(x,y)=f(x)^\top f(y)/\tau\)</span>. Prove that</p>
+<div class="math-display">\[\lim_{M\to\infty}\left[
+\mathbb E\left(-s(X,Y)+\log\left(e^{s(X,Y)}+
+\sum_{j=1}^M e^{s(X,X_j^-)}\right)\right)-\log M
+\right]
+=-\mathbb E s(X,Y)+\mathbb E_X\log\mathbb E_{Z\sim\mu} e^{s(X,Z)}.\]</div>
+<p>Give a direct <span class="math-inline">\(O(M^{-1/2})\)</span> bound at fixed <span class="math-inline">\(\tau\)</span> and rewrite the two limiting terms using squared distances. Why does the second term contain an expectation of a logarithm?</p>
+<details>
+<summary>Show research challenge solution</summary>
+
+<p>Condition on <span class="math-inline">\(X,Y\)</span> and write <span class="math-inline">\(Y_j=e^{s(X,X_j^-)}\)</span>, <span class="math-inline">\(m(X)=\mathbb E[Y_j\mid X]\)</span>. All these random variables lie in <span class="math-inline">\([a,b]\)</span> where <span class="math-inline">\(a=e^{-1/\tau}\)</span> and <span class="math-inline">\(b=e^{1/\tau}\)</span>. The normalized sum <span class="math-inline">\(Q_M=M^{-1}\sum_jY_j+e^{s(X,Y)}/M\)</span> is at least <span class="math-inline">\(a\)</span>, as is <span class="math-inline">\(m(X)\)</span>. The derivative of <span class="math-inline">\(\log\)</span> is bounded by <span class="math-inline">\(1/a\)</span> on this interval. Independence gives</p>
+<div class="math-display">\[\mathbb E\left|\frac1M\sum_jY_j-m(X)\right|
+\le\sqrt{\mathbb E\operatorname{Var}\!\left(M^{-1}\sum_jY_j\mid X\right)}
+\le\frac{b-a}{2\sqrt M}.\]</div>
+<p>The variance bound uses that the squared deviation from the midpoint of <span class="math-inline">\([a,b]\)</span> is at most <span class="math-inline">\((b-a)^2/4\)</span>, and variance minimizes mean squared deviation from a constant. Therefore</p>
+<div class="math-display">\[\left|\mathbb E\log Q_M-\mathbb E\log m(X)\right|
+\le a^{-1}\left(\frac{b-a}{2\sqrt M}+\frac bM\right).\]</div>
+<p>The positive-pair term is independent of <span class="math-inline">\(M\)</span>. This proves convergence and its rate. For unit embeddings <span class="math-inline">\(s=1/\tau-\|f(x)-f(y)\|^2/(2\tau)\)</span>. The constants cancel, leaving</p>
+<div class="math-display">\[\frac{\mathbb E\|f(X)-f(Y)\|^2}{2\tau}
++\mathbb E_X\log\mathbb E_Z e^{-\|f(X)-f(Z)\|^2/(2\tau)}.\]</div>
+<p>The negative sample average converges for each anchor first. Jensen’s inequality gives <span class="math-inline">\(\mathbb E_X\log m(X)\le\log\mathbb E_X m(X)\)</span>, with equality precisely when <span class="math-inline">\(m(X)\)</span> is almost surely constant. A pooled negative average inside a single logarithm therefore changes the objective in general.</p>
+</details>
+
+<p>Source of the challenge: Wang and Isola, <em>Understanding Contrastive Representation Learning through Alignment and Uniformity on the Hypersphere</em>, Theorem 1 and Appendix A.1. <a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v119/wang20k/wang20k.pdf#page=6">Original paper</a></p>
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><table>
+<thead>
+<tr>
+<th>Derivation</th>
+<th>Lecture 11 slides</th>
+<th>Supplement</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Graph Laplacian relaxation and embedding</td>
+<td>3</td>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2303.15103">Tan et al., Definition 3.6</a></td>
+</tr>
+<tr>
+<td>RKHS, subgraph partition functions, InfoNCE, and repulsion</td>
+<td>4–7, 10–15</td>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2303.15103">Tan et al., Lemmas 3.3–3.5 and Theorem 4.1</a></td>
+</tr>
+<tr>
+<td>Bipartite contrastive objective</td>
+<td>16</td>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2303.15103">Tan et al., Theorem 5.2</a></td>
+</tr>
+<tr>
+<td>Perplexity, crowding, and symmetric KL gradient</td>
+<td>18–25</td>
+<td><a target="_blank" rel="noopener" href="https://jmlr.org/papers/v9/vandermaaten08a.html">van der Maaten and Hinton, Sections 2–3</a></td>
+</tr>
+<tr>
+<td>Complex rotations and relative offsets</td>
+<td>26–33</td>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/2104.09864">Su et al., Sections 3.2–3.4</a></td>
+</tr>
+<tr>
+<td>Large-negative asymptotics</td>
+<td>Paper exercise</td>
+<td><a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v119/wang20k/wang20k.pdf">Wang and Isola, Theorem 1 and Appendix A.1</a></td>
+</tr>
+</tbody></table>
+<p>Yang Yuan, <em>Machine Learning</em>, Lecture 11, slides 3–16 (SimCLR and CLIP), 18–25 (SNE and t-SNE), and 26–33 (RoPE). <a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v119/chen20j.html">SimCLR, Section 2</a>, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2303.15103">Tan et al., Lemmas 3.3–3.5 and Theorems 4.1 and 5.2</a>, <a target="_blank" rel="noopener" href="https://jmlr.org/papers/v9/vandermaaten08a.html">t-SNE, Sections 2–3</a>, and <a target="_blank" rel="noopener" href="https://arxiv.org/abs/2104.09864">RoFormer, Sections 3.2–3.4</a>.</p>
 <p><a href="/notes/ml/10/">Previous lecture</a> · <a href="/notes/">Course notes</a> · <a href="/notes/ml/12/">Next lecture</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/11/" data-id="cuidXFLcKwy14Se5aDKuNgw54" data-title="ML 11: SimCLR, t-SNE, and Rotary Position Embeddings" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/11/" data-id="cuid2aVZ7ehGRLtlc2aZ0Gvo1" data-title="ML 11: SimCLR, t-SNE, and Rotary Position Embeddings" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -334,6 +426,44 @@ p_{ij}=\frac{p_{j\mid i}+p_{i\mid j}}{2n}.\]</div>
   
 </section>
 
+
+  </div>
+  <aside class="article-reader-side" aria-label="Article navigation" hidden>
+    <div class="article-outline tex2jax_ignore" id="article-outline">
+      <header>
+        <h2>On this page</h2>
+        <button type="button" class="outline-collapse" aria-label="Collapse article navigation" aria-controls="article-outline-content" aria-expanded="true">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+        </button>
+        <button type="button" class="outline-close" aria-label="Close contents">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+
+        </button>
+      </header>
+      <div class="outline-jump" aria-label="Jump within article navigation" role="group" hidden></div>
+      <div class="article-outline-content" id="article-outline-content">
+        <nav aria-label="Section headings">
+          <ol class="outline-headings"></ol>
+        </nav>
+        <section class="outline-media" data-outline-media="figures" hidden>
+          <h3>Figures</h3>
+          <ol></ol>
+        </section>
+        <section class="outline-media" data-outline-media="tables" hidden>
+          <h3>Tables</h3>
+          <ol></ol>
+        </section>
+      </div>
+    </div>
+  </aside>
+  <button type="button" class="outline-trigger" aria-controls="article-outline-dialog" aria-expanded="false" hidden>
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+<span>Contents</span>
+  </button>
+  <dialog class="article-outline-dialog" id="article-outline-dialog" aria-label="Article contents"></dialog>
+</div>
+<script defer src="/js/article-outline.js"></script>
 </div>
           </div>
           <footer id="footer">

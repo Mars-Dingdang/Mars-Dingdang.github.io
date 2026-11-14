@@ -15,7 +15,7 @@
 <meta property="og:locale" content="en_US">
 <meta property="og:image" content="https://mars-dingdang.github.io/images/posts/ml-14/figure.png">
 <meta property="article:published_time" content="2026-11-13T16:14:00.000Z">
-<meta property="article:modified_time" content="2026-11-14T02:30:26.363Z">
+<meta property="article:modified_time" content="2026-11-14T03:10:50.625Z">
 <meta property="article:author" content="Mars Dingdang">
 <meta property="article:tag" content="Feature Attribution">
 <meta property="article:tag" content="Interpretability">
@@ -57,12 +57,14 @@
           inlineMath: [['$', '$'], ['\\(', '\\)']],
           displayMath: [['$$', '$$'], ['\\[', '\\]']],
           processEscapes: true,
-          processEnvironments: true
+          processEnvironments: true,
+          tags: 'all'
         },
         options: {
           skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
         },
         svg: {
+          displayAlign: 'center',
           fontCache: 'global'
         }
       };
@@ -71,7 +73,7 @@
   
 <meta name="generator" content="Hexo 8.1.2"></head>
 
-<body class="is-inner">
+<body class="is-inner is-post">
   
   <div id="container">
     <div id="wrap">
@@ -190,7 +192,9 @@
         </aside>
         <main class="site-main">
           <div class="outer">
-            <div id="main"><article id="post-ml-14" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
+            <div id="main"><div class="article-reader" data-article-reader>
+  <div class="article-reader-body">
+    <article id="post-ml-14" class="h-entry article article-type-post" itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting">
   
   
     <nav class="course-breadcrumb" aria-label="Course">
@@ -229,22 +233,33 @@
 
 <p><img src="/images/posts/ml-14/figure.png" alt="A saturated function with nonzero integrated change from a baseline"></p>
 <p><em>The model is locally flat at the input, but the path from the baseline crosses a segment of slope one.</em></p>
-<h2 id="Local-Interpretable-Model-Agnostic-Explanations"><a href="#Local-Interpretable-Model-Agnostic-Explanations" class="headerlink" title="Local Interpretable Model-Agnostic Explanations"></a>Local Interpretable Model-Agnostic Explanations</h2><p>For an input <span class="math-inline">\(x\)</span>, sample nearby or masked inputs <span class="math-inline">\(z_j\)</span> and compute the black box’s scores <span class="math-inline">\(f(z_j)\)</span>. Fit an interpretable model <span class="math-inline">\(g\)</span> on human-readable representations <span class="math-inline">\(z'_j\)</span> via</p>
+<h2 id="Local-Interpretable-Model-Agnostic-Explanations"><a href="#Local-Interpretable-Model-Agnostic-Explanations" class="headerlink" title="Local Interpretable Model-Agnostic Explanations"></a>Local Interpretable Model-Agnostic Explanations</h2><p><em>Lecture 14, slides 4–12. Ribeiro, Singh, and Guestrin, Sections 3.1–3.3.</em></p>
+<p>A human-readable explanation should fit the reader’s working memory and state a claim that can be checked. A sufficiently large decision tree can be difficult to inspect. Attribution methods simplify a single prediction to a collection of feature contributions. The feature representation, the score to explain, and the reference used to measure contribution all belong to the problem definition.</p>
+<p>For an input <span class="math-inline">\(x\)</span>, sample nearby or masked inputs <span class="math-inline">\(z_j\)</span> and compute the black box’s scores <span class="math-inline">\(f(z_j)\)</span>. Fit an interpretable model <span class="math-inline">\(g\)</span> on human-readable representations <span class="math-inline">\(z'_j\)</span> via</p>
 <div class="math-display">\[\min_g \sum_j \pi_x(z_j)(f(z_j)-g(z'_j))^2+\Omega(g).\]</div>
-<p>The proximity weights <span class="math-inline">\(\pi_x\)</span> emphasize the neighborhood. The penalty <span class="math-inline">\(\Omega\)</span> limits complexity, for example the number of nonzero coefficients. On a fixed feature set and without the penalty, write the design as <span class="math-inline">\(A\)</span>, weights as a diagonal matrix <span class="math-inline">\(W\)</span>, and responses as <span class="math-inline">\(f\)</span>. Differentiating <span class="math-inline">\((A\beta-f)^\top W(A\beta-f)\)</span> gives the normal equation <span class="math-inline">\(A^\top WA\beta=A^\top Wf\)</span>. Kernel width and the distribution of perturbed examples determine the fitting problem. A model that is flat near <span class="math-inline">\(x\)</span> can have a near-zero local slope even when its output differs substantially from a meaningful baseline.</p>
-<h2 id="Integrated-Gradients-along-a-baseline-path"><a href="#Integrated-Gradients-along-a-baseline-path" class="headerlink" title="Integrated Gradients along a baseline path"></a>Integrated Gradients along a baseline path</h2><p>Set <span class="math-inline">\(\gamma(t)=x'+t(x-x')\)</span> for baseline <span class="math-inline">\(x'\)</span>. The attribution for coordinate <span class="math-inline">\(i\)</span> is</p>
+<p>In the slide formulation, <span class="math-inline">\(\pi_x(z)=\exp(-D(x,z)^2/\sigma^2)\)</span>. It emphasizes nearby inputs according to the selected distance <span class="math-inline">\(D\)</span>. A mask <span class="math-inline">\(z'\)</span> might encode present words in a text or visible superpixels in an image. The inverse mapping from the mask to an input determines what the black box actually evaluates. The penalty <span class="math-inline">\(\Omega\)</span> limits complexity, for example the number of nonzero coefficients. On a fixed feature set and without the penalty, write the design as <span class="math-inline">\(A\)</span>, weights as a diagonal matrix <span class="math-inline">\(W\)</span>, and responses as <span class="math-inline">\(f\)</span>. Differentiating <span class="math-inline">\((A\beta-f)^\top W(A\beta-f)\)</span> gives the normal equation <span class="math-inline">\(A^\top WA\beta=A^\top Wf\)</span>. Kernel width and the distribution of perturbed examples determine the fitting problem. For a direction <span class="math-inline">\(h\)</span>, the derivative of the weighted squared loss is <span class="math-inline">\(2h^\top A^\top W(A\beta-f)\)</span>. Its quadratic term in <span class="math-inline">\(h\)</span> is <span class="math-inline">\(\|W^{1/2}Ah\|^2\)</span>, so the normal equation suffices for a minimizer, and full column rank of <span class="math-inline">\(W^{1/2}A\)</span> gives uniqueness. A fixed support lets us use this unconstrained calculation on just its active columns. An <span class="math-inline">\(\ell_1\)</span> penalty is a soft surrogate for selecting at most <span class="math-inline">\(k\)</span> nonzeros and changes the optimum; it is not an algebraic conversion of the hard constraint.</p>
+<p>A model flat near <span class="math-inline">\(x\)</span> can have near-zero fitted slopes even when its output differs substantially from a meaningful baseline. For example, <span class="math-inline">\(\operatorname{ReLU}(x)\)</span> is zero in a neighborhood of <span class="math-inline">\(x=-5\)</span>, while the output changes by one relative to baseline <span class="math-inline">\(x'=1\)</span>. The slide’s black-image example sets an explicit comparison point. Two different baselines can yield different allocations because they define different output differences and paths.</p>
+<h2 id="Integrated-Gradients-along-a-baseline-path"><a href="#Integrated-Gradients-along-a-baseline-path" class="headerlink" title="Integrated Gradients along a baseline path"></a>Integrated Gradients along a baseline path</h2><p><em>Lecture 14, slides 12–16. Sundararajan, Taly, and Yan, Sections 2–4.</em></p>
+<p>Set <span class="math-inline">\(\gamma(t)=x'+t(x-x')\)</span> for baseline <span class="math-inline">\(x'\)</span>. The attribution for coordinate <span class="math-inline">\(i\)</span> is</p>
 <div class="math-display">\[\operatorname{IG}_i(x;x')=(x_i-x'_i)\int_0^1\partial_iF(\gamma(t))\,dt.\]</div>
 <p>When <span class="math-inline">\(F\circ\gamma\)</span> is absolutely continuous and the chain rule holds almost everywhere along the path, summing the attributions gives</p>
 <div class="math-display">\[\sum_i\operatorname{IG}_i
 =\int_0^1\nabla F(\gamma(t))^\top (x-x')\,dt
 =\int_0^1 (F\circ\gamma)'(t)\,dt=F(x)-F(x').\]</div>
-<p>This is completeness. If only coordinate <span class="math-inline">\(i\)</span> differs from the baseline, completeness means all nonzero output difference must be assigned to <span class="math-inline">\(i\)</span>, giving the sensitivity property for that case. Implementation invariance follows because two identical differentiable functions have identical partial derivatives wherever they exist. For <span class="math-inline">\(F(x)=\min\{\max(x,0),1\}\)</span> from baseline 0 to input 2, the path lies in the unit-slope region for half its duration. The contribution is <span class="math-inline">\(2(1/2)=1\)</span> despite zero endpoint derivative. Numerical quadrature can be checked by the residual in completeness.</p>
-<h2 id="Shapley-values-as-averages-over-permutations"><a href="#Shapley-values-as-averages-over-permutations" class="headerlink" title="Shapley values as averages over permutations"></a>Shapley values as averages over permutations</h2><p>Let <span class="math-inline">\(v(S)\)</span> be the prediction-related value for a coalition of available features <span class="math-inline">\(S\)</span> from feature set <span class="math-inline">\(N\)</span>. The Shapley attribution is</p>
+<p>This is <strong>completeness</strong>. If only coordinate <span class="math-inline">\(i\)</span> differs from baseline and the output changes, every other factor <span class="math-inline">\(x_j-x'_j\)</span> is zero, so all nonzero difference is assigned to <span class="math-inline">\(i\)</span> (<strong>sensitivity a</strong>). If <span class="math-inline">\(F\)</span> is independent of coordinate <span class="math-inline">\(i\)</span>, its partial derivative there is zero wherever defined, and the attributed integral is zero (<strong>sensitivity b</strong>). <strong>Implementation invariance</strong> follows on paths where the relevant derivatives exist almost everywhere: any two mathematical implementations of the same function have the same partial derivatives at those points. An autodiff choice at a kink along the whole path needs special care. A componentwise finite-difference ratio cannot in general be propagated like a Jacobian: there is no single secant gradient canonically determined by two points in multiple dimensions. <strong>Linearity</strong> follows by taking partial derivatives and integrals of <span class="math-inline">\(aF_1+bF_2\)</span>.</p>
+<p>For <strong>symmetry</strong>, suppose swapping features <span class="math-inline">\(i\)</span> and <span class="math-inline">\(j\)</span> leaves <span class="math-inline">\(F\)</span> unchanged, and the baseline and input each have equal coordinates in the two positions. At every point on the straight path those coordinates agree. Differentiating the equality under the swap gives <span class="math-inline">\(\partial_iF=\partial_jF\)</span> on that path wherever both derivatives exist. The prefactors also agree, so both attributions are equal. For <span class="math-inline">\(F(x)=\min\{\max(x,0),1\}\)</span> from baseline 0 to input 2, the path lies in the unit-slope region for half its duration. The contribution is <span class="math-inline">\(2(1/2)=1\)</span> despite zero endpoint derivative. Numerical quadrature can be checked by the residual in completeness.</p>
+<h3 id="Which-single-path-preserves-symmetry"><a href="#Which-single-path-preserves-symmetry" class="headerlink" title="Which single path preserves symmetry?"></a>Which single path preserves symmetry?</h3><p>The slide’s example uses <span class="math-inline">\(F(u,v)=uv\)</span> from <span class="math-inline">\((0,0)\)</span> to <span class="math-inline">\((1,1)\)</span>. A path moving <span class="math-inline">\(u\)</span> first and then <span class="math-inline">\(v\)</span> attributes all one to <span class="math-inline">\(v\)</span>, because the integral for <span class="math-inline">\(u\)</span> runs where <span class="math-inline">\(v=0\)</span>. A straight path gives <span class="math-inline">\((1/2,1/2)\)</span>. More generally, on the normalized two-coordinate problem, a continuous coordinatewise-monotone, piecewise smooth single path preserves symmetry for every smooth symmetric <span class="math-inline">\(F\)</span> only if it stays on the diagonal, up to reparameterization. This is the symmetry test underlying the paper’s path result.</p>
+<p>To see necessity, path attribution to the first coordinate is <span class="math-inline">\(\int_0^1 F_u(u,v(u))\,du\)</span>, where <span class="math-inline">\(v(u)\)</span> is the height of the path at horizontal position <span class="math-inline">\(u\)</span> for almost every <span class="math-inline">\(u\)</span>. Vertical segments have zero first-coordinate contribution. Its difference from the diagonal attribution is</p>
+<div class="math-display">\[\int_0^1\int_u^{v(u)}F_{uv}(u,s)\,ds\,du.\]</div>
+<p>If the path goes above the diagonal, there is an open region with <span class="math-inline">\(u&lt;s&lt;v(u)\)</span>, away from vertical endpoints. Its reflection across the diagonal cannot lie in the region between path and diagonal: monotonicity gives <span class="math-inline">\(v(s)\ge v(u)&gt;s\)</span>, so the reflected height <span class="math-inline">\(u&lt;s\)</span> is below both. Pick a smooth nonnegative bump within this open region and add its reflected bump. Let this symmetric sum be <span class="math-inline">\(F_{uv}\)</span>, integrating once in each variable from zero to obtain a smooth symmetric <span class="math-inline">\(F\)</span>. The double integral is strictly positive, while its reflected bump gives no contribution. A path below the diagonal is treated by swapping coordinates. By completeness the two attributions deviate in opposite directions from their equal diagonal shares. For the normalized problem from <span class="math-inline">\(\mathbf0\)</span> to <span class="math-inline">\(\mathbf1\)</span> in <span class="math-inline">\(n\)</span> dimensions, apply the same argument to every pair of coordinates and choose test functions depending only on that pair. If any projected pair leaves the diagonal, its two attributions differ for one such symmetric test function. Thus all coordinate paths agree and the full path is <span class="math-inline">\(\gamma(t)=\lambda(t)\mathbf1\)</span> for a common nondecreasing parameter <span class="math-inline">\(\lambda\)</span>. Changing variables in the line integrals gives exactly Integrated Gradients. For inputs with unequal coordinate increments, the same characterization applies to single-path rules that are equivariant under independently translating and scaling the coordinate intervals. Normalize each nonconstant coordinate to <span class="math-inline">\([0,1]\)</span>, use the pairwise argument with common endpoints, then undo the normalization. A constant coordinate gives zero under a coordinatewise-monotone path. This states the hypotheses under which the straight path is determined by the symmetry argument. Averaging several paths can also preserve symmetry, as the permutation construction below illustrates.</p>
+<h2 id="Shapley-values-as-averages-over-permutations"><a href="#Shapley-values-as-averages-over-permutations" class="headerlink" title="Shapley values as averages over permutations"></a>Shapley values as averages over permutations</h2><p><em>Lecture 14, slides 18–21. Lundberg and Lee, Sections 2–4.</em></p>
+<p>Let <span class="math-inline">\(v(S)\)</span> be the prediction-related value for a coalition of available features <span class="math-inline">\(S\)</span> from feature set <span class="math-inline">\(N\)</span>. The Shapley attribution is</p>
 <div class="math-display">\[\phi_i=\sum_{S\subseteq N\setminus\{i\}}
 \frac{|S|!(|N|-|S|-1)!}{|N|!}\,[v(S\cup\{i\})-v(S)].\]</div>
 <p>The coefficient is the probability that exactly <span class="math-inline">\(S\)</span> precedes <span class="math-inline">\(i\)</span> in a uniform random permutation: order these predecessors arbitrarily, then order all successors. For any fixed permutation, the marginal contributions telescope to <span class="math-inline">\(v(N)-v(\varnothing)\)</span>. Averaging proves efficiency. Symmetric participants exchange positions through a bijection of permutations and hence receive the same average. A dummy with zero marginal contribution receives zero, and linearity follows by taking expectations. For a pure interaction <span class="math-inline">\(v_T(S)=\mathbf1\{T\subseteq S\}\)</span>, an element of <span class="math-inline">\(T\)</span> receives the unit contribution exactly when it is last among <span class="math-inline">\(T\)</span>. Its attribution is therefore <span class="math-inline">\(1/|T|\)</span>. These pure interactions also span all games with <span class="math-inline">\(v(\varnothing)=0\)</span> by subset inclusion–exclusion, which gives uniqueness under these axioms.</p>
 <p>SHAP specifies a value function and an approximation or evaluation procedure. Examples include filling missing features with a fixed baseline, integrating over background features, or conditioning the missing features on observed ones. Correlation means these choices answer different questions. In a conditional game, a feature can get credit for information about another feature on which the model directly depends.</p>
 <h3 id="Why-Shapley-weights-give-the-unique-additive-attribution"><a href="#Why-Shapley-weights-give-the-unique-additive-attribution" class="headerlink" title="Why Shapley weights give the unique additive attribution"></a>Why Shapley weights give the unique additive attribution</h3><p>Write <span class="math-inline">\(v(\varnothing)=0\)</span> after subtracting the baseline. For nonempty <span class="math-inline">\(T\subseteq[d]\)</span>, let <span class="math-inline">\(u_T(S)=\mathbf1\{T\subseteq S\}\)</span>. Every set function has a unique expansion <span class="math-inline">\(v=\sum_{T\ne\varnothing}a_Tu_T\)</span>: recursively take <span class="math-inline">\(a_T=v(T)-\sum_{U\subsetneq T}a_U\)</span> starting with singletons. For the game <span class="math-inline">\(u_T\)</span>, the null-player axiom gives zero to players outside <span class="math-inline">\(T\)</span> and symmetry forces equal shares inside <span class="math-inline">\(T\)</span>. Efficiency makes those shares sum to one, so each player in <span class="math-inline">\(T\)</span> gets <span class="math-inline">\(1/|T|\)</span>. The additivity and homogeneity axioms then determine every share for <span class="math-inline">\(v\)</span>. The permutation formula yields exactly these values: in <span class="math-inline">\(u_T\)</span>, the marginal contribution is one precisely when the player is last among the elements of <span class="math-inline">\(T\)</span>, an event of probability <span class="math-inline">\(1/|T|\)</span>. This proves existence and uniqueness under the axioms.</p>
+<p>The last slide shows why <strong>efficiency</strong> determines the sum of the attributions without identifying the score change when one feature is removed. The displayed word “very” is attributed 19.9 percentage points, while its deletion changes the displayed prediction from 97.8% to 88.7%, a 9.1-point difference. The deletion is one coalition’s marginal contribution, whereas Shapley averages all predecessor coalitions. A smaller example is <span class="math-inline">\(v(\{1,2\})=1\)</span> and <span class="math-inline">\(v(S)=0\)</span> otherwise: each attribution is <span class="math-inline">\(1/2\)</span>, even though removing either feature from the full coalition loses the entire unit.</p>
 <p>For two features the argument gives</p>
 <div class="math-display">\[\phi_1=\tfrac12(v(\{1\})-v(\varnothing))+\tfrac12(v(\{1,2\})-v(\{2\})).\]</div>
 <p>A symmetric interaction visible only when both features are present is divided in half. The definition of <span class="math-inline">\(v(S)\)</span> determines which interaction is being explained: averaging missing features independently and taking a conditional expectation can produce different coalition values.</p>
@@ -262,13 +277,58 @@
 <p>On the straight path <span class="math-inline">\(tx\)</span>, the first partial derivative is <span class="math-inline">\(2t^2x_1x_2\)</span> and the second is <span class="math-inline">\(t^2x_1^2\)</span>. The Integrated Gradients are <span class="math-inline">\((2/3,1/3)F(x)\)</span> after integrating <span class="math-inline">\(t^2\)</span> from zero to one. Under zero masking neither feature alone yields any value and the two-feature coalition yields <span class="math-inline">\(F(x)\)</span>, so Shapley gives <span class="math-inline">\((1/2,1/2)F(x)\)</span>. Both satisfy completeness, with different allocations of the interaction because one measures increments along a continuous path and the other averages discrete coalition orders.</p>
 </details>
 
-<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><p>Yang Yuan, Machine Learning, Lecture 14 from the archived slides. <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1602.04938">LIME</a>, <a target="_blank" rel="noopener" href="https://proceedings.mlr.press/v70/sundararajan17a.html">Integrated Gradients</a>, and <a target="_blank" rel="noopener" href="https://papers.neurips.cc/paper_files/paper/2017/hash/8a20a8621978632d76c43dfd28b67767-Abstract.html">SHAP</a>.</p>
+<h2 id="Research-challenge-—-why-KernelSHAP’s-regression-uses-that-kernel"><a href="#Research-challenge-—-why-KernelSHAP’s-regression-uses-that-kernel" class="headerlink" title="Research challenge — why KernelSHAP’s regression uses that kernel"></a>Research challenge — why KernelSHAP’s regression uses that kernel</h2><p>Let <span class="math-inline">\(N\)</span> have <span class="math-inline">\(n\ge2\)</span> features, and assume <span class="math-inline">\(v(\varnothing)=0\)</span>. Fit an additive model <span class="math-inline">\(g_\phi(S)=\sum_{i\in S}\phi_i\)</span> by minimizing the coalition residuals</p>
+<div class="math-display">\[\sum_{0&lt;|S|&lt;n} w_{|S|}\bigl(g_\phi(S)-v(S)\bigr)^2,\qquad
+w_s=\frac{n-1}{\binom ns\,s(n-s)},\qquad
+\sum_{i=1}^n\phi_i=v(N).\]</div>
+<p>Prove that the unique minimizer gives the exact Shapley values. Use the unanimity games <span class="math-inline">\(u_T(S)=\mathbf1\{T\subseteq S\}\)</span> and derive why summing over coalition sizes with these weights yields the factor <span class="math-inline">\(1/|T|\)</span>.</p>
+<details>
+<summary>Show research challenge solution</summary>
+
+<p>The quadratic form is positive definite because every singleton is observed with positive weight and its model score is <span class="math-inline">\(\phi_i\)</span>. The constraint is feasible, and strict convexity gives a unique minimizer. With the constraint enforced by a Lagrange multiplier, the solution is linear in the vector of game values, including <span class="math-inline">\(v(N)\)</span> on the right of the constraint. It suffices to prove the result for <span class="math-inline">\(u_T\)</span>, since those games span all normalized games.</p>
+<p>Write <span class="math-inline">\(t=|T|\)</span>. The candidate is <span class="math-inline">\(\phi_i=1/t\)</span> on <span class="math-inline">\(T\)</span> and zero outside. It is feasible. At a constrained optimum all coordinates of the objective gradient agree. The candidate and the objective are symmetric separately within <span class="math-inline">\(T\)</span> and its complement, so it remains to compare the gradients of <span class="math-inline">\(i\in T\)</span> and <span class="math-inline">\(j\notin T\)</span> when <span class="math-inline">\(t&lt;n\)</span>. Coalitions containing both or neither cancel in that difference. Pair a coalition of size <span class="math-inline">\(s\)</span> containing <span class="math-inline">\(i\)</span> and omitting <span class="math-inline">\(j\)</span> with the coalition obtained by swapping them. The model difference in each pair is <span class="math-inline">\(1/t\)</span>. The value difference is one exactly when all <span class="math-inline">\(t-1\)</span> remaining elements of <span class="math-inline">\(T\)</span> lie among the <span class="math-inline">\(s-1\)</span> other members. Its mean over all such pairs is</p>
+<div class="math-display">\[p_{s,t}=\frac{\binom{s-1}{t-1}}{\binom{n-2}{t-1}},\]</div>
+<p>where the numerator is zero if <span class="math-inline">\(s&lt;t\)</span>. There are <span class="math-inline">\(\binom{n-2}{s-1}\)</span> pairs, and multiplying this number by the regression weight <span class="math-inline">\(w_s\)</span> gives <span class="math-inline">\(1/n\)</span> for each size. Thus the gradient difference divided by two is <span class="math-inline">\((1/n)\sum_{s=1}^{n-1}(1/t-p_{s,t})\)</span>. The identity <span class="math-inline">\(\sum_{s=1}^{n-1}\binom{s-1}{t-1}=\binom{n-1}{t}\)</span> follows by grouping <span class="math-inline">\(t\)</span>-subsets of <span class="math-inline">\([n-1]\)</span> by their largest element. Therefore <span class="math-inline">\(\sum_{s=1}^{n-1}p_{s,t}=(n-1)/t\)</span> and the gradient difference is zero. When <span class="math-inline">\(T=N\)</span>, every gradient coordinate agrees by symmetry. In both cases the candidate is the unique optimum. These <span class="math-inline">\(\phi_i\)</span> agree with the Shapley values on every <span class="math-inline">\(u_T\)</span>, so linearity extends the result.</p>
+<p>In practice there are <span class="math-inline">\(2^n-2\)</span> interior coalitions. Sampling them approximates this regression and need not yield the full-coalition minimizer.</p>
+</details>
+
+<p>Challenge source: Lundberg and Lee, Theorem 2, Shapley kernel. <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1705.07874v2#page=5">Original paper</a></p>
+<h2 id="Sources"><a href="#Sources" class="headerlink" title="Sources"></a>Sources</h2><table>
+<thead>
+<tr>
+<th>Derivation</th>
+<th>Lecture 14 slides</th>
+<th>Supplement</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>LIME mask representation and weighted least squares</td>
+<td>4–11</td>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1602.04938">Ribeiro et al., Sections 3.1–3.3</a></td>
+</tr>
+<tr>
+<td>Baseline, Integrated Gradients axioms, completeness, and the single-path symmetry argument</td>
+<td>12–16</td>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1703.01365">Sundararajan et al., Proposition 1, Theorem 1, and Appendix A</a></td>
+</tr>
+<tr>
+<td>Permutation weights, efficiency, and the limits of a deletion interpretation</td>
+<td>18–21</td>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1705.07874">Lundberg and Lee, Theorem 1</a></td>
+</tr>
+<tr>
+<td>Exact KernelSHAP weights</td>
+<td>Paper exercise</td>
+<td><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1705.07874v2#page=5">Lundberg and Lee, Theorem 2</a></td>
+</tr>
+</tbody></table>
+<p>Yang Yuan, <em>Machine Learning</em>, Lecture 14, slides 4–11 (local explanation and LIME), 12–16 (baseline, attribution axioms, and Integrated Gradients), and 18–21 (Shapley weights, efficiency, and the deletion example). <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1602.04938">LIME, Sections 3.1–3.3</a>, <a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1703.01365">Integrated Gradients, Proposition 1, Theorem 1, and Appendix A</a>, <a target="_blank" rel="noopener" href="https://arxiv.org/abs/1705.07874">SHAP, Theorems 1–2</a>.</p>
 <p><a href="/notes/ml/13/">Previous lecture</a> · <a href="/notes/">Course notes</a></p>
 
       
     </div>
     <footer class="article-footer">
-      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/14/" data-id="cuidx2OBxMNkoQkizuqWfCgSe" data-title="ML 14: Model Interpretability and Feature Attribution" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
+      <button type="button" data-url="https://mars-dingdang.github.io/notes/ml/14/" data-id="cuidNyjGRoasAhydGjbbMBtNK" data-title="ML 14: Model Interpretability and Feature Attribution" class="article-share-link"><svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-up-right"></use></svg>
 <span>Share</span></button>
       
       
@@ -330,6 +390,44 @@
   
 </section>
 
+
+  </div>
+  <aside class="article-reader-side" aria-label="Article navigation" hidden>
+    <div class="article-outline tex2jax_ignore" id="article-outline">
+      <header>
+        <h2>On this page</h2>
+        <button type="button" class="outline-collapse" aria-label="Collapse article navigation" aria-controls="article-outline-content" aria-expanded="true">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#arrow-right"></use></svg>
+
+        </button>
+        <button type="button" class="outline-close" aria-label="Close contents">
+          <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#close"></use></svg>
+
+        </button>
+      </header>
+      <div class="outline-jump" aria-label="Jump within article navigation" role="group" hidden></div>
+      <div class="article-outline-content" id="article-outline-content">
+        <nav aria-label="Section headings">
+          <ol class="outline-headings"></ol>
+        </nav>
+        <section class="outline-media" data-outline-media="figures" hidden>
+          <h3>Figures</h3>
+          <ol></ol>
+        </section>
+        <section class="outline-media" data-outline-media="tables" hidden>
+          <h3>Tables</h3>
+          <ol></ol>
+        </section>
+      </div>
+    </div>
+  </aside>
+  <button type="button" class="outline-trigger" aria-controls="article-outline-dialog" aria-expanded="false" hidden>
+    <svg class="site-icon" width="20" height="20" aria-hidden="true" focusable="false"><use href="/icons/site.svg#notes"></use></svg>
+<span>Contents</span>
+  </button>
+  <dialog class="article-outline-dialog" id="article-outline-dialog" aria-label="Article contents"></dialog>
+</div>
+<script defer src="/js/article-outline.js"></script>
 </div>
           </div>
           <footer id="footer">
